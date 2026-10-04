@@ -7,6 +7,9 @@ local RunService = game:GetService("RunService")
 
 local GameData = require(ReplicatedStorage.Shared.GameData)
 local Stats = require(ReplicatedStorage.Shared.Stats)
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local Debris = game:GetService("Debris")
 
 local FX = GameData.FX or {}
 local TEX = {
@@ -214,6 +217,13 @@ function WorldFX:Setup(map: Instance)
 	end
 	self:SpawnBirds()
 	self:SpawnButterflies(hub)
+	if hub then
+		self:StallHolograms(hub)
+		self:FountainJets(hub)
+	end
+	self:Waterfalls(map)
+	self:ShoreFoam(map)
+	self:Character()
 	-- track tiles and cars on every plot
 	local plots = map:WaitForChild("Plots", 10)
 	if plots then
@@ -229,6 +239,17 @@ function WorldFX:Setup(map: Instance)
 					end)
 				end))
 			end
+			local pad = plot:FindFirstChild("Pad")
+			if pad then
+				local function border()
+					if plot:GetAttribute("OwnerId") == Players.LocalPlayer.UserId then
+						task.defer(self.PadBorder, self, plot)
+					end
+				end
+				table.insert(self.Connections, pad.ChildAdded:Connect(border))
+				table.insert(self.Connections, plot:GetAttributeChangedSignal("OwnerId"):Connect(border))
+				border()
+			end
 			table.insert(self.Connections, plot.ChildAdded:Connect(function(o)
 				if o.Name == "Car" then
 					task.defer(function()
@@ -242,6 +263,440 @@ function WorldFX:Setup(map: Instance)
 			end
 		end
 	end
+end
+
+
+-- ------------------------------------------------------------------ hub extras
+local function glowRing(parent: Instance, cf: CFrame, radius: number, color: Color3): Part
+	local r = Instance.new("Part")
+	r.Name = "HoloRing"
+	r.Anchored = true
+	r.CanCollide = false
+	r.CanQuery = false
+	r.CanTouch = false
+	r.CastShadow = false
+	r.Shape = Enum.PartType.Cylinder
+	r.Material = Enum.Material.Neon
+	r.Color = color
+	r.Transparency = 0.45
+	r.Size = Vector3.new(0.2, radius * 2, radius * 2)
+	r.CFrame = cf * CFrame.Angles(0, 0, math.pi / 2)
+	r.Parent = parent
+	return r
+end
+
+-- spinning hologram of what each stall sells, floating above it
+function WorldFX:StallHolograms(hub: Instance)
+	local assets = ReplicatedStorage:WaitForChild("Assets")
+	local colors = { Cars = Color3.fromRGB(60, 150, 255), Styles = Color3.fromRGB(255, 110, 180),
+		Potions = Color3.fromRGB(180, 90, 255), Dice = Color3.fromRGB(255, 190, 40) }
+	for _, shop in hub:GetChildren() do
+		local key = shop:GetAttribute("Shop")
+		if not key then
+			continue
+		end
+		local cf, size = shop:GetBoundingBox()
+		local top = CFrame.new(cf.Position + Vector3.new(0, size.Y / 2 + 5.5, 0))
+		local color = colors[key] or Color3.new(1, 1, 1)
+		local holo: Instance? = nil
+		if key == "Cars" then
+			local car = assets.Cars:FindFirstChild("Sports")
+			if car then
+				holo = car:Clone()
+				;(holo :: Model):ScaleTo(2)
+			end
+		elseif key == "Styles" then
+			local isl = assets:FindFirstChild("IslandPreview")
+			if isl then
+				holo = isl:Clone()
+				;(holo :: Model):ScaleTo(0.32)
+			end
+		else
+			local a = anchor(self.Folder, top, Vector3.one)
+			local bb = Instance.new("BillboardGui")
+			bb.Size = UDim2.fromScale(7, 7)
+			bb.LightInfluence = 0
+			bb.MaxDistance = 220
+			bb.Parent = a
+			local img = Instance.new("ImageLabel")
+			img.BackgroundTransparency = 1
+			img.Size = UDim2.fromScale(1, 1)
+			local list = key == "Dice" and GameData.Dice or GameData.Potions
+			img.Image = list[#list].image or list[1].image or ""
+			img.Parent = bb
+			holo = a
+			table.insert(self.Spinners, { kind = "billboard", obj = a, base = top, img = img, list = list, i = #list,
+				next = 3, phase = math.random() * 6 })
+		end
+		if holo and holo:IsA("Model") then
+			for _, p in holo:GetDescendants() do
+				if p:IsA("BasePart") then
+					p.Anchored = true
+					p.CanCollide = false
+					p.CanQuery = false
+					p.CastShadow = false
+				end
+			end
+			holo:PivotTo(top)
+			holo.Parent = self.Folder
+			table.insert(self.Spinners, { kind = "model", obj = holo, base = top, phase = math.random() * 6 })
+		end
+		local ring = glowRing(self.Folder, top * CFrame.new(0, -3.2, 0), 3.4, color)
+		table.insert(self.Spinners, { kind = "ring", obj = ring, base = ring.CFrame, phase = math.random() * 6 })
+		local light = Instance.new("PointLight")
+		light.Color = color
+		light.Range = 14
+		light.Brightness = 1.2
+		light.Parent = ring
+		local sp = anchor(self.Folder, top * CFrame.new(0, -3, 0), Vector3.new(6, 0.2, 6))
+		self:Track(emitter(sp, {
+			Texture = TEX.Star, Rate = 6, Lifetime = NumberRange.new(0.8, 1.4), Speed = NumberRange.new(2, 4),
+			EmissionDirection = Enum.NormalId.Top, Size = seq(0.45, 0), LightEmission = 1,
+			Color = ColorSequence.new(color, Color3.new(1, 1, 1)), Transparency = seq(0.1, 1),
+		}), sp.Position, 200)
+		-- the stall lights up when you walk up to it
+		local prompt = shop:FindFirstChild("PromptPart") and shop.PromptPart:FindFirstChildOfClass("ProximityPrompt")
+		if prompt then
+			local h = Instance.new("Highlight")
+			h.FillTransparency = 1
+			h.OutlineColor = color
+			h.OutlineTransparency = 1
+			h.DepthMode = Enum.HighlightDepthMode.Occluded
+			h.Adornee = shop
+			h.Parent = self.Folder
+			table.insert(self.Connections, prompt.PromptShown:Connect(function()
+				TweenService:Create(h, TweenInfo.new(0.25), { OutlineTransparency = 0 }):Play()
+				self:Burst(top.Position - Vector3.new(0, 3, 0), color, 18)
+			end))
+			table.insert(self.Connections, prompt.PromptHidden:Connect(function()
+				TweenService:Create(h, TweenInfo.new(0.3), { OutlineTransparency = 1 }):Play()
+			end))
+		end
+	end
+end
+
+function WorldFX:FountainJets(hub: Instance)
+	local lm = hub:FindFirstChild("Landmark")
+	if not lm then
+		return
+	end
+	local c = lm:GetBoundingBox().Position
+	local base = Vector3.new(c.X, 100.3, c.Z)
+	for k = 0, 5 do
+		local a = k / 6 * math.pi * 2
+		local p = base + Vector3.new(math.cos(a) * 9.7, 3.2, math.sin(a) * 9.7)
+		local an = anchor(self.Folder, CFrame.lookAt(p, base + Vector3.new(0, 8, 0)), Vector3.new(0.4, 0.4, 0.4))
+		self:Track(emitter(an, {
+			Texture = TEX.Star, Rate = 26, Lifetime = NumberRange.new(0.7, 0.9), Speed = NumberRange.new(9, 10),
+			EmissionDirection = Enum.NormalId.Front, SpreadAngle = Vector2.new(4, 4),
+			Acceleration = Vector3.new(0, -28, 0), Size = seq(0.45, 0.25), LightEmission = 0.4,
+			Color = ColorSequence.new(Color3.fromRGB(170, 235, 255), Color3.new(1, 1, 1)), Transparency = seq(0.15, 0.8),
+		}), p, 220)
+	end
+end
+
+function WorldFX:Waterfalls(map: Instance)
+	local isles = map:FindFirstChild("FloatingIsles")
+	if not isles then
+		return
+	end
+	for i, p in isles:GetChildren() do
+		if p:IsA("BasePart") and i % 2 == 1 then
+			local an = anchor(self.Folder, p.CFrame * CFrame.new(p.Size.X * 0.32, -p.Size.Y * 0.05, 0), Vector3.new(4, 0.5, 2))
+			self:Track(emitter(an, {
+				Texture = TEX.Smoke, Rate = 30, Lifetime = NumberRange.new(2.4, 3), Speed = NumberRange.new(2, 4),
+				EmissionDirection = Enum.NormalId.Bottom, Acceleration = Vector3.new(0, -14, 0),
+				Size = seq(1.2, 3.4), Color = ColorSequence.new(Color3.fromRGB(170, 225, 255), Color3.new(1, 1, 1)),
+				Transparency = seq(0.35, 1),
+			}), an.Position, 700)
+		end
+	end
+end
+
+function WorldFX:ShoreFoam(map: Instance)
+	local spots = {}
+	for k = 1, 14 do
+		local a = k / 14 * math.pi * 2
+		table.insert(spots, CFrame.new(math.cos(a) * 104, 92.2, math.sin(a) * 104) * CFrame.Angles(0, -a, 0))
+	end
+	local plots = map:FindFirstChild("Plots")
+	for _, plot in (plots and plots:GetChildren() or {}) do
+		local pv = plot:FindFirstChild("Pivot")
+		if pv then
+			for _, off in { Vector3.new(118, 0, 0), Vector3.new(-118, 0, 0), Vector3.new(0, 0, 128), Vector3.new(0, 0, -128),
+				Vector3.new(90, 0, 100), Vector3.new(-90, 0, 100), Vector3.new(90, 0, -100), Vector3.new(-90, 0, -100) } do
+				local w = pv.CFrame * CFrame.new(off)
+				table.insert(spots, CFrame.new(w.Position.X, 92.2, w.Position.Z))
+			end
+		end
+	end
+	for _, cf in spots do
+		local an = anchor(self.Folder, cf, Vector3.new(26, 0.2, 26))
+		self:Track(emitter(an, {
+			Texture = TEX.Smoke, Rate = 2.5, Lifetime = NumberRange.new(2, 3), Speed = NumberRange.new(0.3, 0.8),
+			EmissionDirection = Enum.NormalId.Top, Size = seq(1.4, 3), Orientation = Enum.ParticleOrientation.FacingCameraWorldUp,
+			Color = ColorSequence.new(Color3.new(1, 1, 1)), Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.3, 0.45), NumberSequenceKeypoint.new(1, 1) }),
+		}), an.Position, 260)
+	end
+end
+
+-- ------------------------------------------------------------------ one-shot effects
+function WorldFX:Burst(pos: Vector3, color: Color3, count: number)
+	local a = anchor(self.Folder, CFrame.new(pos), Vector3.one)
+	local e = emitter(a, {
+		Texture = TEX.Star, Rate = 0, Lifetime = NumberRange.new(0.5, 0.9), Speed = NumberRange.new(6, 12),
+		SpreadAngle = Vector2.new(180, 180), Size = seq(0.6, 0), LightEmission = 1, Drag = 3,
+		Color = ColorSequence.new(color, Color3.new(1, 1, 1)), Transparency = seq(0, 1),
+	})
+	e:Emit(self:Low() and math.ceil(count / 2) or count)
+	Debris:AddItem(a, 1.2)
+end
+
+-- rockets that whistle up and burst into coloured stars
+function WorldFX:Fireworks(center: Vector3, colors: { Color3 }, count: number?)
+	local n = self:Low() and 3 or (count or 7)
+	for i = 1, n do
+		task.delay((i - 1) * 0.22 + math.random() * 0.15, function()
+			local start = center + Vector3.new(math.random(-30, 30), 0, math.random(-30, 30))
+			local peak = start + Vector3.new(math.random(-8, 8), 45 + math.random(0, 25), math.random(-8, 8))
+			local color = colors[(i - 1) % #colors + 1]
+			local rocket = anchor(self.Folder, CFrame.new(start), Vector3.new(0.6, 0.6, 0.6))
+			rocket.Transparency = 0
+			rocket.Material = Enum.Material.Neon
+			rocket.Color = color
+			local a0, a1 = Instance.new("Attachment"), Instance.new("Attachment")
+			a0.Position = Vector3.new(0, 0.3, 0)
+			a1.Position = Vector3.new(0, -0.3, 0)
+			a0.Parent, a1.Parent = rocket, rocket
+			local tr = Instance.new("Trail")
+			tr.Attachment0, tr.Attachment1 = a0, a1
+			tr.Lifetime = 0.5
+			tr.LightEmission = 1
+			tr.Color = ColorSequence.new(color, Color3.new(1, 1, 1))
+			tr.Transparency = seq(0, 1)
+			tr.WidthScale = seq(1, 0)
+			tr.Parent = rocket
+			local tw = TweenService:Create(rocket, TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+				{ CFrame = CFrame.new(peak) })
+			tw:Play()
+			tw.Completed:Connect(function()
+				rocket.Transparency = 1
+				local e = emitter(rocket, {
+					Texture = TEX.Star, Rate = 0, Lifetime = NumberRange.new(1, 1.6), Speed = NumberRange.new(18, 28),
+					SpreadAngle = Vector2.new(180, 180), Size = seq(1.1, 0), LightEmission = 1, Drag = 2.5,
+					Acceleration = Vector3.new(0, -9, 0), Color = ColorSequence.new(color, Color3.new(1, 1, 1)),
+					Transparency = seq(0, 1),
+				})
+				e:Emit(70)
+				local crackle = emitter(rocket, {
+					Texture = TEX.Star, Rate = 0, Lifetime = NumberRange.new(0.2, 0.5), Speed = NumberRange.new(8, 14),
+					SpreadAngle = Vector2.new(180, 180), Size = seq(0.4, 0), LightEmission = 1,
+					Color = ColorSequence.new(Color3.new(1, 1, 1)), Transparency = seq(0, 1),
+				})
+				task.delay(0.6, function()
+					crackle:Emit(40)
+				end)
+				local l = Instance.new("PointLight")
+				l.Color = color
+				l.Range = 60
+				l.Brightness = 3
+				l.Parent = rocket
+				TweenService:Create(l, TweenInfo.new(1.2), { Brightness = 0 }):Play()
+				Debris:AddItem(rocket, 2.2)
+			end)
+		end)
+	end
+end
+
+-- shrink-and-spin ghost of a tile that was just removed
+function WorldFX:RemoveGhost(model: Model)
+	local copy = model:Clone()
+	for _, p in copy:GetDescendants() do
+		if p:IsA("BasePart") then
+			p.Anchored = true
+			p.CanCollide = false
+			p.CanQuery = false
+		elseif p:IsA("Highlight") then
+			p:Destroy()
+		end
+	end
+	copy.Parent = self.Folder
+	local pivot = copy:GetPivot()
+	local size = copy:GetScale()
+	local v = Instance.new("NumberValue")
+	v.Value = 0
+	v.Changed:Connect(function(k)
+		if copy.Parent then
+			copy:ScaleTo(math.max(0.05, size * (1 - k)))
+			copy:PivotTo(pivot * CFrame.new(0, k * 4, 0) * CFrame.Angles(0, k * 4, 0))
+		end
+	end)
+	TweenService:Create(v, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In), { Value = 1 }):Play()
+	self:Burst(pivot.Position, Color3.fromRGB(255, 120, 140), 22)
+	Debris:AddItem(copy, 0.45)
+	Debris:AddItem(v, 0.5)
+end
+
+-- ------------------------------------------------------------------ own plot: glowing pad border
+function WorldFX:PadBorder(plot: Instance)
+	if self.Border then
+		self.Border:Destroy()
+	end
+	local slab = plot:FindFirstChild("Pad") and plot.Pad:FindFirstChild("Slab") :: BasePart?
+	if not slab then
+		return
+	end
+	local color = Color3.fromHex(plot:GetAttribute("PlotColor") or "#3bd1ff")
+	local holder = anchor(self.Folder, slab.CFrame * CFrame.new(0, slab.Size.Y / 2 + 0.25, 0), Vector3.one)
+	holder.Name = "PadBorder"
+	self.Border = holder
+	local hx, hz = slab.Size.X / 2, slab.Size.Z / 2
+	local corners = { Vector3.new(-hx, 0, -hz), Vector3.new(hx, 0, -hz), Vector3.new(hx, 0, hz), Vector3.new(-hx, 0, hz) }
+	local atts = {}
+	for i, c in corners do
+		local a = Instance.new("Attachment")
+		a.Position = c
+		a.Axis = Vector3.new(0, 1, 0)
+		a.SecondaryAxis = Vector3.new(1, 0, 0)
+		a.Parent = holder
+		atts[i] = a
+	end
+	for i = 1, 4 do
+		local b = Instance.new("Beam")
+		b.Attachment0 = atts[i]
+		b.Attachment1 = atts[i % 4 + 1]
+		b.Texture = TEX.Streak
+		b.TextureMode = Enum.TextureMode.Static
+		b.TextureLength = 6
+		b.TextureSpeed = 1.2
+		b.Width0, b.Width1 = 0.9, 0.9
+		b.FaceCamera = true
+		b.LightEmission = 1
+		b.Color = ColorSequence.new(color, Color3.new(1, 1, 1))
+		b.Transparency = seq(0.15, 0.15)
+		b.Segments = 1
+		b.Parent = holder
+		local e = emitter(atts[i], {
+			Texture = TEX.Star, Rate = 3, Lifetime = NumberRange.new(0.8, 1.2), Speed = NumberRange.new(2, 4),
+			EmissionDirection = Enum.NormalId.Top, Size = seq(0.7, 0), LightEmission = 1,
+			Color = ColorSequence.new(color), Transparency = seq(0, 1),
+		})
+		self:Track(e, holder.Position, 220)
+	end
+end
+
+-- ------------------------------------------------------------------ build mode: animated route arrows
+function WorldFX:ShowRoute(plot: Instance?, data, on: boolean)
+	if self.Route then
+		self.Route:Destroy()
+		self.Route = nil
+	end
+	if not on or not plot or not data then
+		return
+	end
+	local origin = plot:FindFirstChild("GridOrigin") :: BasePart?
+	if not origin then
+		return
+	end
+	local tiles = ReplicatedStorage.Assets.Tiles
+	local folder = Instance.new("Folder")
+	folder.Name = "Route"
+	folder.Parent = self.Folder
+	self.Route = folder
+	local holder = anchor(folder, CFrame.identity, Vector3.one)
+	local c = Stats.center()
+	local cell = Stats.Config.Cell
+	local points = {}
+	for _, step in Stats.tracePath(data) do
+		local cf = origin.CFrame * CFrame.new((step.x - c) * cell, 0.3, (step.z - c) * cell)
+			* CFrame.Angles(0, -step.r * math.pi / 2, 0)
+		local tile = tiles:FindFirstChild(step.id)
+		local path = tile and tile:FindFirstChild("Path")
+		if path then
+			local wps = path:GetChildren()
+			table.sort(wps, function(a, b)
+				return tonumber(a.Name) < tonumber(b.Name)
+			end)
+			local n = #wps
+			for k = 1, n, 2 do
+				local w = wps[if step.forward then k else n - k + 1] :: BasePart
+				table.insert(points, { cf = cf * w.CFrame * CFrame.new(0, 0.45, 0), jump = w:GetAttribute("Teleport") == true })
+			end
+		end
+	end
+	local prev = nil
+	for i, p in points do
+		if i > 600 then
+			break
+		end
+		local a = Instance.new("Attachment")
+		a.WorldCFrame = p.cf
+		a.Parent = holder
+		if prev and (prev.WorldPosition - a.WorldPosition).Magnitude < 8 then
+			local b = Instance.new("Beam")
+			b.Attachment0, b.Attachment1 = prev, a
+			b.Texture = TEX.Streak
+			b.TextureMode = Enum.TextureMode.Static
+			b.TextureLength = 2.5
+			b.TextureSpeed = 2.5
+			b.Width0, b.Width1 = 0.8, 0.8
+			b.FaceCamera = true
+			b.LightEmission = 1
+			b.Color = ColorSequence.new(Color3.fromRGB(110, 255, 200))
+			b.Transparency = seq(0.2, 0.2)
+			b.Parent = holder
+		end
+		prev = a
+	end
+end
+
+-- ------------------------------------------------------------------ the player's character
+function WorldFX:Character()
+	local function setup(char: Model)
+		local hrp = char:WaitForChild("HumanoidRootPart", 10) :: BasePart?
+		local hum = char:WaitForChild("Humanoid", 10) :: Humanoid?
+		if not hrp or not hum then
+			return
+		end
+		local feet = Instance.new("Attachment")
+		feet.Position = Vector3.new(0, -2.8, 0)
+		feet.Parent = hrp
+		local dust = emitter(feet, {
+			Texture = TEX.Smoke, Rate = 0, Lifetime = NumberRange.new(0.35, 0.6), Speed = NumberRange.new(1, 2),
+			SpreadAngle = Vector2.new(60, 60), EmissionDirection = Enum.NormalId.Top, Size = seq(0.5, 1.4),
+			Color = ColorSequence.new(Color3.fromRGB(235, 230, 220)), Transparency = seq(0.55, 1), Drag = 2,
+		})
+		local splash = emitter(feet, {
+			Texture = TEX.Star, Rate = 0, Lifetime = NumberRange.new(0.6, 1), Speed = NumberRange.new(10, 18),
+			SpreadAngle = Vector2.new(35, 35), EmissionDirection = Enum.NormalId.Top, Acceleration = Vector3.new(0, -40, 0),
+			Size = seq(0.7, 0.2), Color = ColorSequence.new(Color3.fromRGB(170, 230, 255), Color3.new(1, 1, 1)),
+			Transparency = seq(0.1, 1),
+		})
+		local wasAbove = true
+		table.insert(self.Connections, hum.StateChanged:Connect(function(_, new)
+			if new == Enum.HumanoidStateType.Landed then
+				dust:Emit(self:Low() and 4 or 12)
+			end
+		end))
+		table.insert(self.Connections, RunService.Heartbeat:Connect(function()
+			if not hrp.Parent then
+				return
+			end
+			local running = hum.FloorMaterial ~= Enum.Material.Air and hrp.AssemblyLinearVelocity.Magnitude > 10
+			dust.Rate = (running and not self:Low()) and 10 or 0
+			local above = hrp.Position.Y > 93
+			if wasAbove and not above then
+				splash:Emit(40)
+			end
+			wasAbove = above
+		end))
+	end
+	local plr = Players.LocalPlayer
+	if plr.Character then
+		task.spawn(setup, plr.Character)
+	end
+	table.insert(self.Connections, plr.CharacterAdded:Connect(setup))
 end
 
 -- ------------------------------------------------------------------ creatures
@@ -474,6 +929,29 @@ function WorldFX:Step(dt: number)
 		die.model:PivotTo(CFrame.new(die.base.Position + Vector3.new(0, bob, 0))
 			* CFrame.Angles(0, die.spin, 0) * (die.base - die.base.Position) * extra)
 		die.anchor.CFrame = CFrame.new(die.base.Position + Vector3.new(0, bob, 0))
+	end
+
+	-- stall holograms
+	for _, sp in self.Spinners do
+		if (camPos - sp.base.Position).Magnitude > 320 then
+			continue
+		end
+		local bob = math.sin(t * 1.6 + sp.phase) * 0.6
+		if sp.kind == "model" then
+			sp.obj:PivotTo(sp.base * CFrame.new(0, bob, 0) * CFrame.Angles(0, t * 0.9, 0))
+		elseif sp.kind == "ring" then
+			sp.obj.CFrame = sp.base * CFrame.new(0, 0, 0)
+			sp.obj.Transparency = 0.45 + math.sin(t * 3 + sp.phase) * 0.15
+		elseif sp.kind == "billboard" then
+			sp.obj.CFrame = sp.base * CFrame.new(0, bob, 0)
+			sp.img.Rotation = math.sin(t * 1.3 + sp.phase) * 10
+			if t > sp.next then
+				-- cycle through the items this stall sells
+				sp.next = t + 2.5
+				sp.i = sp.i % #sp.list + 1
+				sp.img.Image = sp.list[sp.i].image or sp.img.Image
+			end
+		end
 	end
 
 	-- clouds (wrap around the world)

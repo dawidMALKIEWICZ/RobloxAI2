@@ -32,7 +32,9 @@ local templates = root:WaitForChild("Templates")
 local UIVisuals = require(ReplicatedStorage:WaitForChild("UIVisuals"))
 UIVisuals.Bind(gui)
 local vfx = require(ReplicatedStorage:WaitForChild("ClientVFX")).new(gui)
-require(ReplicatedStorage:WaitForChild("WorldFX")).new(gui)
+local worldFX = require(ReplicatedStorage:WaitForChild("WorldFX")).new(gui)
+vfx.World = worldFX
+local uiFX = require(ReplicatedStorage:WaitForChild("UIFX")).new(gui, GameData)
 
 local snap = nil
 local snapTime = 0
@@ -97,11 +99,26 @@ end
 
 -- ------------------------------------------------------------------ helpers
 local function request(action: string, arg: any?)
+	-- keep a copy of a tile that is about to be removed so it can shrink away nicely
+	local removed: Model? = nil
+	if action == "Remove" and type(arg) == "table" then
+		for _, plot in Workspace.Map.Plots:GetChildren() do
+			if plot:GetAttribute("OwnerId") == player.UserId then
+				local tile = plot.Track:FindFirstChild("T_" .. tostring(arg.x) .. "_" .. tostring(arg.z))
+				if tile then
+					removed = tile:Clone()
+				end
+			end
+		end
+	end
 	local ok, a, b, c = pcall(function()
 		return Remotes.Request:InvokeServer(action, arg)
 	end)
 	if not ok then
 		return false, "Connection error"
+	end
+	if a == true and removed then
+		worldFX:RemoveGhost(removed)
 	end
 	if a == true then
 		if action == "BuyPotion" and Stats.Potions[arg] then
@@ -297,6 +314,15 @@ local deleteMode = false
 local ghost: Model? = nil
 local ghostHighlight: Highlight? = nil
 
+-- the blueprint breathes so it reads clearly against the pad
+RunService.RenderStepped:Connect(function()
+	if ghostHighlight and ghostHighlight.Parent then
+		local k = (math.sin(os.clock() * 5) + 1) / 2
+		ghostHighlight.FillTransparency = 0.45 + k * 0.3
+		ghostHighlight.OutlineTransparency = k * 0.4
+	end
+end)
+
 local function myPlot(): Model?
 	for _, plot in Workspace:WaitForChild("Map"):WaitForChild("Plots"):GetChildren() do
 		if plot:GetAttribute("OwnerId") == player.UserId then
@@ -391,6 +417,7 @@ end
 
 function closeBuild()
 	buildPanel.Visible = false
+	worldFX:ShowRoute(nil, nil, false)
 	setSelected(nil)
 	deleteMode = false
 end
@@ -400,6 +427,7 @@ local function openBuild()
 	rollReveal:Cancel()
 	-- Build only opens the menu; it never moves the character.
 	buildPanel.Visible = true
+	worldFX:ShowRoute(myPlot(), snap and snap.Data, true)
 end
 
 onClick(rollArea:FindFirstChild("BuildButton"), function()
@@ -757,6 +785,15 @@ Remotes.RareRoll.OnClientEvent:Connect(function(name: string, pieceId: string)
 	if not piece then
 		return
 	end
+	-- fireworks over the hub for everybody's big pulls
+	local tc = Color3.fromHex(Stats.Tiers[piece.tier].color)
+	worldFX:Fireworks(Vector3.new(0, 104, 0), { tc, Color3.new(1, 1, 1), Color3.fromRGB(255, 214, 64) },
+		if piece.tier == "Secret" then 14 elseif piece.tier == "Mythical" then 10 else 6)
+	task.defer(function()
+		if uiFX.FeedIn then
+			uiFX.FeedIn()
+		end
+	end)
 	table.insert(feedRows, 1, { name = name, piece = piece })
 	while #feedRows > 5 do
 		table.remove(feedRows)
@@ -835,6 +872,7 @@ local function refreshHUD()
 	setPreset(auto, if data.AutoRoll then "green" else "gray")
 	auto.Sub.Text = if data.AutoRoll then "ON" else "OFF"
 	rollReveal:SetAuto(data.AutoRoll)
+	uiFX:SetAuto(data.AutoRoll == true)
 	for _, d in GameData.Dice do
 		local chip = rollArea.DiceBar:FindFirstChild("Dice_" .. d.id)
 		if chip then
@@ -1114,6 +1152,9 @@ end
 Remotes.DataUpdate.OnClientEvent:Connect(function(s)
 	snap = s
 	snapTime = os.clock()
+	if buildPanel.Visible then
+		worldFX:ShowRoute(myPlot(), s.Data, true)
+	end
 	if not settingsLoaded and s.Data.Settings then
 		settingsLoaded = true
 		for k, v in s.Data.Settings do
@@ -1137,6 +1178,7 @@ end)
 -- floating "+$" text where the car finished a tile
 Remotes.Earned.OnClientEvent:Connect(function(amount: number, pos: Vector3)
 	vfx:Earn(amount, pos)
+	uiFX:CashGleam()
 	local cam = Workspace.CurrentCamera
 	if not cam or (cam.CFrame.Position - pos).Magnitude > 250 then
 		return

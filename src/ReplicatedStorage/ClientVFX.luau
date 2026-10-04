@@ -175,6 +175,10 @@ function VFX:RollResult(piece,isNew,compact,auto)
   self:LightPillar(color,rank)
  end
  if rank>=5 then task.delay(.45,function() if not self.Destroyed then self:Shockwave(point,Color3.new(1,1,1),2) self:Confetti(point,color,self:Q(30),false) end end) end
+ if rank>=5 and self.World then
+  local char=Players.LocalPlayer.Character local rp=char and char:FindFirstChild("HumanoidRootPart")
+  if rp then self.World:Fireworks(rp.Position+Vector3.new(0,2,0),{color,Color3.new(1,1,1),Color3.fromRGB(255,214,64)},rank>=6 and 12 or 7) end
+ end
  if rank>=6 then
   self:Glitch(1.2)
   task.delay(.9,function() if not self.Destroyed then self:Confetti(point,Color3.fromHSV(math.random(),.7,1),self:Q(40),false) end end)
