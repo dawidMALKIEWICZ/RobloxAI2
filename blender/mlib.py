@@ -59,7 +59,7 @@ def _finish(o, color, bevel, segs, smooth, name, **kw):
     return o
 
 
-def box(size, loc, color, rot=(0, 0, 0), bevel=0.15, segs=2, smooth=False, name=None, **kw):
+def box(size, loc, color, rot=(0, 0, 0), bevel=0.0, segs=1, smooth=False, name=None, **kw):
     bpy.ops.mesh.primitive_cube_add(size=1, location=loc, rotation=rot)
     o = bpy.context.active_object
     o.scale = size
@@ -67,7 +67,7 @@ def box(size, loc, color, rot=(0, 0, 0), bevel=0.15, segs=2, smooth=False, name=
     return _finish(o, color, bevel, segs, smooth, name, **kw)
 
 
-def cyl(r, h, loc, color, rot=(0, 0, 0), verts=20, r2=None, bevel=0.08, segs=2, smooth=True,
+def cyl(r, h, loc, color, rot=(0, 0, 0), verts=10, r2=None, bevel=0.0, segs=1, smooth=False,
         name=None, **kw):
     if r2 is None:
         bpy.ops.mesh.primitive_cylinder_add(vertices=verts, radius=r, depth=h, location=loc,
@@ -78,7 +78,7 @@ def cyl(r, h, loc, color, rot=(0, 0, 0), verts=20, r2=None, bevel=0.08, segs=2, 
     return _finish(bpy.context.active_object, color, bevel, segs, smooth, name, **kw)
 
 
-def sphere(r, loc, color, scale=(1, 1, 1), subdiv=3, smooth=True, name=None, ico=False, **kw):
+def sphere(r, loc, color, scale=(1, 1, 1), subdiv=1, smooth=False, name=None, ico=True, **kw):
     if ico:
         bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=subdiv, radius=r, location=loc)
     else:
@@ -91,7 +91,7 @@ def sphere(r, loc, color, scale=(1, 1, 1), subdiv=3, smooth=True, name=None, ico
 
 def torus(R, r, loc, color, rot=(0, 0, 0), name=None, half=False, **kw):
     bpy.ops.mesh.primitive_torus_add(major_radius=R, minor_radius=r, location=(0, 0, 0),
-                                     major_segments=24, minor_segments=8)
+                                     major_segments=12, minor_segments=6)
     o = bpy.context.active_object
     if half:
         bm = bmesh.new()
@@ -101,10 +101,10 @@ def torus(R, r, loc, color, rot=(0, 0, 0), name=None, half=False, **kw):
         bm.free()
     o.location = loc
     o.rotation_euler = rot
-    return _finish(o, color, 0, 0, True, name, **kw)
+    return _finish(o, color, 0, 0, False, name, **kw)
 
 
-def prism(points, depth, loc, color, rot=(0, 0, 0), bevel=0.05, name=None, **kw):
+def prism(points, depth, loc, color, rot=(0, 0, 0), bevel=0.0, name=None, **kw):
     """Extrude 2D polygon points (x, z) along Y by depth."""
     me = bpy.data.meshes.new("prism")
     n = len(points)
@@ -125,10 +125,10 @@ def prism(points, depth, loc, color, rot=(0, 0, 0), bevel=0.05, name=None, **kw)
     o.location = loc
     o.rotation_euler = rot
     bpy.context.view_layer.objects.active = o
-    return _finish(o, color, bevel, 2, False, name, **kw)
+    return _finish(o, color, bevel, 1, False, name, **kw)
 
 
-def text(s, size, loc, color, rot=(math.pi / 2, 0, 0), extrude=0.1, bevel=0.02, name=None, **kw):
+def text(s, size, loc, color, rot=(math.pi / 2, 0, 0), extrude=0.1, bevel=0.0, name=None, **kw):
     bpy.ops.object.text_add(location=loc, rotation=rot)
     o = bpy.context.active_object
     o.data.body = s
@@ -137,6 +137,7 @@ def text(s, size, loc, color, rot=(math.pi / 2, 0, 0), extrude=0.1, bevel=0.02, 
     o.data.bevel_depth = bevel
     o.data.align_x = "CENTER"
     o.data.align_y = "CENTER"
+    o.data.resolution_u = 2
     if os.path.exists(FONT):
         o.data.font = bpy.data.fonts.load(FONT)
     bpy.ops.object.convert(target="MESH")
@@ -144,7 +145,7 @@ def text(s, size, loc, color, rot=(math.pi / 2, 0, 0), extrude=0.1, bevel=0.02, 
     return _finish(o, color, 0, 0, False, name, **kw)
 
 
-def rounded_rect(w, h, r, n=6):
+def rounded_rect(w, h, r, n=3):
     """2D rounded rectangle points (x, z) centred at origin."""
     pts = []
     for cx, cz, a0 in ((w / 2 - r, h / 2 - r, 0), (-w / 2 + r, h / 2 - r, 90),
@@ -152,6 +153,7 @@ def rounded_rect(w, h, r, n=6):
         for i in range(n + 1):
             a = math.radians(a0 + 90 * i / n)
             pts.append((cx + r * math.cos(a), cz + r * math.sin(a)))
+    pts = [p for i, p in enumerate(pts) if i == 0 or (abs(p[0] - pts[i - 1][0]) + abs(p[1] - pts[i - 1][1])) > 1e-6]
     return pts
 
 
@@ -161,8 +163,8 @@ def scallops(width, n, loc, color_a, color_b, depth=0.3, r=None, rot=(0, 0, 0)):
     out = []
     for i in range(n):
         x = -width / 2 + r + i * 2 * r
-        pts = [(r * math.cos(math.pi + math.pi * k / 10), r * math.sin(math.pi + math.pi * k / 10))
-               for k in range(11)]
+        pts = [(r * math.cos(math.pi + math.pi * k / 5), r * math.sin(math.pi + math.pi * k / 5))
+               for k in range(6)]
         o = prism(pts, depth, (loc[0] + x, loc[1], loc[2]), color_a if i % 2 == 0 else color_b,
                   rot=rot, bevel=0.03)
         out.append(o)
@@ -173,11 +175,11 @@ def scallops(width, n, loc, color_a, color_b, depth=0.3, r=None, rot=(0, 0, 0)):
 def studio(ground=True, ground_color="#7ed957", sun=3.2):
     sc = bpy.context.scene
     sc.render.engine = "CYCLES"
-    sc.cycles.samples = 96
+    sc.cycles.samples = 40
     sc.cycles.use_denoising = True
     sc.view_settings.view_transform = "AgX"
     sc.view_settings.look = "AgX - Punchy"
-    sc.render.resolution_x, sc.render.resolution_y = 1280, 960
+    sc.render.resolution_x, sc.render.resolution_y = 900, 700
     w = bpy.data.worlds.new("w")
     w.use_nodes = True
     bg = w.node_tree.nodes["Background"]
@@ -212,6 +214,33 @@ def camera(target, dist, elev=28, azim=-35, lens=50):
     return c
 
 
+def frame(lens=50, elev=26, azim=-32, margin=1.35):
+    """Camera that fits every non-helper mesh."""
+    from mathutils import Vector as V
+    pts = []
+    for o in bpy.context.scene.objects:
+        if o.type == "MESH" and not o.name.startswith("_"):
+            pts += [o.matrix_world @ V(c) for c in o.bound_box]
+    lo = V((min(p.x for p in pts), min(p.y for p in pts), min(p.z for p in pts)))
+    hi = V((max(p.x for p in pts), max(p.y for p in pts), max(p.z for p in pts)))
+    c = (lo + hi) / 2
+    size = (hi - lo).length
+    dist = size * margin * 50 / lens
+    return camera(c, dist, elev=elev, azim=azim, lens=lens)
+
+
+def tri_count():
+    dg = bpy.context.evaluated_depsgraph_get()
+    tris = 0
+    for o in bpy.context.scene.objects:
+        if o.type == "MESH" and not o.name.startswith("_"):
+            ev = o.evaluated_get(dg)
+            me = ev.to_mesh()
+            tris += sum(len(p.vertices) - 2 for p in me.polygons)
+            ev.to_mesh_clear()
+    return tris
+
+
 def render(path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     bpy.context.scene.render.filepath = path
@@ -231,12 +260,6 @@ def export(name):
                              apply_unit_scale=True, apply_scale_options="FBX_SCALE_UNITS",
                              axis_forward="-Z", axis_up="Y", use_mesh_modifiers=True)
     bpy.ops.wm.save_as_mainfile(filepath=os.path.join(d, name + ".blend"), compress=True)
-    tris = 0
-    dg = bpy.context.evaluated_depsgraph_get()
-    for o in bpy.context.scene.objects:
-        if o.type == "MESH" and not o.name.startswith("_"):
-            ev = o.evaluated_get(dg)
-            me = ev.to_mesh()
-            tris += sum(len(p.vertices) - 2 for p in me.polygons)
-            ev.to_mesh_clear()
+    tris = tri_count()
     print("EXPORTED", name, "triangles:", tris)
+    return tris
