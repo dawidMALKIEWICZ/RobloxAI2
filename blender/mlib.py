@@ -128,7 +128,8 @@ def prism(points, depth, loc, color, rot=(0, 0, 0), bevel=0.0, name=None, **kw):
     return _finish(o, color, bevel, 1, False, name, **kw)
 
 
-def text(s, size, loc, color, rot=(math.pi / 2, 0, 0), extrude=0.1, bevel=0.0, name=None, **kw):
+def text(s, size, loc, color, rot=(math.pi / 2, 0, 0), extrude=0.1, bevel=0.0, name=None,
+         offset=0.0, **kw):
     bpy.ops.object.text_add(location=loc, rotation=rot)
     o = bpy.context.active_object
     o.data.body = s
@@ -138,11 +139,19 @@ def text(s, size, loc, color, rot=(math.pi / 2, 0, 0), extrude=0.1, bevel=0.0, n
     o.data.align_x = "CENTER"
     o.data.align_y = "CENTER"
     o.data.resolution_u = 2
+    o.data.offset = offset
     if os.path.exists(FONT):
         o.data.font = bpy.data.fonts.load(FONT)
     bpy.ops.object.convert(target="MESH")
     o = bpy.context.active_object
     return _finish(o, color, 0, 0, False, name, **kw)
+
+
+def outlined_text(s, size, loc, color, outline="#2b2633", depth=0.12):
+    """Cartoon text: coloured letters on a thicker dark copy (fake stroke)."""
+    x, y, z = loc
+    text(s, size, (x, y + depth * 0.6, z), outline, extrude=depth, offset=size * 0.07)
+    return text(s, size, (x, y, z), color, extrude=depth)
 
 
 def rounded_rect(w, h, r, n=3):
