@@ -118,19 +118,8 @@ function PlotService.buildPad(plot: Model, size: number)
 			line.Parent = pad
 		end
 	end
-	-- low fence posts on the pad corners
-	for _, sx in { -1, 1 } do
-		for _, sz in { -1, 1 } do
-			local post = Instance.new("Part")
-			post.Name = "Corner"
-			post.Anchored = true
-			post.Size = Vector3.new(1.4, 2.4, 1.4)
-			post.CFrame = origin * CFrame.new(sx * (half + 0.7), 1.2, sz * (half + 0.7))
-			post.Color = Color3.fromHex(plot:GetAttribute("PlotColor") or "#ffffff")
-			post.Material = Enum.Material.SmoothPlastic
-			post.Parent = pad
-		end
-	end
+	-- Keep the build pad open: no corner posts.
+
 end
 
 function PlotService.teleport(player: Player, target: string?)
@@ -219,3 +208,4 @@ function PlotService.start()
 end
 
 return PlotService
+

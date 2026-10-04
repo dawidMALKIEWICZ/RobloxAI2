@@ -1,1 +1,1 @@
-{"ClassName": "Atmosphere", "Properties": {"Density": 0.28, "Offset": 0.1, "Color": [0.78, 0.88, 1.0], "Decay": [0.55, 0.75, 1.0], "Glare": 0.2, "Haze": 1.2}}
+{"ClassName": "Atmosphere", "Properties": {"Density": 0.26, "Offset": 0.12, "Color": [0.78, 0.89, 1.0], "Decay": [0.6, 0.78, 1.0], "Glare": 0.15, "Haze": 1.0}}

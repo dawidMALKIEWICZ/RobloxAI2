@@ -299,7 +299,7 @@
    "bonus": 0.0,
    "grass": "#5fd13f",
    "dirt": "#9b6634",
-   "rock": "#7d7468",
+   "rock": "#f2dc9b",
    "order": 1
   },
   {
@@ -309,7 +309,7 @@
    "bonus": 0.05,
    "grass": "#e8c872",
    "dirt": "#c9944a",
-   "rock": "#a8743c",
+   "rock": "#f7e7b0",
    "order": 2
   },
   {
@@ -319,7 +319,7 @@
    "bonus": 0.1,
    "grass": "#f4f8ff",
    "dirt": "#8fa9c2",
-   "rock": "#6b7f99",
+   "rock": "#cfe8ff",
    "order": 3
   },
   {
@@ -329,7 +329,7 @@
    "bonus": 0.15,
    "grass": "#ff9ad5",
    "dirt": "#8a4b2a",
-   "rock": "#f3e0c0",
+   "rock": "#fff0c8",
    "order": 4
   },
   {
@@ -339,7 +339,7 @@
    "bonus": 0.2,
    "grass": "#2e9b3a",
    "dirt": "#5a3a1e",
-   "rock": "#4a5a3a",
+   "rock": "#d9c27a",
    "order": 5
   },
   {
@@ -349,7 +349,7 @@
    "bonus": 0.25,
    "grass": "#3a3030",
    "dirt": "#3a2020",
-   "rock": "#1b1b1b",
+   "rock": "#2a2626",
    "order": 6
   },
   {
@@ -359,7 +359,7 @@
    "bonus": 0.32,
    "grass": "#14142a",
    "dirt": "#1f1f3a",
-   "rock": "#0d0d1a",
+   "rock": "#24244a",
    "order": 7
   },
   {
@@ -369,54 +369,209 @@
    "bonus": 0.4,
    "grass": "#c9c9d1",
    "dirt": "#8a8a96",
-   "rock": "#5c5c6a",
+   "rock": "#9a9aa8",
    "order": 8
   }
  ],
  "Potions": [
   {
-   "id": "MoneyPotion",
-   "name": "Money Potion",
-   "effect": "Money",
-   "mult": 2,
-   "duration": 300,
-   "price": 2500,
-   "color": "#3bd16b",
-   "icon": "💰",
-   "desc": "x2 Money"
-  },
-  {
-   "id": "LuckPotion",
-   "name": "Luck Potion",
-   "effect": "Luck",
-   "mult": 2,
-   "duration": 300,
-   "price": 5000,
-   "color": "#4bdc5a",
-   "icon": "🍀",
-   "desc": "x2 Luck"
-  },
-  {
    "id": "SpeedPotion",
    "name": "Speed Potion",
    "effect": "Speed",
-   "mult": 1.5,
+   "boosts": {
+    "Speed": 1.5
+   },
    "duration": 300,
    "price": 1500,
    "color": "#3bb8ff",
    "icon": "⚡",
-   "desc": "x1.5 Car Speed"
+   "desc": "x1.5 Car Speed",
+   "tier": "Common",
+   "mult": 1.5,
+   "image": "rbxassetid://86027342864389"
+  },
+  {
+   "id": "MoneyPotion",
+   "name": "Money Potion",
+   "effect": "Money",
+   "boosts": {
+    "Money": 2
+   },
+   "duration": 300,
+   "price": 2500,
+   "color": "#3bd16b",
+   "icon": "💰",
+   "desc": "x2 Money",
+   "tier": "Common",
+   "mult": 2,
+   "image": "rbxassetid://79161468966388"
   },
   {
    "id": "SpinPotion",
    "name": "Spin Potion",
    "effect": "Spin",
-   "mult": 2,
+   "boosts": {
+    "Spin": 2
+   },
    "duration": 300,
    "price": 3000,
    "color": "#b54dff",
    "icon": "🌀",
-   "desc": "x2 Spin Speed"
+   "desc": "x2 Roll Speed",
+   "tier": "Common",
+   "mult": 2,
+   "image": "rbxassetid://92460993835352"
+  },
+  {
+   "id": "LuckPotion",
+   "name": "Luck Potion",
+   "effect": "Luck",
+   "boosts": {
+    "Luck": 2
+   },
+   "duration": 300,
+   "price": 5000,
+   "color": "#4bdc5a",
+   "icon": "🍀",
+   "desc": "x2 Luck",
+   "tier": "Rare",
+   "mult": 2,
+   "image": "rbxassetid://112284855860484"
+  },
+  {
+   "id": "FortunePotion",
+   "name": "Fortune Potion",
+   "effect": "Fortune",
+   "boosts": {
+    "Money": 1.5,
+    "Luck": 1.5
+   },
+   "duration": 600,
+   "price": 40000,
+   "color": "#ffd23f",
+   "icon": "🌟",
+   "desc": "x1.5 Money & Luck",
+   "tier": "Rare",
+   "mult": 1.5,
+   "image": "rbxassetid://100822833538620"
+  },
+  {
+   "id": "NitroPotion",
+   "name": "Nitro Potion",
+   "effect": "Nitro",
+   "boosts": {
+    "Speed": 2,
+    "Money": 1.5
+   },
+   "duration": 300,
+   "price": 90000,
+   "color": "#ff7b1a",
+   "icon": "🔥",
+   "desc": "x2 Speed, x1.5 Money",
+   "tier": "Epic",
+   "mult": 2,
+   "image": "rbxassetid://75851927412636"
+  },
+  {
+   "id": "MegaLuckPotion",
+   "name": "Mega Luck",
+   "effect": "MegaLuck",
+   "boosts": {
+    "Luck": 4
+   },
+   "duration": 300,
+   "price": 150000,
+   "color": "#2bd96b",
+   "icon": "☘️",
+   "desc": "x4 Luck",
+   "tier": "Epic",
+   "mult": 4,
+   "image": "rbxassetid://122241932769418"
+  },
+  {
+   "id": "GoldRushPotion",
+   "name": "Gold Rush",
+   "effect": "GoldRush",
+   "boosts": {
+    "Money": 4
+   },
+   "duration": 300,
+   "price": 250000,
+   "color": "#ffb31a",
+   "icon": "🪙",
+   "desc": "x4 Money",
+   "tier": "Epic",
+   "mult": 4,
+   "image": "rbxassetid://76156336065362"
+  },
+  {
+   "id": "HyperSpinPotion",
+   "name": "Hyper Spin",
+   "effect": "HyperSpin",
+   "boosts": {
+    "Spin": 3
+   },
+   "duration": 180,
+   "price": 400000,
+   "color": "#d14dff",
+   "icon": "💫",
+   "desc": "x3 Roll Speed",
+   "tier": "Legendary",
+   "mult": 3,
+   "image": "rbxassetid://97667392887953"
+  },
+  {
+   "id": "RainbowElixir",
+   "name": "Rainbow Elixir",
+   "effect": "Rainbow",
+   "boosts": {
+    "Money": 2,
+    "Luck": 3,
+    "Spin": 2
+   },
+   "duration": 180,
+   "price": 2500000,
+   "color": "rainbow",
+   "icon": "🌈",
+   "desc": "x2 Money, x3 Luck, x2 Roll",
+   "tier": "Legendary",
+   "mult": 3,
+   "image": "rbxassetid://124317177244180"
+  },
+  {
+   "id": "CosmicBrew",
+   "name": "Cosmic Brew",
+   "effect": "Cosmic",
+   "boosts": {
+    "Luck": 10
+   },
+   "duration": 120,
+   "price": 10000000,
+   "color": "#7b5cff",
+   "icon": "🌌",
+   "desc": "x10 Luck",
+   "tier": "Mythical",
+   "mult": 10,
+   "image": "rbxassetid://130536804214188"
+  },
+  {
+   "id": "DivineNectar",
+   "name": "Divine Nectar",
+   "effect": "Divine",
+   "boosts": {
+    "Money": 5,
+    "Luck": 5,
+    "Speed": 2,
+    "Spin": 2
+   },
+   "duration": 120,
+   "price": 50000000,
+   "color": "#fff3b0",
+   "icon": "👑",
+   "desc": "x5 Money & Luck, x2 all",
+   "tier": "Secret",
+   "mult": 5,
+   "image": "rbxassetid://118291597073497"
   }
  ],
  "Dice": [
@@ -425,30 +580,172 @@
    "name": "Golden Dice",
    "price": 2500,
    "luck": 5,
-   "color": "#ffcc1a"
+   "color": "#ffcc1a",
+   "color2": "#fff3b0",
+   "tier": "Common",
+   "vfx": 0,
+   "image": "rbxassetid://111231523325608"
   },
   {
    "id": "Frost",
    "name": "Frost Dice",
-   "price": 25000,
-   "luck": 25,
-   "color": "#5cc8ff"
+   "price": 12000,
+   "luck": 15,
+   "color": "#5cc8ff",
+   "color2": "#e6f8ff",
+   "tier": "Common",
+   "vfx": 0,
+   "image": "rbxassetid://129871313085695"
+  },
+  {
+   "id": "Toxic",
+   "name": "Toxic Dice",
+   "price": 40000,
+   "luck": 35,
+   "color": "#7dff3b",
+   "color2": "#2f6b12",
+   "tier": "Rare",
+   "vfx": 1,
+   "image": "rbxassetid://82130558481295"
+  },
+  {
+   "id": "Inferno",
+   "name": "Inferno Dice",
+   "price": 120000,
+   "luck": 80,
+   "color": "#ff5a1a",
+   "color2": "#ffd23f",
+   "tier": "Rare",
+   "vfx": 1,
+   "image": "rbxassetid://111963941542636"
   },
   {
    "id": "Cosmic",
    "name": "Cosmic Dice",
-   "price": 250000,
-   "luck": 120,
-   "color": "#b54dff"
+   "price": 300000,
+   "luck": 150,
+   "color": "#b54dff",
+   "color2": "#3b1f7a",
+   "tier": "Epic",
+   "vfx": 2,
+   "image": "rbxassetid://84035068004902"
+  },
+  {
+   "id": "Void",
+   "name": "Void Dice",
+   "price": 800000,
+   "luck": 300,
+   "color": "#2b1640",
+   "color2": "#c46bff",
+   "tier": "Epic",
+   "vfx": 2,
+   "image": "rbxassetid://102673536684253"
+  },
+  {
+   "id": "Cyber",
+   "name": "Cyber Dice",
+   "price": 2000000,
+   "luck": 600,
+   "color": "#14e0ff",
+   "color2": "#0d1a33",
+   "tier": "Legendary",
+   "vfx": 3,
+   "image": "rbxassetid://113311093562652"
   },
   {
    "id": "Rainbow",
    "name": "Rainbow Dice",
-   "price": 2500000,
-   "luck": 600,
-   "color": "rainbow"
+   "price": 5000000,
+   "luck": 1200,
+   "color": "rainbow",
+   "color2": "#ffffff",
+   "tier": "Legendary",
+   "vfx": 3,
+   "image": "rbxassetid://82936693329452"
+  },
+  {
+   "id": "Galaxy",
+   "name": "Galaxy Dice",
+   "price": 12000000,
+   "luck": 2500,
+   "color": "#3b4dff",
+   "color2": "#ff6fd8",
+   "tier": "Mythical",
+   "vfx": 4,
+   "image": "rbxassetid://70886160273077"
+  },
+  {
+   "id": "Glitch",
+   "name": "Glitch Dice",
+   "price": 30000000,
+   "luck": 5000,
+   "color": "#ff2bd6",
+   "color2": "#2bff8a",
+   "tier": "Mythical",
+   "vfx": 4,
+   "image": "rbxassetid://85542285309623"
+  },
+  {
+   "id": "Celestial",
+   "name": "Celestial Dice",
+   "price": 75000000,
+   "luck": 10000,
+   "color": "#fff6d6",
+   "color2": "#8fe3ff",
+   "tier": "Secret",
+   "vfx": 5,
+   "image": "rbxassetid://132219667135356"
+  },
+  {
+   "id": "Divine",
+   "name": "Divine Dice",
+   "price": 200000000,
+   "luck": 25000,
+   "color": "#ffd23f",
+   "color2": "#ffffff",
+   "tier": "Secret",
+   "vfx": 5,
+   "image": "rbxassetid://110785001045093"
+  },
+  {
+   "id": "Singularity",
+   "name": "Singularity Dice",
+   "price": 500000000,
+   "luck": 60000,
+   "color": "#0a0a12",
+   "color2": "#ffb31a",
+   "tier": "Secret",
+   "vfx": 5,
+   "image": "rbxassetid://119609506672266"
   }
  ],
+ "Audio": {
+  "boost": "rbxassetid://76193015880831",
+  "build_open": "rbxassetid://119698070928745",
+  "click": "rbxassetid://97250938134783",
+  "coin": "rbxassetid://120376369744645",
+  "common": "rbxassetid://86687565676973",
+  "epic": "rbxassetid://70547001022289",
+  "equip": "rbxassetid://88137264039027",
+  "error": "rbxassetid://95702722303276",
+  "hover": "rbxassetid://88626888730343",
+  "legendary": "rbxassetid://103965567695460",
+  "milestone": "rbxassetid://130639718055899",
+  "music": "rbxassetid://87406585080065",
+  "mythical": "rbxassetid://110839443430676",
+  "place": "rbxassetid://115069922555446",
+  "potion": "rbxassetid://79431997182870",
+  "purchase": "rbxassetid://95541710024395",
+  "rare": "rbxassetid://102376464861040",
+  "remove": "rbxassetid://115818759041759",
+  "roll_start": "rbxassetid://104550374179045",
+  "secret": "rbxassetid://110921897265903",
+  "teleport": "rbxassetid://132993523030283",
+  "tick": "rbxassetid://109374722728283",
+  "unlock": "rbxassetid://119848198048330",
+  "whoosh": "rbxassetid://118864059393250",
+  "window_close": "rbxassetid://82156394283201"
+ },
  "Upgrades": [
   {
    "id": "Root",
@@ -647,16 +944,16 @@
   },
   {
    "id": "Roll3",
-   "name": "Auto Roll",
+   "name": "Quick Roll III",
    "branch": "Roll",
-   "stat": "AutoRoll",
-   "value": 1,
+   "stat": "RollSpeed",
+   "value": 0.2,
    "cost": 120000,
    "requires": "Roll2",
    "col": 3,
    "row": 4,
    "icon": "🎲",
-   "desc": "Unlocks Auto Roll"
+   "desc": "-20% Roll Time"
   },
   {
    "id": "Roll4",

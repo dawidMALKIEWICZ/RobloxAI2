@@ -24,11 +24,23 @@
     },
     "Lighting": {
       "$properties": {
-        "ClockTime": 14,
-        "Brightness": 2.5,
-        "Ambient": [0.45, 0.45, 0.5],
-        "OutdoorAmbient": [0.6, 0.62, 0.7],
-        "GlobalShadows": true
+        "ClockTime": 14.5,
+        "Brightness": 3,
+        "Ambient": [
+          0.42,
+          0.44,
+          0.5
+        ],
+        "OutdoorAmbient": [
+          0.58,
+          0.62,
+          0.7
+        ],
+        "GlobalShadows": true,
+        "EnvironmentDiffuseScale": 0.6,
+        "EnvironmentSpecularScale": 0.3,
+        "ShadowSoftness": 0.25,
+        "GeographicLatitude": 35
       },
       "$path": "src/Lighting"
     },

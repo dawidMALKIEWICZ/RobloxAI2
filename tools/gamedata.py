@@ -23,23 +23,79 @@ PIECE_ICONS = {
     "TeleportGate": "🌌", "SkyLeap": "🌠",
 }
 
+# Every potion has its own timer key ("effect") and multiplies one or more stats while it
+# runs ("boosts"). Different potions stack with each other.
 POTIONS = [
-    {"id": "MoneyPotion", "name": "Money Potion", "effect": "Money", "mult": 2, "duration": 300,
-     "price": 2_500, "color": "#3bd16b", "icon": "💰", "desc": "x2 Money"},
-    {"id": "LuckPotion", "name": "Luck Potion", "effect": "Luck", "mult": 2, "duration": 300,
-     "price": 5_000, "color": "#4bdc5a", "icon": "🍀", "desc": "x2 Luck"},
-    {"id": "SpeedPotion", "name": "Speed Potion", "effect": "Speed", "mult": 1.5,
-     "duration": 300, "price": 1_500, "color": "#3bb8ff", "icon": "⚡", "desc": "x1.5 Car Speed"},
-    {"id": "SpinPotion", "name": "Spin Potion", "effect": "Spin", "mult": 2, "duration": 300,
-     "price": 3_000, "color": "#b54dff", "icon": "🌀", "desc": "x2 Spin Speed"},
+    {"id": "SpeedPotion", "name": "Speed Potion", "effect": "Speed", "boosts": {"Speed": 1.5},
+     "duration": 300, "price": 1_500, "color": "#3bb8ff", "icon": "⚡", "desc": "x1.5 Car Speed",
+     "tier": "Common"},
+    {"id": "MoneyPotion", "name": "Money Potion", "effect": "Money", "boosts": {"Money": 2},
+     "duration": 300, "price": 2_500, "color": "#3bd16b", "icon": "💰", "desc": "x2 Money",
+     "tier": "Common"},
+    {"id": "SpinPotion", "name": "Spin Potion", "effect": "Spin", "boosts": {"Spin": 2},
+     "duration": 300, "price": 3_000, "color": "#b54dff", "icon": "🌀", "desc": "x2 Roll Speed",
+     "tier": "Common"},
+    {"id": "LuckPotion", "name": "Luck Potion", "effect": "Luck", "boosts": {"Luck": 2},
+     "duration": 300, "price": 5_000, "color": "#4bdc5a", "icon": "🍀", "desc": "x2 Luck",
+     "tier": "Rare"},
+    {"id": "FortunePotion", "name": "Fortune Potion", "effect": "Fortune",
+     "boosts": {"Money": 1.5, "Luck": 1.5}, "duration": 600, "price": 40_000, "color": "#ffd23f",
+     "icon": "🌟", "desc": "x1.5 Money & Luck", "tier": "Rare"},
+    {"id": "NitroPotion", "name": "Nitro Potion", "effect": "Nitro",
+     "boosts": {"Speed": 2, "Money": 1.5}, "duration": 300, "price": 90_000, "color": "#ff7b1a",
+     "icon": "🔥", "desc": "x2 Speed, x1.5 Money", "tier": "Epic"},
+    {"id": "MegaLuckPotion", "name": "Mega Luck", "effect": "MegaLuck", "boosts": {"Luck": 4},
+     "duration": 300, "price": 150_000, "color": "#2bd96b", "icon": "☘️", "desc": "x4 Luck",
+     "tier": "Epic"},
+    {"id": "GoldRushPotion", "name": "Gold Rush", "effect": "GoldRush", "boosts": {"Money": 4},
+     "duration": 300, "price": 250_000, "color": "#ffb31a", "icon": "🪙", "desc": "x4 Money",
+     "tier": "Epic"},
+    {"id": "HyperSpinPotion", "name": "Hyper Spin", "effect": "HyperSpin", "boosts": {"Spin": 3},
+     "duration": 180, "price": 400_000, "color": "#d14dff", "icon": "💫", "desc": "x3 Roll Speed",
+     "tier": "Legendary"},
+    {"id": "RainbowElixir", "name": "Rainbow Elixir", "effect": "Rainbow",
+     "boosts": {"Money": 2, "Luck": 3, "Spin": 2}, "duration": 180, "price": 2_500_000,
+     "color": "rainbow", "icon": "🌈", "desc": "x2 Money, x3 Luck, x2 Roll", "tier": "Legendary"},
+    {"id": "CosmicBrew", "name": "Cosmic Brew", "effect": "Cosmic", "boosts": {"Luck": 10},
+     "duration": 120, "price": 10_000_000, "color": "#7b5cff", "icon": "🌌", "desc": "x10 Luck",
+     "tier": "Mythical"},
+    {"id": "DivineNectar", "name": "Divine Nectar", "effect": "Divine",
+     "boosts": {"Money": 5, "Luck": 5, "Speed": 2, "Spin": 2}, "duration": 120,
+     "price": 50_000_000, "color": "#fff3b0", "icon": "👑", "desc": "x5 Money & Luck, x2 all",
+     "tier": "Secret"},
 ]
+for _p in POTIONS:  # kept for older scripts that read a single multiplier
+    _p["mult"] = max(_p["boosts"].values())
 
+# Dice: one roll with a big luck multiplier. Price grows faster than luck, so cheaper dice
+# stay worth buying early and the top dice are an end-game goal.
 DICE = [
-    {"id": "Golden", "name": "Golden Dice", "price": 2_500, "luck": 5, "color": "#ffcc1a"},
-    {"id": "Frost", "name": "Frost Dice", "price": 25_000, "luck": 25, "color": "#5cc8ff"},
-    {"id": "Cosmic", "name": "Cosmic Dice", "price": 250_000, "luck": 120, "color": "#b54dff"},
-    {"id": "Rainbow", "name": "Rainbow Dice", "price": 2_500_000, "luck": 600,
-     "color": "rainbow"},
+    {"id": "Golden", "name": "Golden Dice", "price": 2_500, "luck": 5, "color": "#ffcc1a",
+     "color2": "#fff3b0", "tier": "Common", "vfx": 0},
+    {"id": "Frost", "name": "Frost Dice", "price": 12_000, "luck": 15, "color": "#5cc8ff",
+     "color2": "#e6f8ff", "tier": "Common", "vfx": 0},
+    {"id": "Toxic", "name": "Toxic Dice", "price": 40_000, "luck": 35, "color": "#7dff3b",
+     "color2": "#2f6b12", "tier": "Rare", "vfx": 1},
+    {"id": "Inferno", "name": "Inferno Dice", "price": 120_000, "luck": 80, "color": "#ff5a1a",
+     "color2": "#ffd23f", "tier": "Rare", "vfx": 1},
+    {"id": "Cosmic", "name": "Cosmic Dice", "price": 300_000, "luck": 150, "color": "#b54dff",
+     "color2": "#3b1f7a", "tier": "Epic", "vfx": 2},
+    {"id": "Void", "name": "Void Dice", "price": 800_000, "luck": 300, "color": "#2b1640",
+     "color2": "#c46bff", "tier": "Epic", "vfx": 2},
+    {"id": "Cyber", "name": "Cyber Dice", "price": 2_000_000, "luck": 600, "color": "#14e0ff",
+     "color2": "#0d1a33", "tier": "Legendary", "vfx": 3},
+    {"id": "Rainbow", "name": "Rainbow Dice", "price": 5_000_000, "luck": 1_200,
+     "color": "rainbow", "color2": "#ffffff", "tier": "Legendary", "vfx": 3},
+    {"id": "Galaxy", "name": "Galaxy Dice", "price": 12_000_000, "luck": 2_500,
+     "color": "#3b4dff", "color2": "#ff6fd8", "tier": "Mythical", "vfx": 4},
+    {"id": "Glitch", "name": "Glitch Dice", "price": 30_000_000, "luck": 5_000,
+     "color": "#ff2bd6", "color2": "#2bff8a", "tier": "Mythical", "vfx": 4},
+    {"id": "Celestial", "name": "Celestial Dice", "price": 75_000_000, "luck": 10_000,
+     "color": "#fff6d6", "color2": "#8fe3ff", "tier": "Secret", "vfx": 5},
+    {"id": "Divine", "name": "Divine Dice", "price": 200_000_000, "luck": 25_000,
+     "color": "#ffd23f", "color2": "#ffffff", "tier": "Secret", "vfx": 5},
+    {"id": "Singularity", "name": "Singularity Dice", "price": 500_000_000, "luck": 60_000,
+     "color": "#0a0a12", "color2": "#ffb31a", "tier": "Secret", "vfx": 5},
 ]
 
 # skill tree: col/row are grid coordinates in the Skills window
@@ -54,8 +110,8 @@ _BR = [
      ["Luck I", "Luck II", "Luck III", "Four-Leaf"], "🍀", 1),
     ("Speed", "Speed", [0.15, 0.3, 0.5, 0.8], [1_000, 25_000, 600_000, 15_000_000],
      ["Speed I", "Speed II", "Speed III", "Nitro"], "⚡", 2),
-    ("Roll", "RollSpeed", [0.2, 0.2, 1, 0.3], [1_200, 30_000, 120_000, 8_000_000],
-     ["Quick Roll I", "Quick Roll II", "Auto Roll", "Turbo Roll"], "🎲", 4),
+    ("Roll", "RollSpeed", [0.2, 0.2, 0.2, 0.3], [1_200, 30_000, 120_000, 8_000_000],
+     ["Quick Roll I", "Quick Roll II", "Quick Roll III", "Turbo Roll"], "🎲", 4),
     ("Plot", "PlotSize", [9, 11, 13, 15], [5_000, 150_000, 3_000_000, 60_000_000],
      ["Plot 9x9", "Plot 11x11", "Plot 13x13", "Plot 15x15"], "🗺️", 5),
 ]
@@ -63,10 +119,7 @@ for branch, stat, values, costs, names, icon, row in _BR:
     prev = "Root"
     for i in range(4):
         uid = f"{branch}{i + 1}"
-        st = stat
-        if branch == "Roll" and i == 2:
-            st = "AutoRoll"
-        UPGRADES.append({"id": uid, "name": names[i], "branch": branch, "stat": st,
+        UPGRADES.append({"id": uid, "name": names[i], "branch": branch, "stat": stat,
                          "value": values[i], "cost": costs[i], "requires": prev, "col": i + 1,
                          "row": row, "icon": icon})
         prev = uid
@@ -206,10 +259,32 @@ def xp_for_level(lvl):
     return 100 + (lvl - 1) * 20
 
 
+def media():
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "media_ids.json")
+    return json.load(open(p)) if os.path.exists(p) else {"icons": {}, "audio": {}}
+
+
+def with_icons(items, prefix):
+    icons = media()["icons"]
+    out = []
+    for it in items:
+        it = dict(it)
+        aid = icons.get(prefix + it["id"])
+        if aid:
+            it["image"] = f"rbxassetid://{aid}"
+        out.append(it)
+    return out
+
+
+def audio():
+    return {k: f"rbxassetid://{v}" for k, v in media()["audio"].items()}
+
+
 def data():
     return {
         "Tiers": TIERS, "Pieces": piece_list(), "Cars": car_list(), "Styles": style_list(),
-        "Potions": POTIONS, "Dice": DICE, "Upgrades": UPGRADES, "Daily": DAILY,
+        "Potions": with_icons(POTIONS, "Potion_"), "Dice": with_icons(DICE, "Dice_"),
+        "Audio": audio(), "Upgrades": UPGRADES, "Daily": DAILY,
         "Pass": PASS, "Crate": CRATE, "Products": PRODUCTS, "StarterPack": STARTER_PACK,
         "Config": CONFIG,
     }

@@ -18,12 +18,20 @@ local Tiles = Assets:WaitForChild("Tiles")
 local player = Players.LocalPlayer
 local gui = player:WaitForChild("PlayerGui"):WaitForChild("MainGui")
 local root = gui:WaitForChild("Root")
+local UIIconAtlas = require(ReplicatedStorage:WaitForChild("UIIconAtlas"))
+UIIconAtlas.Apply(gui)
+gui:GetAttributeChangedSignal("IconAtlas"):Connect(function()
+	UIIconAtlas.Apply(gui)
+end)
 local hud = root:WaitForChild("HUD")
 local windows = root:WaitForChild("Windows")
 local buildPanel = root:WaitForChild("BuildPanel")
 local reel = root:WaitForChild("RollReel")
 local toasts = root:WaitForChild("Toasts")
 local templates = root:WaitForChild("Templates")
+local UIVisuals = require(ReplicatedStorage:WaitForChild("UIVisuals"))
+UIVisuals.Bind(gui)
+local vfx = require(ReplicatedStorage:WaitForChild("ClientVFX")).new(gui)
 
 local snap = nil
 local snapTime = 0
@@ -94,6 +102,22 @@ local function request(action: string, arg: any?)
 	if not ok then
 		return false, "Connection error"
 	end
+	if a == true then
+		if action == "BuyPotion" and Stats.Potions[arg] then
+			vfx:Potion(Stats.Potions[arg])
+		elseif action:match("^Buy") or action:match("^Claim") then
+			vfx:Purchase(action == "BuyUpgrade" and "Upgrade" or "Purchase")
+		elseif action == "Remove" and type(arg) == "table" then
+			for _,plot in Workspace.Map.Plots:GetChildren() do
+				if plot:GetAttribute("OwnerId") == player.UserId then
+					local center=Stats.center()
+					local pos=(plot.GridOrigin.CFrame*CFrame.new((arg.x-center)*Stats.Config.Cell,.3,(arg.z-center)*Stats.Config.Cell)).Position
+					vfx:Remove(pos)
+					break
+				end
+			end
+		end
+	elseif a == false and action ~= "GetData" then vfx:Error(vfx.LastButton) end
 	return a, b, c
 end
 
@@ -107,6 +131,7 @@ local function toast(text: string, color: string?)
 	t.LayoutOrder = toastOrder
 	t.Visible = true
 	t.Parent = toasts
+	vfx:Toast(t)
 	task.delay(3, function()
 		TweenService:Create(lbl, TweenInfo.new(0.4), { TextTransparency = 1 }):Play()
 		TweenService:Create(t, TweenInfo.new(0.4), { BackgroundTransparency = 1 }):Play()
@@ -134,21 +159,7 @@ local function result(ok, msg)
 end
 
 local function bounce(button: GuiButton)
-	local s = Instance.new("UIScale")
-	s.Name = "Bounce"
-	s.Parent = button
-	button.MouseEnter:Connect(function()
-		TweenService:Create(s, TweenInfo.new(0.12), { Scale = 1.06 }):Play()
-	end)
-	button.MouseLeave:Connect(function()
-		TweenService:Create(s, TweenInfo.new(0.12), { Scale = 1 }):Play()
-	end)
-	button.MouseButton1Down:Connect(function()
-		TweenService:Create(s, TweenInfo.new(0.06), { Scale = 0.9 }):Play()
-	end)
-	button.MouseButton1Up:Connect(function()
-		TweenService:Create(s, TweenInfo.new(0.1), { Scale = 1.06 }):Play()
-	end)
+	vfx:BindButton(button)
 end
 for _, d in root:GetDescendants() do
 	if d:IsA("GuiButton") and not d:IsDescendantOf(templates) then
@@ -210,14 +221,10 @@ local function open(name: string)
 	closeBuild()
 	w.Visible = true
 	openWindow = w
-	local s = w:FindFirstChild("Pop") :: UIScale
-	if not s then
-		s = Instance.new("UIScale")
-		s.Name = "Pop"
-		s.Parent = w
+	if name == "SkillsWindow" then
+		return
 	end
-	s.Scale = 0.85
-	TweenService:Create(s, TweenInfo.new(0.18, Enum.EasingStyle.Back), { Scale = 1 }):Play()
+	-- ClientVFX animates the window and staggers its cards.
 end
 
 for _, w in windows:GetChildren() do
@@ -225,84 +232,11 @@ for _, w in windows:GetChildren() do
 	onClick(header and header:FindFirstChild("Close"), closeWindows)
 end
 
--- ------------------------------------------------------------------ roll reel
-local CARD_W = 196
-local REEL_CARDS = 26
-local RESULT_INDEX = 22
-local strip = reel:WaitForChild("Clip"):WaitForChild("Strip")
-local cards = {}
-for i = 1, REEL_CARDS do
-	local c = templates:WaitForChild("ReelCard"):Clone()
-	c.Position = UDim2.fromOffset((i - 1) * CARD_W, 10)
-	c.Visible = true
-	c.Parent = strip
-	cards[i] = c
-end
-
-local function randomReelPiece()
-	-- mostly commons, sometimes something shiny so the reel looks exciting
-	local r = math.random()
-	local list = Stats.PieceList
-	if r < 0.55 then
-		return list[math.random(1, 3)]
-	elseif r < 0.85 then
-		return list[math.random(4, 9)]
-	end
-	return list[math.random(10, #list)]
-end
-
-local function fillCard(card: Frame, piece)
-	(card:FindFirstChild("Name") :: TextLabel).Text = piece.name
-	local odds = card:FindFirstChild("Odds") :: TextLabel
-	odds.Text = "1 in " .. Format.short(piece.odds)
-	odds.TextColor3 = tierColor(piece.tier)
-	local stroke = card:FindFirstChild("Stroke") :: UIStroke
-	if stroke then
-		stroke.Color = tierColor(piece.tier)
-	end
-	local tile = Tiles:FindFirstChild(piece.id)
-	if tile then
-		showInViewport(card:FindFirstChild("Viewport") :: ViewportFrame, tile, 15)
-	end
-end
-
-local reelToken = 0
+-- ------------------------------------------------------------------ centered roll reveal
+local rollReveal = require(ReplicatedStorage:WaitForChild("RollReveal")).new(gui)
+rollReveal.VFX = vfx
 local function playReel(res, fast: boolean)
-	local piece = Stats.Pieces[res.piece]
-	if not piece then
-		return
-	end
-	reelToken += 1
-	local token = reelToken
-	for i, card in cards do
-		fillCard(card, if i == RESULT_INDEX then piece else randomReelPiece())
-	end
-	local resultLbl = reel:FindFirstChild("Result") :: TextLabel
-	resultLbl.Text = ""
-	local highlight = reel:FindFirstChild("Highlight") :: Frame
-	highlight.BackgroundTransparency = 1
-	reel.Visible = true
-	local function centerOn(i: number, jitter: number)
-		return UDim2.new(0.5, -((i - 1) * CARD_W + CARD_W / 2) + jitter, 0, 0)
-	end
-	strip.Position = centerOn(2, 0)
-	local dur = if fast then 0.7 else 2.4
-	local tw = TweenService:Create(strip, TweenInfo.new(dur, Enum.EasingStyle.Quint,
-		Enum.EasingDirection.Out), { Position = centerOn(RESULT_INDEX, math.random(-40, 40)) })
-	tw:Play()
-	tw.Completed:Wait()
-	if token ~= reelToken then
-		return
-	end
-	TweenService:Create(strip, TweenInfo.new(0.25), { Position = centerOn(RESULT_INDEX, 0) }):Play()
-	highlight.BackgroundTransparency = 0.8
-	resultLbl.Text = (if res.new then "NEW! " else "") .. piece.name .. " added to your Build menu!"
-	resultLbl.TextColor3 = tierColor(piece.tier)
-	task.delay(if fast then 1.0 else 2.0, function()
-		if token == reelToken then
-			reel.Visible = false
-		end
-	end)
+ rollReveal:Play(res, fast, snap and snap.RollTime or 2)
 end
 
 local rollArea = hud:WaitForChild("RollArea")
@@ -315,6 +249,7 @@ local function doRoll(auto: boolean?)
 	if os.clock() - lastRollClock < snap.RollTime then
 		return
 	end
+	if auto ~= true then rollReveal:Resume() end
 	busy = true
 	lastRollClock = os.clock()
 	local ok, msg, res = request("Roll")
@@ -329,15 +264,20 @@ end
 onClick(rollButton, function()
 	doRoll(false)
 end)
-onClick(rollArea:FindFirstChild("AutoButton"), function()
-	if snap then
-		result(request("SetAuto", not snap.Data.AutoRoll))
-	end
-end)
+local function toggleAuto()
+ if snap then
+  result(request("SetAuto", not snap.Data.AutoRoll))
+ end
+end
+onClick(rollArea:FindFirstChild("AutoButton"), toggleAuto)
+rollReveal.OnAuto = toggleAuto
+-- Further manual rolls are started with the HUD dice button.
 for _, d in GameData.Dice do
 	onClick(rollArea.DiceBar:FindFirstChild("Dice_" .. d.id), function()
 		local ok, msg, res = request("UseDice", d.id)
 		if ok and res then
+			vfx:DiceRoll(d)
+			rollReveal:Resume()
 			task.spawn(playReel, res, false)
 		else
 			result(ok, msg)
@@ -345,6 +285,7 @@ for _, d in GameData.Dice do
 	end)
 end
 Remotes.Rolled.OnClientEvent:Connect(function(res)
+	rollReveal:Resume()
 	playReel(res, false)
 end)
 
@@ -439,7 +380,8 @@ local function setSelected(id: string?)
 		if item:IsA("GuiButton") then
 			local stroke = item:FindFirstChild("Stroke") :: UIStroke
 			local pid = string.sub(item.Name, 6)
-			stroke.Thickness = if pid == id then 7 else 4
+			stroke.Thickness = if pid == id then 4 else 3
+			stroke.Color = if pid == id then Color3.fromRGB(40, 225, 255) else Color3.fromRGB(9, 14, 25)
 		end
 	end
 	setPreset(buildPanel.DeleteButton, "red")
@@ -454,9 +396,9 @@ end
 
 local function openBuild()
 	closeWindows()
-	reel.Visible = false
+	rollReveal:Cancel()
+	-- Build only opens the menu; it never moves the character.
 	buildPanel.Visible = true
-	request("Teleport", "Base")
 end
 
 onClick(rollArea:FindFirstChild("BuildButton"), function()
@@ -532,7 +474,7 @@ local function cellValid(x: number, z: number): boolean
 		and #data.Placed < snap.MaxElements
 end
 
-RunService.RenderStepped:Connect(function()
+RunService.RenderStepped:Connect(function(dt)
 	if not ghost then
 		return
 	end
@@ -549,8 +491,11 @@ RunService.RenderStepped:Connect(function()
 		ghost:PivotTo(cellCFrame(plot, cell.x, cell.z, 0) * CFrame.new(0, 1.5, 0))
 		return
 	end
-	ghost:PivotTo(cellCFrame(plot, cell.x, cell.z, rotation))
+	local target = cellCFrame(plot, cell.x, cell.z, rotation)
+	if (ghost:GetPivot().Position-target.Position).Magnitude>45 then ghost:PivotTo(target)
+	else ghost:PivotTo(ghost:GetPivot():Lerp(target,1-math.exp(-dt*26))) end
 	if ghostHighlight then
+		ghostHighlight.FillTransparency=.61+math.sin(os.clock()*5)*.045
 		local ok = cellValid(cell.x, cell.z)
 		ghostHighlight.FillColor = if ok then Color3.fromHex("#5fff6a") else Color3.fromHex("#ff3b5c")
 		ghostHighlight.OutlineColor = ghostHighlight.FillColor
@@ -587,6 +532,7 @@ end
 UserInputService.InputBegan:Connect(function(input, processed)
 	if input.KeyCode == Enum.KeyCode.R and not processed then
 		rotation = (rotation + 1) % 4
+		if ghost then vfx:Sound("Click",1.15,.28) end
 	elseif (input.KeyCode == Enum.KeyCode.Q or input.UserInputType == Enum.UserInputType.MouseButton2)
 		and ghost then
 		setSelected(nil)
@@ -675,6 +621,7 @@ end)
 
 local indexTab = "All"
 local indexGrid = windows.IndexWindow.Body.Grid
+local IndexPreview = require(ReplicatedStorage:WaitForChild("IndexPreview"))
 local function applyIndexFilter()
 	for _, p in GameData.Pieces do
 		local card = indexGrid:FindFirstChild("Piece_" .. p.id)
@@ -699,6 +646,7 @@ local refreshAll -- forward
 for _, u in GameData.Upgrades do
 	onClick(tree:FindFirstChild("Node_" .. u.id), function()
 		selectedSkill = u.id
+		info.Visible = true
 		refreshAll()
 	end)
 end
@@ -726,13 +674,13 @@ for _, s in GameData.Styles do
 	end)
 end
 for _, p in GameData.Potions do
-	local card = windows.PotionShopWindow.Body:FindFirstChild("Potion_" .. p.id)
+	local card = windows.PotionShopWindow.Body:FindFirstChild("Potion_" .. p.id, true)
 	onClick(card and card:FindFirstChild("BuyButton"), function()
 		result(request("BuyPotion", p.id))
 	end)
 end
 for _, d in GameData.Dice do
-	local card = windows.DiceShopWindow.Body:FindFirstChild("Dice_" .. d.id)
+	local card = windows.DiceShopWindow.Body:FindFirstChild("Dice_" .. d.id, true)
 	onClick(card and card:FindFirstChild("BuyButton"), function()
 		result(request("BuyDice", d.id))
 	end)
@@ -751,6 +699,54 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt)
 		open(SHOP_WINDOWS[shop])
 	end
 end)
+
+-- ------------------------------------------------------------------ island style previews
+local StylePreview = require(ReplicatedStorage:WaitForChild("StylePreview"))
+windows.StyleShopWindow:GetPropertyChangedSignal("Visible"):Connect(function()
+	if not windows.StyleShopWindow.Visible then
+		return
+	end
+	for i, s in GameData.Styles do
+		local card = windows.StyleShopWindow.Body:FindFirstChild("Style_" .. s.id)
+		local vp = card and card:FindFirstChild("Preview")
+		if vp then
+			vp:SetAttribute("Phase", i * 0.8)
+			StylePreview.Render(vp, s.id)
+		end
+	end
+end)
+
+-- ------------------------------------------------------------------ settings (saved on the server)
+local settingsBar = hud:FindFirstChild("SettingsBar")
+local settings = { Music = true, Sfx = true, Vfx = "High" }
+local function applySettings()
+	vfx:SetMusic(settings.Music)
+	vfx:SetSfx(settings.Sfx)
+	vfx:SetQuality(settings.Vfx)
+	if settingsBar then
+		settingsBar.MusicToggle.Off.Visible = not settings.Music
+		settingsBar.SfxToggle.Off.Visible = not settings.Sfx
+		settingsBar.VfxToggle.Off.Visible = settings.Vfx == "Low"
+	end
+end
+local function changeSetting(key: string, value: any)
+	settings[key] = value
+	applySettings()
+	task.spawn(request, "SetSettings", settings)
+end
+if settingsBar then
+	onClick(settingsBar.MusicToggle, function()
+		changeSetting("Music", not settings.Music)
+	end)
+	onClick(settingsBar.SfxToggle, function()
+		changeSetting("Sfx", not settings.Sfx)
+	end)
+	onClick(settingsBar.VfxToggle, function()
+		changeSetting("Vfx", if settings.Vfx == "High" then "Low" else "High")
+		toast(if settings.Vfx == "High" then "Effects: HIGH" else "Effects: LOW (faster on phones)", "#cfe8ff")
+	end)
+end
+local settingsLoaded = false
 
 -- ------------------------------------------------------------------ rare roll feed
 local feed = hud:WaitForChild("RareFeed")
@@ -786,10 +782,25 @@ local function potionLeft(effect: string): number
 	return math.max(0, left - (os.clock() - snapTime))
 end
 
+-- celebrate lifetime earnings milestones (1K, 10K, 100K, ...), but not the ones already
+-- passed when the player joins
+local milestone = nil
+local function checkMilestone(total: number)
+	local step = if total >= 1000 then 10 ^ math.floor(math.log10(total)) else 0
+	if milestone == nil then
+		milestone = step
+	elseif step > milestone then
+		milestone = step
+		vfx:Milestone(Format.money(step) .. " EARNED!")
+	end
+end
+
 local function refreshHUD()
 	local data = snap.Data
 	local cash = player:GetAttribute("Cash") or data.Cash
 	hud.CashPanel.Amount.Text = Format.money(cash)
+	checkMilestone(data.TotalEarned or 0)
+	windows.SkillsWindow.Header.Cash.Amount.Text = Format.money(cash)
 	hud.IncomeLabel.Text = "+" .. Format.money(snap.Income) .. "/s"
 	local st = hud.Stats
 	st.Luck.Text = string.format("%.2fx", snap.Luck)
@@ -801,12 +812,16 @@ local function refreshHUD()
 	local auto = rollArea.AutoButton
 	setPreset(auto, if data.AutoRoll then "green" else "gray")
 	auto.Sub.Text = if data.AutoRoll then "ON" else "OFF"
+	rollReveal:SetAuto(data.AutoRoll)
 	for _, d in GameData.Dice do
 		local chip = rollArea.DiceBar:FindFirstChild("Dice_" .. d.id)
 		if chip then
 			local n = data.Dice[d.id] or 0
 			chip.Count.Text = tostring(n)
-			chip.BackgroundTransparency = if n > 0 then 0 else 0.55
+			chip.Visible = n > 0
+			chip.BackgroundTransparency = if chip:FindFirstChild("AtlasImage") then 1 else (if n > 0 then 0 else 0.55)
+			local atlasImage = chip:FindFirstChild("AtlasImage")
+			if atlasImage then atlasImage.ImageTransparency = if n > 0 then 0 else 0.5 end
 		end
 	end
 	right.X2MoneyButton.Sub.Text = if data.Passes.X2Money then "OWNED"
@@ -876,7 +891,7 @@ local function refreshDaily()
 				setPreset(status, "green")
 				setText(status, "CLAIM")
 			else
-				setPreset(status, "red")
+				setPreset(status, "gray")
 				setText(status, "LOCKED")
 			end
 		end
@@ -895,8 +910,8 @@ local function refreshIndex()
 			if known then
 				found += 1
 			end
-			card.Unknown.Visible = not known
 			card.Known.Visible = known
+			IndexPreview.Render(card, Tiles:FindFirstChild(p.id), known)
 			local placed = 0
 			for _, t in data.Placed do
 				if t.id == p.id then
@@ -963,6 +978,7 @@ local function refreshSkills()
 	end
 	local u = Stats.Upgrades[selectedSkill]
 	info.Icon.Text = u.icon
+	UIIconAtlas.SetIcon(info.Icon, u.icon, gui:GetAttribute("IconAtlas"))
 	info.NameText.Text = u.name
 	info.DescText.Text = u.desc
 	info.CostText.Text = Format.money(u.cost)
@@ -977,6 +993,7 @@ local function refreshSkills()
 		setPreset(buy, "green")
 		setText(buy, "BUY")
 	end
+	UIVisuals.RefreshSkills(tree, selectedSkill, data.Upgrades, player:GetAttribute("Cash") or data.Cash)
 end
 
 local function refreshShops()
@@ -1014,7 +1031,7 @@ local function refreshShops()
 		end
 	end
 	for _, d in GameData.Dice do
-		local card = windows.DiceShopWindow.Body:FindFirstChild("Dice_" .. d.id)
+		local card = windows.DiceShopWindow.Body:FindFirstChild("Dice_" .. d.id, true)
 		if card then
 			card.OwnedText.Text = "Owned: " .. (data.Dice[d.id] or 0)
 		end
@@ -1031,7 +1048,7 @@ local function refreshTimers()
 	local holder = hud.ActivePotions
 	for _, p in GameData.Potions do
 		local secs = potionLeft(p.effect)
-		local card = windows.PotionShopWindow.Body:FindFirstChild("Potion_" .. p.id)
+		local card = windows.PotionShopWindow.Body:FindFirstChild("Potion_" .. p.id, true)
 		if card then
 			card.TimerText.Text = if secs > 0 then "Active: " .. Format.time(secs) else ""
 		end
@@ -1041,6 +1058,13 @@ local function refreshTimers()
 				t = templates.PotionTimer:Clone()
 				t.Name = p.effect
 				t.Icon.Text = p.icon
+				local art = t.Icon:FindFirstChild("AtlasImage")
+				if art and p.image then
+					art.Image = p.image
+					art.ImageRectOffset = Vector2.zero
+					art.ImageRectSize = Vector2.zero
+					art.Size = UDim2.fromScale(1.15, 1.15)
+				end
 				t.Visible = true
 				t.Parent = holder
 			end
@@ -1068,6 +1092,13 @@ end
 Remotes.DataUpdate.OnClientEvent:Connect(function(s)
 	snap = s
 	snapTime = os.clock()
+	if not settingsLoaded and s.Data.Settings then
+		settingsLoaded = true
+		for k, v in s.Data.Settings do
+			settings[k] = v
+		end
+		applySettings()
+	end
 	refreshAll()
 end)
 
@@ -1083,6 +1114,7 @@ end)
 
 -- floating "+$" text where the car finished a tile
 Remotes.Earned.OnClientEvent:Connect(function(amount: number, pos: Vector3)
+	vfx:Earn(amount, pos)
 	local cam = Workspace.CurrentCamera
 	if not cam or (cam.CFrame.Position - pos).Magnitude > 250 then
 		return

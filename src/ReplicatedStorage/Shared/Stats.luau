@@ -60,12 +60,16 @@ function Stats.hasUpgrade(data, stat: string): boolean
 	return false
 end
 
-function Stats.potionMult(data, effect: string): number
-	local left = data.Potions[effect]
-	if left and left > 0 then
-		return Stats.PotionsByEffect[effect].mult
+-- product of every running potion's boost for this stat ("Money", "Luck", "Speed", "Spin")
+function Stats.potionMult(data, stat: string): number
+	local m = 1
+	for effect, left in data.Potions do
+		local pot = Stats.PotionsByEffect[effect]
+		if pot and left > 0 and pot.boosts and pot.boosts[stat] then
+			m *= pot.boosts[stat]
+		end
 	end
-	return 1
+	return m
 end
 
 function Stats.friendBoost(friends: number): number

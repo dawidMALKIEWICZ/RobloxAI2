@@ -47,6 +47,7 @@ local function defaults()
 		Passes = {}, -- X2Money / X2Luck / PremiumPass -> true
 		StarterPack = false,
 		AutoRoll = false,
+		Settings = { Music = true, Sfx = true, Vfx = "High" },
 		LastOnline = 0,
 		LastIncome = 0, -- money per second, used for offline earnings
 	}

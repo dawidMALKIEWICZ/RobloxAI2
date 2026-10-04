@@ -1,353 +1,178 @@
-"""Generates src/Workspace/Map.model.json - cartoony low-poly world.
+"""Generates src/Workspace/Map.model.json - island world in the sea.
 
-Octagon hub island with 4 shop buildings + 8 square player plots (building grid) around it,
-all joined by bridges. Everything SmoothPlastic / Neon for a clean cartoon look.
+Round hub island (market stalls around a plaza with a giant golden die) and 8 rounded player
+islands, all sitting in the sea and joined by plank bridges on stone pillars. Visible geometry is
+meshes baked by blender/models/world.py; invisible Parts give the ground its collision.
+Plot local space: origin = island top centre, -Z points at the hub.
 """
 import math
 import random
 
-from rbx import CF, Inst, add, mul, norm, part, sub, text_sign, write_model
+from meshparts import mesh_parts
+from rbx import CF, Inst, add, mul, norm, part, sub, text_sign, vcyl, write_model
 
 TOP = 100.0
+WATER = TOP - 8.0
 CELL = 10
 MAX_CELLS = 15
-HUB_R = 80             # octagon inradius
-RING = 360
+HUB_R = 92
+RING = 380
 PLOT_W, PLOT_D = 200, 220
-GRID_Z = 10            # grid centre (local z) - hub side is -Z
+GRID_Z = 10            # grid centre (local z)
 PLOT_COLORS = ["#ff5a5a", "#ff9f1a", "#ffd83b", "#5ad65a", "#3bd1ff", "#4b7bff", "#b54dff",
                "#ff5fc8"]
-GRASS = "#74d65a"
 GRASS_DARK = "#5fc048"
-DIRT = "#a8713e"
-ROCK = "#8d8f9e"
-ROCK_DARK = "#6f7181"
-
-
-class B:
-    def __init__(self, base, parent):
-        self.base = base
-        self.parent = parent
-
-    def cf(self, x, y, z, rot=None):
-        c = self.base * CF(x, y, z)
-        return c * rot if rot else c
-
-    def box(self, name, size, pos, color, mat="SmoothPlastic", rot=None, **kw):
-        p = part(name, size, self.cf(*pos, rot=rot), color, mat, **kw)
-        self.parent.add(p)
-        return p
-
-    def wedge(self, name, size, pos, color, rot=None, **kw):
-        p = part(name, size, self.cf(*pos, rot=rot), color, "SmoothPlastic", cls="WedgePart",
-                 **kw)
-        self.parent.add(p)
-        return p
-
-    def ball(self, name, d, pos, color, mat="SmoothPlastic", **kw):
-        p = part(name, (d, d, d), self.cf(*pos), color, mat, shape="Ball", **kw)
-        self.parent.add(p)
-        return p
-
-    def cyl(self, name, r, h, pos, color, mat="SmoothPlastic", **kw):
-        p = part(name, (h, r * 2, r * 2), self.cf(*pos, rot=CF.rz(math.pi / 2)), color, mat,
-                 shape="Cylinder", **kw)
-        self.parent.add(p)
-        return p
-
-    def sign(self, name, text, pos, size, bg, rot=None, **kw):
-        p = text_sign(name, text, 40, self.cf(*pos, rot=rot), size, bg, **kw)
-        self.parent.add(p)
-        return p
-
-
-# ------------------------------------------------------------------ low poly props
-def lp_tree(b, x, z, s=1.0, leaf="#4cc23a", leaf2="#3fae2f", name="Tree"):
-    m = Inst("Model", name)
-    tb = B(b.base, m)
-    tb.box("Trunk", (1.6 * s, 6 * s, 1.6 * s), (x, 3 * s, z), "#8a5a2b", attrs={"Role": "Trunk"})
-    tb.box("Leaves1", (9 * s, 4.5 * s, 9 * s), (x, 7.5 * s, z), leaf, rot=CF.ry(0.3),
-           attrs={"Role": "Leaves"})
-    tb.box("Leaves2", (6.5 * s, 4 * s, 6.5 * s), (x, 11.2 * s, z), leaf2,
-           rot=CF.ry(0.3 + math.pi / 4), attrs={"Role": "Leaves"})
-    tb.box("Leaves3", (3.6 * s, 3 * s, 3.6 * s), (x, 14.2 * s, z), leaf, rot=CF.ry(0.3),
-           attrs={"Role": "Leaves"})
-    b.parent.add(m)
-
-
-def lp_rock(b, x, z, s=1.0, color=ROCK, rng=None):
-    rng = rng or random.Random(int(x * 7 + z * 13))
-    b.box("Rock", (4 * s, 2.6 * s, 3.4 * s), (x, 1.1 * s, z), color,
-          rot=CF.angles(rng.uniform(-0.2, 0.2), rng.uniform(0, 3), rng.uniform(-0.2, 0.2)))
-
-
-def lp_bush(b, x, z, s=1.0, color="#5fd13f"):
-    b.box("Bush", (3.6 * s, 2.6 * s, 3.6 * s), (x, 1.2 * s, z), color, rot=CF.ry(0.6))
-    b.box("Bush2", (2.6 * s, 2.2 * s, 2.6 * s), (x + 1.2 * s, 1.6 * s, z + 0.6 * s), color,
-          rot=CF.ry(1.4))
-
-
-def square_island(m, cf, w, d, grass=GRASS, seed=0, roles=True):
-    """Flat-topped square island with stepped low-poly cliffs underneath."""
-    rng = random.Random(seed)
-    b = B(cf, m)
-    ra = (lambda r: {"Role": r}) if roles else (lambda r: None)
-    b.box("Grass", (w, 3, d), (0, -1.5, 0), grass, attrs=ra("Grass"))
-    b.box("GrassLip", (w + 1.6, 1.4, d + 1.6), (0, -3.4, 0), GRASS_DARK if grass == GRASS else grass,
-          attrs=ra("Grass"))
-    b.box("Dirt", (w - 2, 7, d - 2), (0, -7.5, 0), DIRT, attrs=ra("Dirt"))
-    steps = [(0.86, 7), (0.66, 7), (0.44, 7), (0.22, 6)]
-    y = -11
-    for i, (k, h) in enumerate(steps):
-        y -= h / 2
-        b.box(f"Rock{i}", (w * k, h, d * k), (rng.uniform(-3, 3), y, rng.uniform(-3, 3)),
-              ROCK if i % 2 == 0 else ROCK_DARK, rot=CF.ry(rng.uniform(-0.08, 0.08)),
-              attrs=ra("Rock"))
-        y -= h / 2
-    for i in range(10):
-        x = rng.uniform(-0.45, 0.45) * w
-        z = rng.uniform(-0.45, 0.45) * d
-        s = rng.uniform(5, 11)
-        b.box(f"Chunk{i}", (s, s * 1.3, s), (x, -13 - rng.uniform(0, 10), z), ROCK_DARK,
-              rot=CF.angles(rng.uniform(-.4, .4), rng.uniform(0, 3), rng.uniform(-.4, .4)),
-              attrs=ra("Rock"))
-
-
-def octagon_island(m, center, r, seed=1):
-    rng = random.Random(seed)
-    b = B(CF(*center), m)
-    side = 2 * r
-    for k in range(2):
-        rot = CF.ry(k * math.pi / 4)
-        dy = 0.05 * k  # never let the two squares share a top face
-        b.box("Grass", (side, 3, side), (0, -1.5 - dy, 0), GRASS, rot=rot)
-        b.box("GrassLip", (side + 1.6, 1.4, side + 1.6), (0, -3.4 - dy, 0), GRASS_DARK, rot=rot)
-        b.box("Dirt", (side - 2, 7, side - 2), (0, -7.5 - dy, 0), DIRT, rot=rot)
-    y = -11
-    for i, (k, h) in enumerate([(0.86, 7), (0.66, 7), (0.44, 7), (0.22, 6)]):
-        y -= h / 2
-        for j in range(2):
-            b.box(f"Rock{i}", (side * k, h, side * k), (0, y - 0.05 * j, 0),
-                  ROCK if i % 2 == 0 else ROCK_DARK,
-                  rot=CF.ry(j * math.pi / 4 + i * 0.2))
-        y -= h / 2
-    for i in range(8):
-        a = rng.uniform(0, math.tau)
-        dd = rng.uniform(0.2, 0.6) * r
-        s = rng.uniform(6, 12)
-        b.box("Chunk", (s, s * 1.3, s), (math.cos(a) * dd, -14 - rng.uniform(0, 10), math.sin(a) * dd),
-              ROCK_DARK, rot=CF.angles(rng.uniform(-.4, .4), rng.uniform(0, 3), 0))
-
-
-def bridge(parent, name, p1, p2, width=12):
-    m = Inst("Model", name)
-    d = sub(p2, p1)
-    L = math.hypot(d[0], d[2])
-    f = norm((d[0], 0, d[2]))
-    base = CF.look(((p1[0] + p2[0]) / 2, TOP, (p1[2] + p2[2]) / 2), f)
-    b = B(base, m)
-    n = max(4, int(L / 3))
-    step = L / n
-    for i in range(n):
-        lz = -L / 2 + step * (i + 0.5)
-        b.box(f"Plank{i}", (width, 0.8, step * 0.86), (0, -0.33, lz),
-              "#d99a5b" if i % 2 else "#c9874a")
-    for side in (-1, 1):
-        b.box("Beam", (1.0, 1.2, L), (side * (width / 2 - 0.4), -1.3, 0), "#8a5a2b")
-    posts = max(2, int(L / 16) + 1)
-    for i in range(posts):
-        lz = -L / 2 + L * i / (posts - 1)
-        for side in (-1, 1):
-            b.box("Post", (1.2, 4.6, 1.2), (side * (width / 2 + 0.3), 1.6, lz), "#8a5a2b")
-            b.box("PostCap", (1.6, 0.6, 1.6), (side * (width / 2 + 0.3), 4.1, lz), "#ffffff")
-    for side in (-1, 1):
-        b.box("Rail", (0.6, 0.6, L), (side * (width / 2 + 0.3), 3.2, 0), "#f2d29b")
-    parent.add(m)
-
-
-# ------------------------------------------------------------------ shops
-def shop_building(parent, key, title, c_main, c_roof, cf, prop):
-    m = Inst("Model", f"Shop_{key}", attrs={"Shop": key})
-    b = B(cf, m)
-    W, D, H = 30, 20, 14
-    b.box("Floor", (W + 4, 1, D + 6), (0, 0.5, -2), "#e8e2d6")
-    b.box("Back", (W, H, 2), (0, H / 2 + 1, D / 2 - 1), c_main)
-    b.box("SideL", (2, H, D), (-W / 2 + 1, H / 2 + 1, 0), c_main)
-    b.box("SideR", (2, H, D), (W / 2 - 1, H / 2 + 1, 0), c_main)
-    b.box("FrontL", (7, H, 2), (-W / 2 + 3.5, H / 2 + 1, -D / 2 + 1), c_main)
-    b.box("FrontR", (7, H, 2), (W / 2 - 3.5, H / 2 + 1, -D / 2 + 1), c_main)
-    b.box("FrontTop", (W - 14, 4, 2), (0, H - 1, -D / 2 + 1), c_main)
-    b.box("Window", (W - 14.2, H - 4.2, 0.4), (0, (H - 4) / 2 + 1, -D / 2 + 1.2), "#bfefff",
-          "Glass", transparency=0.55, collide=False)
-    b.box("Inside", (W - 4, 0.2, D - 4), (0, 1.1, 0), "#fff6e0")
-    # gable roof from two wedges
-    rh = 7
-    b.wedge("RoofL", (W + 4, rh, D / 2 + 2), (0, H + 1 + rh / 2, -(D / 4 + 1)), c_roof)
-    b.wedge("RoofR", (W + 4, rh, D / 2 + 2), (0, H + 1 + rh / 2, D / 4 + 1), c_roof,
-            rot=CF.ry(math.pi))
-    b.box("RoofEdge", (W + 4.4, 1, D + 4.4), (0, H + 1.2, 0), "#ffffff")
-    # awning stripes over the door
-    for i in range(6):
-        b.box(f"Awning{i}", (16 / 6, 0.5, 5), (-8 + 16 / 6 * (i + 0.5), H - 3.4, -D / 2 - 2.2),
-              c_roof if i % 2 == 0 else "#ffffff", rot=CF.rx(math.radians(20)))
-    b.sign("Sign", title, (0, H + 3.2, -D / 2 - 1.6), (24, 5, 1), c_roof, rot=CF.rx(0.15))
-    pp = b.box("PromptPart", (12, 8, 2), (0, 5, -D / 2 - 5), "#ffffff", transparency=1,
-               collide=False)
-    pp.attrs["Shop"] = key
-    pp.add(Inst("ProximityPrompt", "Prompt", {
-        "ActionText": "Open", "ObjectText": title.title(), "HoldDuration": 0,
-        "MaxActivationDistance": 18, "RequiresLineOfSight": False, "KeyboardKeyCode": "E"}))
-    b.box(f"TP_{key}", (4, 1, 4), (0, 3, -D / 2 - 12), "#ffffff", transparency=1,
-          collide=False, touch=False, rot=CF.ry(math.pi))
-    prop(b, H, D)
-    parent.add(m)
-    return m
-
-
-def prop_dice(b, H, D):
-    b.box("BigDice", (8, 8, 8), (0, H + 13, 0), "#ffffff", rot=CF.angles(0.4, 0.6, 0.2))
-    for dx, dz in ((-1.8, -1.8), (1.8, 1.8), (0, 0)):
-        b.box("Pip", (1.4, 1.4, 0.3), (dx * 0.6, H + 13 + dz * 0.6, -4.1), "#222222",
-              rot=CF.angles(0.4, 0.6, 0.2))
-    for i, c in enumerate(("#ffcc1a", "#3fa9ff", "#b54dff", "#ff3b6b")):
-        b.box(f"Dice{i}", (3, 3, 3), (-9 + i * 6, 6.6, 2), c, rot=CF.ry(i * 0.5))
-
-
-def prop_potion(b, H, D):
-    b.ball("BigPotion", 7, (0, H + 12, 0), "#b54dff", "Neon", transparency=0.1)
-    b.cyl("Neck", 1.4, 3, (0, H + 16.6, 0), "#d9a3ff", "Glass")
-    b.cyl("Cork", 1.6, 1.6, (0, H + 18.6, 0), "#9c6b3c")
-    b.cyl("Cauldron", 4, 4, (0, 3, 2), "#2b2b33")
-    b.cyl("Brew", 3.6, 0.4, (0, 5, 2), "#7dff4f", "Neon")
-
-
-def prop_car(b, H, D):
-    b.cyl("Podium", 6, 1, (0, 1.6, 1), "#ffffff")
-    b.cyl("PodiumGlow", 6.4, 0.6, (0, 1.2, 1), "#5cc8ff", "Neon")
-    b.box("CarBody", (5, 2, 9), (0, 3.4, 1), "#ff3b3b")
-    b.box("CarCab", (4.2, 1.8, 4.5), (0, 5.2, 1.5), "#9fe6ff", "Glass", transparency=0.2)
-    for sx in (-1, 1):
-        for sz in (-1, 1):
-            b.parent.add(part("Wheel", (1, 2.2, 2.2), b.cf(sx * 2.6, 2.6, 1 + sz * 3),
-                              "#222222", shape="Cylinder"))
-    b.box("RoofCar", (6, 3, 10), (0, H + 10, 0), "#ff3b3b", rot=CF.ry(0.4))
-    b.box("RoofCab", (5, 2.4, 5), (0, H + 12.6, 0.4), "#9fe6ff", rot=CF.ry(0.4))
-
-
-def prop_style(b, H, D):
-    b.box("Palette", (12, 1, 9), (0, H + 10, 0), "#f2d29b", rot=CF.rx(-1.1))
-    for i, c in enumerate(("#ff3b3b", "#3bd16b", "#3b8bff", "#ffd23b", "#b54dff")):
-        a = i * 1.1
-        b.box(f"Blob{i}", (2, 0.6, 2), (math.cos(a) * 3.4, H + 10 + math.sin(a) * 2.5, -1.2),
-              c, rot=CF.rx(-1.1))
-    for i, c in enumerate(("#ff3b3b", "#3bd16b", "#3b8bff", "#ffd23b")):
-        b.cyl(f"Bucket{i}", 1.6, 2.6, (-9 + i * 6, 2.3, 3), "#d0d0d8")
-        b.cyl(f"Paint{i}", 1.4, 0.3, (-9 + i * 6, 3.6, 3), c)
-
-
-SHOPS = [
-    ("Cars", "CAR DEALER", "#3b8bff", "#1f5fc9", prop_car),
-    ("Styles", "ISLAND STYLES", "#ff6fb5", "#c2307c", prop_style),
-    ("Potions", "POTIONS", "#a94dff", "#6a1fc9", prop_potion),
-    ("Dice", "DICE SHOP", "#ffc61a", "#e58a00", prop_dice),
-]
-
-
-def hub(parent):
-    m = Inst("Model", "Hub")
-    octagon_island(m, (0, TOP, 0), HUB_R)
-    b = B(CF(0, TOP, 0), m)
-    for k in range(2):
-        b.box("Plaza", (44, 0.7, 44), (0, 0.15 + 0.03 * k, 0), "#efe6d2",
-              rot=CF.ry(k * math.pi / 4))
-    for k in range(8):
-        a = k * math.tau / 8
-        r = HUB_R / 2 + 11
-        m.add(part(f"Path{k}", (HUB_R - 22, 0.6, 12),
-                   CF(math.cos(a) * r, TOP + 0.12, math.sin(a) * r) * CF.ry(-a), "#efe6d2"))
-    # low poly fountain
-    for k in range(2):
-        b.box("FountainBase", (16, 2.4, 16), (0, 1.2 + 0.03 * k, 0), "#c9c2b3",
-              rot=CF.ry(k * math.pi / 4))
-        b.box("FountainWater", (14, 0.4, 14), (0, 2.3 + 0.03 * k, 0), "#4fc8ff",
-              rot=CF.ry(k * math.pi / 4), transparency=0.15)
-    b.box("FountainPillar", (2.4, 6, 2.4), (0, 4.5, 0), "#c9c2b3", rot=CF.ry(0.785))
-    b.box("FountainTop", (6, 1, 6), (0, 7.5, 0), "#c9c2b3", rot=CF.ry(0.785))
-    b.ball("FountainSpout", 2.4, (0, 8.6, 0), "#4fc8ff", "Neon", transparency=0.2)
-    m.add(Inst("SpawnLocation", "HubSpawn", {
-        "Anchored": True, "Size": {"Vector3": [8, 1, 8]}, "CFrame": CF(0, TOP + 0.3, 16).json(),
-        "Transparency": 1, "CanCollide": False, "Neutral": True, "Duration": 0}))
-    # title sign
-    ta = math.radians(112.5)
-    tcf = CF.look((math.cos(ta) * 30, TOP, math.sin(ta) * 30), (-math.cos(ta), 0, -math.sin(ta)))
-    tb = B(tcf, m)
-    tb.box("TitlePostL", (1.6, 20, 1.6), (-18, 10, 0), "#8a5a2b")
-    tb.box("TitlePostR", (1.6, 20, 1.6), (18, 10, 0), "#8a5a2b")
-    tb.box("TitleFrame", (42, 11, 1.0), (0, 21, 0), "#ffffff")
-    tb.sign("Title", "TRACK RNG", (0, 21, -0.7), (40, 9, 0.5), "#ff3b6b")
-    tb.sign("TitleBack", "TRACK RNG", (0, 21, 0.7), (40, 9, 0.5), "#ff3b6b", rot=CF.ry(math.pi))
-    for k, (key, title, c1, c2, prop) in enumerate(SHOPS):
-        a = math.radians(22.5 + 90 * k)
-        pos = (math.cos(a) * 54, TOP, math.sin(a) * 54)
-        shop_building(m, key, title, c1, c2, CF.look(pos, (-math.cos(a), 0, -math.sin(a))), prop)
-    rng = random.Random(3)
-    for k in range(16):
-        a = math.radians(22.5 + 45 * k / 2) + rng.uniform(-0.06, 0.06)
-        if (k % 2) == 0:
-            continue
-        d = rng.uniform(64, 74)
-        lp_tree(b, math.cos(a) * d, math.sin(a) * d, rng.uniform(0.9, 1.2))
-    parent.add(m)
-
-
-# ------------------------------------------------------------------ plots
+# free spots around the build grid used by island style decorations (local x, z)
 DECOR_SPOTS = [(-88, -60), (-90, -20), (-88, 25), (-90, 65), (88, -60), (90, -20), (88, 25),
                (90, 65), (-55, 98), (-15, 100), (25, 98), (65, 100), (-60, -95), (60, -95)]
 
 
+def collider(name, size, cf, **kw):
+    return part(name, size, cf, "#ffffff", transparency=1, cast_shadow=False, **kw)
+
+
+def meshes(parent, name, cf, scale=1.0, **kw):
+    for mp in mesh_parts("World_" + name, base=cf, scale=scale, **kw):
+        parent.add(mp)
+
+
+def prop(parent, name, cf, scale=1.0, label=None):
+    m = Inst("Model", label or name)
+    meshes(m, name, cf, scale)
+    parent.add(m)
+    return m
+
+
+# ------------------------------------------------------------------ hub
+SHOPS = [("Cars", "CAR DEALER", "StallCars"), ("Styles", "ISLAND STYLES", "StallStyles"),
+         ("Potions", "POTIONS", "StallPotions"), ("Dice", "DICE SHOP", "StallDice")]
+STALL_SCALE = 1.35
+STALL_DEPTH = 7.0 * STALL_SCALE
+
+
+def shop(parent, key, title, mesh, cf):
+    """cf: stall base, local +Z faces the plaza."""
+    m = Inst("Model", f"Shop_{key}", attrs={"Shop": key})
+    meshes(m, mesh, cf, STALL_SCALE)
+    m.add(collider("Floor", (17.5, 0.7, 11.5), cf * CF(0, 0.35, 0)))
+    m.add(collider("Back", (16.5, 11, 1.2), cf * CF(0, 5.5, -STALL_DEPTH / 2 + 0.5)))
+    m.add(collider("Counter", (16, 3.6, 2.2), cf * CF(0, 1.8, STALL_DEPTH / 2 - 1.2)))
+    front = STALL_DEPTH / 2
+    pp = collider("PromptPart", (14, 8, 2), cf * CF(0, 4, front + 3), collide=False,
+                  attrs={"Shop": key})
+    pp.add(Inst("ProximityPrompt", "Prompt", {
+        "ActionText": "Open", "ObjectText": title.title(), "HoldDuration": 0,
+        "MaxActivationDistance": 18, "RequiresLineOfSight": False, "KeyboardKeyCode": "E"}))
+    m.add(pp)
+    m.add(collider(f"TP_{key}", (4, 1, 4), cf * CF(0, 1, front + 12), collide=False, touch=False))
+    parent.add(m)
+
+
+def hub(parent):
+    m = Inst("Model", "Hub")
+    base = CF(0, TOP, 0)
+    meshes(m, "HubIsland", base)
+    m.add(vcyl("Ground", HUB_R - 1, 6, (0, TOP - 3, 0), "#ffffff", transparency=1))
+    m.add(vcyl("Beach", HUB_R + 9, 2, (0, TOP - 8.2, 0), "#ffffff", transparency=1))
+    lm = Inst("Model", "Landmark")
+    meshes(lm, "Landmark", base * CF(0, 0.3, 0), 1.3)
+    lm.add(vcyl("Basin", 14.3, 2.4, (0, TOP + 1.2, 0), "#ffffff", transparency=1))
+    lm.add(vcyl("Pillar", 3, 16, (0, TOP + 8, 0), "#ffffff", transparency=1))
+    m.add(lm)
+    m.add(Inst("SpawnLocation", "HubSpawn", {
+        "Anchored": True, "Size": {"Vector3": [8, 1, 8]}, "CFrame": CF(0, TOP + 0.4, 24).json(),
+        "Transparency": 1, "CanCollide": False, "CanQuery": False, "Neutral": True,
+        "Duration": 0}))
+    # title sign facing the first bridge
+    # arch over the path of the first bridge, readable from both sides
+    tcf = CF.look((82, TOP, 0), (-1, 0, 0))
+    for x in (-15, 15):
+        m.add(part("TitlePost", (1.6, 18, 1.6), tcf * CF(x, 9, 0), "#8a5a2b"))
+    m.add(part("TitleFrame", (36, 9, 1.0), tcf * CF(0, 19, 0), "#ffffff"))
+    m.add(text_sign("Title", "TRACK RNG", 40, tcf * CF(0, 19, -0.7), (34, 7.4, 0.5), "#ff3b6b"))
+    m.add(text_sign("TitleBack", "TRACK RNG", 40, tcf * CF(0, 19, 0.7) * CF.ry(math.pi),
+                    (34, 7.4, 0.5), "#ff3b6b"))
+    for k, (key, title, mesh) in enumerate(SHOPS):
+        a = math.radians(22.5 + 90 * k)
+        pos = (math.cos(a) * 64, TOP, math.sin(a) * 64)
+        shop(m, key, title, mesh, CF.look(pos, (math.cos(a), 0, math.sin(a))))
+    deco = Inst("Model", "Decor")
+    rng = random.Random(3)
+    for k in range(8):   # lamps along the paths
+        a = k * math.tau / 8
+        for r in (42, 72):
+            for s in (-1, 1):
+                x = math.cos(a) * r - math.sin(a) * 9 * s
+                z = math.sin(a) * r + math.cos(a) * 9 * s
+                prop(deco, "Lamp", CF(x, TOP, z), 1.3)
+    for k in (1, 3, 5, 7):  # benches facing the flower beds
+        a = (k + 0.5) * math.tau / 8
+        prop(deco, "Bench", CF.look((math.cos(a) * 38, TOP, math.sin(a) * 38),
+                                    (math.cos(a), 0, math.sin(a))), 1.2)
+    for k in range(16):  # trees around the rim, between the paths
+        a = (k + 0.5) * math.tau / 16 + rng.uniform(-0.05, 0.05)
+        if k % 2 == 0 and (k // 2) % 2 == 0:
+            continue
+        d = rng.uniform(78, 84)
+        kind = rng.choice(("TreeRound", "TreeRound", "TreePine", "TreePalm"))
+        prop(deco, kind, CF(math.cos(a) * d, TOP, math.sin(a) * d) * CF.ry(rng.uniform(0, 6)),
+             rng.uniform(1.6, 2.0))
+        prop(deco, "Bush", CF(math.cos(a + 0.06) * (d - 6), TOP, math.sin(a + 0.06) * (d - 6))
+             * CF.ry(rng.uniform(0, 6)), 1.3)
+    for k in range(10):  # palms and rocks on the beach
+        a = k * math.tau / 10 + 0.3
+        prop(deco, "Rock" if k % 2 else "TreePalm",
+             CF(math.cos(a) * (HUB_R + 6), TOP - 7.3, math.sin(a) * (HUB_R + 6))
+             * CF.ry(rng.uniform(0, 6)), 1.8 if k % 2 else 1.5)
+    m.add(deco)
+    parent.add(m)
+
+
+# ------------------------------------------------------------------ plots
 def plot(parent, idx, center):
     cx, cz = center
     col = PLOT_COLORS[idx]
     cf = CF.look((cx, TOP, cz), (-cx, 0, -cz))
     m = Inst("Model", f"Plot{idx + 1}", attrs={"PlotIndex": idx + 1, "PlotColor": col})
-    b = B(cf, m)
-    b.box("Pivot", (1, 1, 1), (0, 0.5, 0), "#ffffff", transparency=1, collide=False, touch=False)
+
+    def L(x, y, z):
+        return cf * CF(x, y, z)
+    m.add(collider("Pivot", (1, 1, 1), L(0, 0.5, 0), collide=False, touch=False))
     island = Inst("Model", "Island")
+    meshes(island, "PlotIsland", cf)
+    for size, pos in (((PLOT_W - 36, 6, PLOT_D), (0, -3, 0)), ((PLOT_W, 6, PLOT_D - 36), (0, -3, 0)),
+                      ((PLOT_W + 18, 2, PLOT_D + 18), (0, -8.4, 0))):
+        island.add(collider("Ground", size, L(*pos)))
+    for x, z, w, d, h in ((-88, 98, 22, 18, 7), (88, 97, 20, 20, 9)):   # corner hills
+        for kw, kh in ((1.0, 0.55), (0.66, 0.8), (0.36, 1.0)):
+            island.add(collider("Hill", (w * kw, h * kh, d * kw), L(x, h * kh / 2 - 0.2, z)))
     m.add(island)
-    square_island(island, cf, PLOT_W, PLOT_D, seed=idx + 10)
-    # locked build area (darker) - the unlocked pad is built by the server
-    b.box("GridArea", (MAX_CELLS * CELL + 2, 0.3, MAX_CELLS * CELL + 2), (0, 0.05, GRID_Z),
-          GRASS_DARK, attrs={"Role": "Grass"})
-    b.box("GridOrigin", (1, 1, 1), (0, 0, GRID_Z), "#ffffff", transparency=1, collide=False,
-          touch=False)
-    # border tiles in plot colour
-    for side in (-1, 1):
-        b.box("BorderX", (1.2, 0.8, PLOT_D - 4), (side * (PLOT_W / 2 - 1.2), 0.2, 0), col,
-              attrs={"Role": "Accent"})
-        b.box("BorderZ", (PLOT_W - 4, 0.8, 1.2), (0, 0.2, side * (PLOT_D / 2 - 1.2)), col,
-              attrs={"Role": "Accent"})
-    # spawn + owner sign arch on the hub side
-    b.box("SpawnPad", (10, 0.8, 10), (0, 0.2, -92), "#ffffff", rot=CF.ry(math.pi / 4))
-    b.box("SpawnPadInner", (7, 0.9, 7), (0, 0.25, -92), col, rot=CF.ry(math.pi / 4),
-          attrs={"Role": "Accent"})
-    b.box("SpawnPoint", (2, 1, 2), (0, 3, -92), "#ffffff", transparency=1, collide=False,
-          touch=False)
-    b.box("SignPostL", (1.2, 12, 1.2), (-8.5, 6, -104), "#8a5a2b")
-    b.box("SignPostR", (1.2, 12, 1.2), (8.5, 6, -104), "#8a5a2b")
-    b.box("SignFrame", (19, 6, 0.6), (0, 11, -104), "#ffffff")
-    s = b.sign("OwnerSign", f"Empty Plot {idx + 1}", (0, 11, -104.4), (18, 5, 0.6), col)
+    # darker locked build area (the unlocked pad is built by the server)
+    m.add(part("GridArea", (MAX_CELLS * CELL + 2, 0.3, MAX_CELLS * CELL + 2), L(0, 0.05, GRID_Z),
+               GRASS_DARK, attrs={"Role": "Grass"}))
+    m.add(collider("GridOrigin", (1, 1, 1), L(0, 0, GRID_Z), collide=False, touch=False))
+    # respawn point (no visible pad) + owner sign arch
+    m.add(collider("SpawnPoint", (2, 1, 2), L(0, 3, -92), collide=False, touch=False))
+    meshes(m, "SignArch", L(0, 0, -104))
+    for x in (-9, 9):
+        m.add(collider("SignPost", (1.4, 13, 1.4), L(x, 6.5, -104)))
+    s = text_sign("OwnerSign", f"Empty Plot {idx + 1}", 40, L(0, 10.5, -104.45), (18, 5.6, 0.2),
+                  col)
     s.attrs["Role"] = "Accent"
-    b.sign("OwnerSignBack", f"PLOT {idx + 1}", (0, 11, -103.6), (18, 5, 0.6), col,
-           rot=CF.ry(math.pi))
+    m.add(s)
+    m.add(text_sign("OwnerSignBack", f"PLOT {idx + 1}", 40, L(0, 10.5, -103.55) * CF.ry(math.pi),
+                    (18, 5.6, 0.2), col))
+    # plot-coloured flags either side of the entrance
+    for x in (-14, 14):
+        m.add(part("FlagPole", (0.5, 12, 0.5), L(x, 6, -100), "#ffffff"))
+        m.add(part("Flag", (0.2, 3, 4.5), L(x, 10.2, -102.3), col, attrs={"Role": "Accent"}))
     decor = Inst("Model", "Decor")
-    db = B(cf, decor)
     rng = random.Random(idx)
     for k, (x, z) in enumerate(DECOR_SPOTS):
+        kind = ("TreeRound", "TreePine", "Rock")[k % 3]
+        prop(decor, kind, L(x, 0, z) * CF.ry(rng.uniform(0, 6)), rng.uniform(1.5, 1.9))
         if k % 3 == 2:
-            lp_rock(db, x, z, rng.uniform(0.9, 1.4), rng=rng)
-            lp_bush(db, x + 5, z + 3, 0.9)
-        else:
-            lp_tree(db, x, z, rng.uniform(0.85, 1.15))
+            prop(decor, "Bush", L(x + 6, 0, z + 3), 1.3)
     m.add(decor)
     m.add(Inst("Folder", "Track"))
     m.add(Inst("Folder", "Pad"))
@@ -356,12 +181,44 @@ def plot(parent, idx, center):
 
 
 def exit_point(cf, w, d, direction):
-    """Point on the rectangle edge of a plot (local half sizes) towards a world direction."""
+    """Point on the plot rectangle edge (local half sizes) towards a world direction."""
     inv = cf.inverse()
     ld = inv.vector(direction)
     t = min((w / 2) / abs(ld[0]) if abs(ld[0]) > 1e-6 else 1e9,
             (d / 2) / abs(ld[2]) if abs(ld[2]) > 1e-6 else 1e9)
     return cf.point((ld[0] * t, 0, ld[2] * t))
+
+
+def bridge(parent, name, p1, p2):
+    m = Inst("Model", name)
+    d = sub(p2, p1)
+    length = math.hypot(d[0], d[2])
+    f = norm((d[0], 0, d[2]))
+    mid = ((p1[0] + p2[0]) / 2, TOP, (p1[2] + p2[2]) / 2)
+    base = CF.look(mid, f)
+    n = max(2, round(length / 6))
+    step = length / n
+    for i in range(n):
+        lz = -length / 2 + step * (i + 0.5)
+        meshes(m, "BridgePiece", base * CF(0, 0, lz) * CF.ry(math.pi / 2 * 0), 1.0)
+    for i in range(1, max(2, int(length / 30))):
+        lz = -length / 2 + length * i / max(2, int(length / 30))
+        meshes(m, "BridgePillar", base * CF(0, -0.9, lz))
+    m.add(collider("Deck", (13.6, 1, length + 4), base * CF(0, -0.5, 0)))
+    for s in (-1, 1):
+        m.add(collider("Rail", (0.6, 4, length), base * CF(s * 6.9, 1.6, 0)))
+    parent.add(m)
+
+
+def floating(parent):
+    m = Inst("Model", "FloatingIsles")
+    rng = random.Random(9)
+    for k in range(6):
+        a = (k + 0.5) * math.tau / 6 + rng.uniform(-0.2, 0.2)
+        r = rng.uniform(610, 700)
+        meshes(m, "FloatingIsle", CF(math.cos(a) * r, TOP + rng.uniform(45, 95), math.sin(a) * r)
+               * CF.ry(rng.uniform(0, 6)), rng.uniform(1.6, 2.6), shadow=False)
+    parent.add(m)
 
 
 def build():
@@ -379,19 +236,21 @@ def build():
         a = i * math.tau / 8
         u = (math.cos(a), 0, math.sin(a))
         p_plot = exit_point(cfs[i], PLOT_W, PLOT_D, neg3(u))
-        bridge(bridges, f"HubBridge{i + 1}", mul(u, HUB_R - 2), add(p_plot, mul(u, 2)))
+        bridge(bridges, f"HubBridge{i + 1}", mul(u, HUB_R - 4), add(p_plot, mul(u, 3)))
         j = (i + 1) % 8
         c1, c2 = cfs[i].p, cfs[j].p
         dv = norm(sub(c2, c1))
         e1 = exit_point(cfs[i], PLOT_W, PLOT_D, dv)
         e2 = exit_point(cfs[j], PLOT_W, PLOT_D, neg3(dv))
-        bridge(bridges, f"RingBridge{i + 1}_{j + 1}", sub(e1, mul(dv, 2)), add(e2, mul(dv, 2)))
-    root.add(part("VoidCatcher", (2048, 4, 2048), CF(0, TOP - 140, 0), "#000000",
+        bridge(bridges, f"RingBridge{i + 1}_{j + 1}", sub(e1, mul(dv, 3)), add(e2, mul(dv, 3)))
+    floating(root)
+    root.add(part("VoidCatcher", (2048, 4, 2048), CF(0, WATER - 30, 0), "#000000",
                   transparency=1, collide=False))
     for ix in (-1, 0, 1):
         for iz in (-1, 0, 1):
-            root.add(part("Ocean", (2048, 2, 2048), CF(ix * 2048, TOP - 170, iz * 2048),
-                          "#4cc3ff", transparency=0.1, touch=False))
+            root.add(part("Ocean", (2048, 2, 2048), CF(ix * 2048, WATER - 1, iz * 2048),
+                          "#36b8f0", transparency=0.08, collide=False, touch=False,
+                          reflectance=0.08, cast_shadow=False))
     return root
 
 
@@ -399,5 +258,13 @@ def neg3(v):
     return (-v[0], -v[1], -v[2])
 
 
+def island_preview():
+    """Tenth-scale plot island used by the style shop's 3D previews."""
+    m = Inst("Model", "IslandPreview")
+    meshes(m, "PlotIsland", CF(), 0.1)
+    return m
+
+
 if __name__ == "__main__":
     write_model(build(), "Workspace/Map.model.json")
+    write_model(island_preview(), "ReplicatedStorage/Assets/IslandPreview.model.json")

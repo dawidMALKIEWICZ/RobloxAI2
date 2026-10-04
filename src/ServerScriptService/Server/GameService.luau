@@ -16,6 +16,7 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local GameService = {}
 
 local rng = Random.new()
+local MAX_POTION_TIME = 3 * 3600 -- one potion type can be stacked up to 3 hours
 local lastRoll: { [Player]: number } = {}
 local friends: { [Player]: number } = {}
 local productKeyById: { [number]: string } = {}
@@ -241,9 +242,7 @@ function Actions.UseDice(player, data, id)
 end
 
 function Actions.SetAuto(player, data, on)
-	if on and not Stats.hasUpgrade(data, "AutoRoll") then
-		return false, "Unlock Auto Roll in Skills!"
-	end
+	-- Auto Roll is available to every player from the start.
 	data.AutoRoll = on == true
 	sendUpdate(player)
 	return true
@@ -353,8 +352,12 @@ function Actions.BuyPotion(player, data, id)
 	if data.Cash < pot.price then
 		return false, "Not enough cash!"
 	end
+	local left = data.Potions[pot.effect] or 0
+	if left + pot.duration > MAX_POTION_TIME then
+		return false, "That potion is already stacked to the limit!"
+	end
 	addCash(player, data, -pot.price)
-	data.Potions[pot.effect] = (data.Potions[pot.effect] or 0) + pot.duration
+	data.Potions[pot.effect] = left + pot.duration
 	TrackService.refreshPath(player, data)
 	sendUpdate(player)
 	return true, pot.name .. " activated!"
@@ -437,6 +440,24 @@ function Actions.ClaimPass(player, data)
 		return false, "Nothing to claim yet!"
 	end
 	return true, "Claimed " .. count .. " rewards!"
+end
+
+-- client settings (music, sound effects, effect quality); only known keys are stored
+function Actions.SetSettings(player, data, settings)
+	if type(settings) ~= "table" then
+		return false
+	end
+	data.Settings = data.Settings or {}
+	if type(settings.Music) == "boolean" then
+		data.Settings.Music = settings.Music
+	end
+	if type(settings.Sfx) == "boolean" then
+		data.Settings.Sfx = settings.Sfx
+	end
+	if settings.Vfx == "High" or settings.Vfx == "Low" then
+		data.Settings.Vfx = settings.Vfx
+	end
+	return true
 end
 
 function Actions.Teleport(player, _data, target)
@@ -581,7 +602,24 @@ function GameService.playerRemoving(player: Player)
 end
 
 function GameService.start()
+	-- token bucket per player: bursts of 20 requests, refilled at 12 per second
+	local buckets: { [Player]: { tokens: number, t: number } } = {}
+	Players.PlayerRemoving:Connect(function(p)
+		buckets[p] = nil
+	end)
 	Remotes.Request.OnServerInvoke = function(player, action, arg)
+		local now = os.clock()
+		local bucket = buckets[player] or { tokens = 20, t = now }
+		buckets[player] = bucket
+		bucket.tokens = math.min(20, bucket.tokens + (now - bucket.t) * 12)
+		bucket.t = now
+		if bucket.tokens < 1 then
+			return false, "Slow down!"
+		end
+		bucket.tokens -= 1
+		if type(action) ~= "string" then
+			return false
+		end
 		local fn = Actions[action]
 		local data = DataService.get(player)
 		if not fn or not data then

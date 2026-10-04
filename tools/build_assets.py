@@ -8,6 +8,7 @@ src/ReplicatedStorage/Assets/IslandStyles.model.json - 8 styles (attributes + De
 import math
 import random
 
+from meshparts import mesh_parts
 from rbx import CF, Inst, part, write_model
 
 # ------------------------------------------------------------------ cars
@@ -238,7 +239,10 @@ def build_cars():
                                       "MoneyMult": mult, "Order": i + 1})
         m.add(part("Root", (1, 0.4, 1), CF(0, 0.2, 0), "#ffffff", transparency=1, collide=False,
                    touch=False))
-        builder(Kit(m, CAR_SCALE))
+        # body meshes baked by blender/models/cars.py (wheels touch the road 0.05 under Root)
+        for mp in mesh_parts("Car_" + cid, base=CF(0, 0.15, 0)):
+            m.add(mp)
+        _ = builder
         root.add(m)
     return root
 
@@ -399,23 +403,23 @@ def d_space(k, rng):
 
 
 STYLES = [
-    # id, display, price, money bonus, grass (color, material), dirt, rock, decor
+    # id, display, price, money bonus, grass (color, material), cliff, shore (beach), decor
     ("Classic", "Classic Meadow", 0, 0.0, ("#5fd13f", "SmoothPlastic"), ("#9b6634", "SmoothPlastic"),
-     ("#7d7468", "SmoothPlastic"), d_classic),
+     ("#f2dc9b", "SmoothPlastic"), d_classic),
     ("Desert", "Desert Dunes", 10_000, 0.05, ("#e8c872", "SmoothPlastic"), ("#c9944a", "SmoothPlastic"),
-     ("#a8743c", "SmoothPlastic"), d_desert),
+     ("#f7e7b0", "SmoothPlastic"), d_desert),
     ("Snowy", "Snowy Peaks", 40_000, 0.10, ("#f4f8ff", "SmoothPlastic"), ("#8fa9c2", "SmoothPlastic"),
-     ("#6b7f99", "SmoothPlastic"), d_snow),
+     ("#cfe8ff", "SmoothPlastic"), d_snow),
     ("Candy", "Candy Land", 150_000, 0.15, ("#ff9ad5", "SmoothPlastic"), ("#8a4b2a", "SmoothPlastic"),
-     ("#f3e0c0", "SmoothPlastic"), d_candy),
+     ("#fff0c8", "SmoothPlastic"), d_candy),
     ("Jungle", "Lost Jungle", 500_000, 0.20, ("#2e9b3a", "SmoothPlastic"), ("#5a3a1e", "SmoothPlastic"),
-     ("#4a5a3a", "SmoothPlastic"), d_jungle),
+     ("#d9c27a", "SmoothPlastic"), d_jungle),
     ("Lava", "Lava Lands", 2_000_000, 0.25, ("#3a3030", "SmoothPlastic"), ("#3a2020", "SmoothPlastic"),
-     ("#1b1b1b", "SmoothPlastic"), d_lava),
+     ("#2a2626", "SmoothPlastic"), d_lava),
     ("Cyber", "Cyber City", 8_000_000, 0.32, ("#14142a", "SmoothPlastic"), ("#1f1f3a", "SmoothPlastic"),
-     ("#0d0d1a", "SmoothPlastic"), d_cyber),
+     ("#24244a", "SmoothPlastic"), d_cyber),
     ("Space", "Moon Base", 30_000_000, 0.40, ("#c9c9d1", "SmoothPlastic"), ("#8a8a96", "SmoothPlastic"),
-     ("#5c5c6a", "SmoothPlastic"), d_space),
+     ("#9a9aa8", "SmoothPlastic"), d_space),
 ]
 
 

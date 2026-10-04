@@ -38,6 +38,7 @@ def mat(color, rough=0.5, emit=0.0, metal=0.0, alpha=1.0, name=None):
     if alpha < 1:
         b.inputs["Alpha"].default_value = alpha
     m.diffuse_color = lin(color)
+    m["hex"] = color.lower()  # used by meshkit to pick the palette swatch
     _mats[key] = m
     return m
 
