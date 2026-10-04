@@ -1,0 +1,1207 @@
+{
+ "Tiers": [
+  {
+   "id": "Common",
+   "color": "#b8b8b8",
+   "dark": "#6f6f6f"
+  },
+  {
+   "id": "Rare",
+   "color": "#3fa9ff",
+   "dark": "#1d5fb3"
+  },
+  {
+   "id": "Epic",
+   "color": "#b54dff",
+   "dark": "#6a1fb0"
+  },
+  {
+   "id": "Legendary",
+   "color": "#ffb31a",
+   "dark": "#b36b00"
+  },
+  {
+   "id": "Mythical",
+   "color": "#ff3b6b",
+   "dark": "#a3123b"
+  },
+  {
+   "id": "Secret",
+   "color": "#2b2b33",
+   "dark": "#111111"
+  }
+ ],
+ "Pieces": [
+  {
+   "id": "Straight",
+   "name": "Straight",
+   "tier": "Common",
+   "odds": 2,
+   "value": 10,
+   "turns": false,
+   "desc": "A plain straight road.",
+   "icon": "⬆️",
+   "order": 1
+  },
+  {
+   "id": "GentleCurve",
+   "name": "Gentle Curve",
+   "tier": "Common",
+   "odds": 4,
+   "value": 18,
+   "turns": true,
+   "desc": "A soft 45° bend.",
+   "icon": "↗️",
+   "order": 2
+  },
+  {
+   "id": "SharpTurn",
+   "name": "Sharp Turn",
+   "tier": "Common",
+   "odds": 10,
+   "value": 35,
+   "turns": true,
+   "desc": "A tight 90° corner.",
+   "icon": "↪️",
+   "order": 3
+  },
+  {
+   "id": "Ramp",
+   "name": "Ramp",
+   "tier": "Rare",
+   "odds": 25,
+   "value": 80,
+   "turns": false,
+   "desc": "Climbs 16 studs higher.",
+   "icon": "📐",
+   "order": 4
+  },
+  {
+   "id": "BumpyHills",
+   "name": "Bumpy Hills",
+   "tier": "Rare",
+   "odds": 60,
+   "value": 160,
+   "turns": false,
+   "desc": "Three bouncy humps.",
+   "icon": "〰️",
+   "order": 5
+  },
+  {
+   "id": "BankedCurve",
+   "name": "Banked Curve",
+   "tier": "Rare",
+   "odds": 150,
+   "value": 320,
+   "turns": true,
+   "desc": "A fast tilted 90° curve.",
+   "icon": "🔄",
+   "order": 6
+  },
+  {
+   "id": "Chicane",
+   "name": "Chicane",
+   "tier": "Epic",
+   "odds": 400,
+   "value": 650,
+   "turns": false,
+   "desc": "Left-right S bends.",
+   "icon": "🐍",
+   "order": 7
+  },
+  {
+   "id": "Corkscrew",
+   "name": "Corkscrew",
+   "tier": "Epic",
+   "odds": 1200,
+   "value": 1500,
+   "turns": false,
+   "desc": "A full barrel roll.",
+   "icon": "🌀",
+   "order": 8
+  },
+  {
+   "id": "JumpGap",
+   "name": "Jump Gap",
+   "tier": "Epic",
+   "odds": 3000,
+   "value": 3200,
+   "turns": false,
+   "desc": "Fly over a 40 stud gap.",
+   "icon": "🦘",
+   "order": 9
+  },
+  {
+   "id": "Loop",
+   "name": "Loop",
+   "tier": "Legendary",
+   "odds": 8000,
+   "value": 7500,
+   "turns": false,
+   "desc": "A full vertical loop.",
+   "icon": "➰",
+   "order": 10
+  },
+  {
+   "id": "BoostTunnel",
+   "name": "Boost Tunnel",
+   "tier": "Legendary",
+   "odds": 20000,
+   "value": 15000,
+   "turns": false,
+   "desc": "Neon arches double your speed.",
+   "icon": "⚡",
+   "order": 11
+  },
+  {
+   "id": "SpiralTower",
+   "name": "Spiral Tower",
+   "tier": "Legendary",
+   "odds": 75000,
+   "value": 40000,
+   "turns": false,
+   "desc": "Two spirals up a golden tower.",
+   "icon": "🗼",
+   "order": 12
+  },
+  {
+   "id": "WaveRider",
+   "name": "Wave Rider",
+   "tier": "Mythical",
+   "odds": 250000,
+   "value": 120000,
+   "turns": false,
+   "desc": "Swoops and rolls like a wave.",
+   "icon": "🌊",
+   "order": 13
+  },
+  {
+   "id": "WallRide",
+   "name": "Wall Ride",
+   "tier": "Mythical",
+   "odds": 1000000,
+   "value": 400000,
+   "turns": false,
+   "desc": "Drive sideways on the wall!",
+   "icon": "🧱",
+   "order": 14
+  },
+  {
+   "id": "TeleportGate",
+   "name": "Teleport Gate",
+   "tier": "Mythical",
+   "odds": 5000000,
+   "value": 1500000,
+   "turns": false,
+   "desc": "Warp to a floating road.",
+   "icon": "🌌",
+   "order": 15
+  },
+  {
+   "id": "SkyLeap",
+   "name": "Sky Leap",
+   "tier": "Secret",
+   "odds": 19000000,
+   "value": 6000000,
+   "turns": false,
+   "desc": "Teleport, loop, then leap over everything!",
+   "icon": "🌠",
+   "order": 16
+  }
+ ],
+ "Cars": [
+  {
+   "id": "Buggy",
+   "name": "Dune Buggy",
+   "price": 0,
+   "speed": 30,
+   "mult": 1.0,
+   "order": 1
+  },
+  {
+   "id": "GoKart",
+   "name": "Go-Kart",
+   "price": 1000,
+   "speed": 38,
+   "mult": 1.1,
+   "order": 2
+  },
+  {
+   "id": "Hatchback",
+   "name": "Hatchback",
+   "price": 5000,
+   "speed": 45,
+   "mult": 1.25,
+   "order": 3
+  },
+  {
+   "id": "Pickup",
+   "name": "Pickup Truck",
+   "price": 20000,
+   "speed": 52,
+   "mult": 1.5,
+   "order": 4
+  },
+  {
+   "id": "Muscle",
+   "name": "Muscle Car",
+   "price": 75000,
+   "speed": 60,
+   "mult": 1.8,
+   "order": 5
+  },
+  {
+   "id": "Sports",
+   "name": "Sports Car",
+   "price": 250000,
+   "speed": 70,
+   "mult": 2.2,
+   "order": 6
+  },
+  {
+   "id": "Monster",
+   "name": "Monster Truck",
+   "price": 1000000,
+   "speed": 76,
+   "mult": 2.8,
+   "order": 7
+  },
+  {
+   "id": "F1",
+   "name": "Formula Racer",
+   "price": 4000000,
+   "speed": 90,
+   "mult": 3.5,
+   "order": 8
+  },
+  {
+   "id": "Hover",
+   "name": "Hover Car",
+   "price": 15000000,
+   "speed": 105,
+   "mult": 4.5,
+   "order": 9
+  },
+  {
+   "id": "Rocket",
+   "name": "Rocket Car",
+   "price": 60000000,
+   "speed": 125,
+   "mult": 6.0,
+   "order": 10
+  }
+ ],
+ "Styles": [
+  {
+   "id": "Classic",
+   "name": "Classic Meadow",
+   "price": 0,
+   "bonus": 0.0,
+   "grass": "#5fd13f",
+   "dirt": "#9b6634",
+   "rock": "#7d7468",
+   "order": 1
+  },
+  {
+   "id": "Desert",
+   "name": "Desert Dunes",
+   "price": 10000,
+   "bonus": 0.05,
+   "grass": "#e8c872",
+   "dirt": "#c9944a",
+   "rock": "#a8743c",
+   "order": 2
+  },
+  {
+   "id": "Snowy",
+   "name": "Snowy Peaks",
+   "price": 40000,
+   "bonus": 0.1,
+   "grass": "#f4f8ff",
+   "dirt": "#8fa9c2",
+   "rock": "#6b7f99",
+   "order": 3
+  },
+  {
+   "id": "Candy",
+   "name": "Candy Land",
+   "price": 150000,
+   "bonus": 0.15,
+   "grass": "#ff9ad5",
+   "dirt": "#8a4b2a",
+   "rock": "#f3e0c0",
+   "order": 4
+  },
+  {
+   "id": "Jungle",
+   "name": "Lost Jungle",
+   "price": 500000,
+   "bonus": 0.2,
+   "grass": "#2e9b3a",
+   "dirt": "#5a3a1e",
+   "rock": "#4a5a3a",
+   "order": 5
+  },
+  {
+   "id": "Lava",
+   "name": "Lava Lands",
+   "price": 2000000,
+   "bonus": 0.25,
+   "grass": "#3a3030",
+   "dirt": "#3a2020",
+   "rock": "#1b1b1b",
+   "order": 6
+  },
+  {
+   "id": "Cyber",
+   "name": "Cyber City",
+   "price": 8000000,
+   "bonus": 0.32,
+   "grass": "#14142a",
+   "dirt": "#1f1f3a",
+   "rock": "#0d0d1a",
+   "order": 7
+  },
+  {
+   "id": "Space",
+   "name": "Moon Base",
+   "price": 30000000,
+   "bonus": 0.4,
+   "grass": "#c9c9d1",
+   "dirt": "#8a8a96",
+   "rock": "#5c5c6a",
+   "order": 8
+  }
+ ],
+ "Potions": [
+  {
+   "id": "MoneyPotion",
+   "name": "Money Potion",
+   "effect": "Money",
+   "mult": 2,
+   "duration": 300,
+   "price": 2500,
+   "color": "#3bd16b",
+   "icon": "💰",
+   "desc": "x2 Money"
+  },
+  {
+   "id": "LuckPotion",
+   "name": "Luck Potion",
+   "effect": "Luck",
+   "mult": 2,
+   "duration": 300,
+   "price": 5000,
+   "color": "#4bdc5a",
+   "icon": "🍀",
+   "desc": "x2 Luck"
+  },
+  {
+   "id": "SpeedPotion",
+   "name": "Speed Potion",
+   "effect": "Speed",
+   "mult": 1.5,
+   "duration": 300,
+   "price": 1500,
+   "color": "#3bb8ff",
+   "icon": "⚡",
+   "desc": "x1.5 Car Speed"
+  },
+  {
+   "id": "SpinPotion",
+   "name": "Spin Potion",
+   "effect": "Spin",
+   "mult": 2,
+   "duration": 300,
+   "price": 3000,
+   "color": "#b54dff",
+   "icon": "🌀",
+   "desc": "x2 Spin Speed"
+  }
+ ],
+ "LuckyBlocks": [
+  {
+   "id": "Lucky",
+   "name": "Lucky Block",
+   "price": 5000,
+   "luck": 5,
+   "color": "#ffcc1a"
+  },
+  {
+   "id": "SuperLucky",
+   "name": "Super Lucky Block",
+   "price": 50000,
+   "luck": 25,
+   "color": "#3fa9ff"
+  },
+  {
+   "id": "MegaLucky",
+   "name": "Mega Lucky Block",
+   "price": 500000,
+   "luck": 120,
+   "color": "#b54dff"
+  },
+  {
+   "id": "UltraLucky",
+   "name": "Ultra Lucky Block",
+   "price": 5000000,
+   "luck": 600,
+   "color": "#ff3b6b"
+  }
+ ],
+ "Upgrades": [
+  {
+   "id": "Root",
+   "name": "Engine Tune",
+   "branch": "Money",
+   "stat": "Money",
+   "value": 0.1,
+   "cost": 500,
+   "requires": null,
+   "col": 0,
+   "row": 2,
+   "icon": "🔧",
+   "desc": "+10% Money"
+  },
+  {
+   "id": "Money1",
+   "name": "Money I",
+   "branch": "Money",
+   "stat": "Money",
+   "value": 0.15,
+   "cost": 5000,
+   "requires": "Root",
+   "col": 1,
+   "row": 0,
+   "icon": "💵",
+   "desc": "+15% Money"
+  },
+  {
+   "id": "Money2",
+   "name": "Money II",
+   "branch": "Money",
+   "stat": "Money",
+   "value": 0.25,
+   "cost": 75000,
+   "requires": "Money1",
+   "col": 2,
+   "row": 0,
+   "icon": "💵",
+   "desc": "+25% Money"
+  },
+  {
+   "id": "Money3",
+   "name": "Money III",
+   "branch": "Money",
+   "stat": "Money",
+   "value": 0.5,
+   "cost": 1500000,
+   "requires": "Money2",
+   "col": 3,
+   "row": 0,
+   "icon": "💵",
+   "desc": "+50% Money"
+  },
+  {
+   "id": "Money4",
+   "name": "Golden Touch",
+   "branch": "Money",
+   "stat": "Money",
+   "value": 1.0,
+   "cost": 40000000,
+   "requires": "Money3",
+   "col": 4,
+   "row": 0,
+   "icon": "💵",
+   "desc": "+100% Money"
+  },
+  {
+   "id": "Luck1",
+   "name": "Luck I",
+   "branch": "Luck",
+   "stat": "Luck",
+   "value": 0.2,
+   "cost": 8000,
+   "requires": "Root",
+   "col": 1,
+   "row": 1,
+   "icon": "🍀",
+   "desc": "+20% Luck"
+  },
+  {
+   "id": "Luck2",
+   "name": "Luck II",
+   "branch": "Luck",
+   "stat": "Luck",
+   "value": 0.4,
+   "cost": 120000,
+   "requires": "Luck1",
+   "col": 2,
+   "row": 1,
+   "icon": "🍀",
+   "desc": "+40% Luck"
+  },
+  {
+   "id": "Luck3",
+   "name": "Luck III",
+   "branch": "Luck",
+   "stat": "Luck",
+   "value": 0.75,
+   "cost": 2500000,
+   "requires": "Luck2",
+   "col": 3,
+   "row": 1,
+   "icon": "🍀",
+   "desc": "+75% Luck"
+  },
+  {
+   "id": "Luck4",
+   "name": "Four-Leaf",
+   "branch": "Luck",
+   "stat": "Luck",
+   "value": 1.5,
+   "cost": 60000000,
+   "requires": "Luck3",
+   "col": 4,
+   "row": 1,
+   "icon": "🍀",
+   "desc": "+150% Luck"
+  },
+  {
+   "id": "Speed1",
+   "name": "Speed I",
+   "branch": "Speed",
+   "stat": "Speed",
+   "value": 0.1,
+   "cost": 3000,
+   "requires": "Root",
+   "col": 1,
+   "row": 2,
+   "icon": "⚡",
+   "desc": "+10% Car Speed"
+  },
+  {
+   "id": "Speed2",
+   "name": "Speed II",
+   "branch": "Speed",
+   "stat": "Speed",
+   "value": 0.2,
+   "cost": 50000,
+   "requires": "Speed1",
+   "col": 2,
+   "row": 2,
+   "icon": "⚡",
+   "desc": "+20% Car Speed"
+  },
+  {
+   "id": "Speed3",
+   "name": "Speed III",
+   "branch": "Speed",
+   "stat": "Speed",
+   "value": 0.35,
+   "cost": 1000000,
+   "requires": "Speed2",
+   "col": 3,
+   "row": 2,
+   "icon": "⚡",
+   "desc": "+35% Car Speed"
+  },
+  {
+   "id": "Speed4",
+   "name": "Nitro",
+   "branch": "Speed",
+   "stat": "Speed",
+   "value": 0.6,
+   "cost": 25000000,
+   "requires": "Speed3",
+   "col": 4,
+   "row": 2,
+   "icon": "⚡",
+   "desc": "+60% Car Speed"
+  },
+  {
+   "id": "Spin1",
+   "name": "Quick Spin I",
+   "branch": "Spin",
+   "stat": "SpinSpeed",
+   "value": 0.2,
+   "cost": 4000,
+   "requires": "Root",
+   "col": 1,
+   "row": 3,
+   "icon": "🎰",
+   "desc": "-20% Spin Cooldown"
+  },
+  {
+   "id": "Spin2",
+   "name": "Quick Spin II",
+   "branch": "Spin",
+   "stat": "SpinSpeed",
+   "value": 0.2,
+   "cost": 90000,
+   "requires": "Spin1",
+   "col": 2,
+   "row": 3,
+   "icon": "🎰",
+   "desc": "-20% Spin Cooldown"
+  },
+  {
+   "id": "Spin3",
+   "name": "Auto Spin",
+   "branch": "Spin",
+   "stat": "AutoSpin",
+   "value": 1,
+   "cost": 250000,
+   "requires": "Spin2",
+   "col": 3,
+   "row": 3,
+   "icon": "🎰",
+   "desc": "Unlocks Auto Spin"
+  },
+  {
+   "id": "Spin4",
+   "name": "Turbo Spin",
+   "branch": "Spin",
+   "stat": "SpinSpeed",
+   "value": 0.3,
+   "cost": 10000000,
+   "requires": "Spin3",
+   "col": 4,
+   "row": 3,
+   "icon": "🎰",
+   "desc": "-30% Spin Cooldown"
+  },
+  {
+   "id": "Track1",
+   "name": "Track Slots I",
+   "branch": "Track",
+   "stat": "Slots",
+   "value": 2,
+   "cost": 10000,
+   "requires": "Root",
+   "col": 1,
+   "row": 4,
+   "icon": "🛣️",
+   "desc": "+2 Track Slots"
+  },
+  {
+   "id": "Track2",
+   "name": "Track Slots II",
+   "branch": "Track",
+   "stat": "Slots",
+   "value": 2,
+   "cost": 200000,
+   "requires": "Track1",
+   "col": 2,
+   "row": 4,
+   "icon": "🛣️",
+   "desc": "+2 Track Slots"
+  },
+  {
+   "id": "Track3",
+   "name": "Track Slots III",
+   "branch": "Track",
+   "stat": "Slots",
+   "value": 2,
+   "cost": 4000000,
+   "requires": "Track2",
+   "col": 3,
+   "row": 4,
+   "icon": "🛣️",
+   "desc": "+2 Track Slots"
+  },
+  {
+   "id": "Track4",
+   "name": "Track Slots IV",
+   "branch": "Track",
+   "stat": "Slots",
+   "value": 2,
+   "cost": 80000000,
+   "requires": "Track3",
+   "col": 4,
+   "row": 4,
+   "icon": "🛣️",
+   "desc": "+2 Track Slots"
+  }
+ ],
+ "Daily": [
+  {
+   "day": 1,
+   "type": "Cash",
+   "amount": 1000,
+   "label": "$1K Cash",
+   "icon": "💵"
+  },
+  {
+   "day": 2,
+   "type": "Potion",
+   "id": "MoneyPotion",
+   "label": "Money Potion",
+   "icon": "💰"
+  },
+  {
+   "day": 3,
+   "type": "Cash",
+   "amount": 10000,
+   "label": "$10K Cash",
+   "icon": "💵"
+  },
+  {
+   "day": 4,
+   "type": "Potion",
+   "id": "LuckPotion",
+   "label": "Luck Potion",
+   "icon": "🍀"
+  },
+  {
+   "day": 5,
+   "type": "Lucky",
+   "id": "SuperLucky",
+   "label": "Super Lucky",
+   "icon": "🎲"
+  },
+  {
+   "day": 6,
+   "type": "Cash",
+   "amount": 100000,
+   "label": "$100K Cash",
+   "icon": "💰"
+  },
+  {
+   "day": 7,
+   "type": "Crate",
+   "label": "Exclusive Crate",
+   "icon": "📦"
+  }
+ ],
+ "Pass": [
+  {
+   "level": 1,
+   "free": {
+    "type": "Cash",
+    "amount": 2500,
+    "label": "$2.5K",
+    "icon": "💵"
+   },
+   "premium": {
+    "type": "Cash",
+    "amount": 15000,
+    "label": "$15K",
+    "icon": "💰"
+   }
+  },
+  {
+   "level": 2,
+   "free": {
+    "type": "Cash",
+    "amount": 5000,
+    "label": "$5K",
+    "icon": "💵"
+   },
+   "premium": {
+    "type": "Cash",
+    "amount": 30000,
+    "label": "$30K",
+    "icon": "💰"
+   }
+  },
+  {
+   "level": 3,
+   "free": {
+    "type": "Potion",
+    "id": "SpinPotion",
+    "label": "Spin Potion",
+    "icon": "🧪"
+   },
+   "premium": {
+    "type": "Potion",
+    "id": "LuckPotion",
+    "count": 3,
+    "label": "3x Luck Potion",
+    "icon": "🍀"
+   }
+  },
+  {
+   "level": 4,
+   "free": {
+    "type": "Cash",
+    "amount": 10000,
+    "label": "$10K",
+    "icon": "💵"
+   },
+   "premium": {
+    "type": "Cash",
+    "amount": 60000,
+    "label": "$60K",
+    "icon": "💰"
+   }
+  },
+  {
+   "level": 5,
+   "free": {
+    "type": "Lucky",
+    "id": "SuperLucky",
+    "label": "Lucky Block",
+    "icon": "🎲"
+   },
+   "premium": {
+    "type": "Lucky",
+    "id": "MegaLucky",
+    "label": "Mega Lucky",
+    "icon": "🎲"
+   }
+  },
+  {
+   "level": 6,
+   "free": {
+    "type": "Potion",
+    "id": "SpeedPotion",
+    "label": "Speed Potion",
+    "icon": "🧪"
+   },
+   "premium": {
+    "type": "Potion",
+    "id": "LuckPotion",
+    "count": 3,
+    "label": "3x Luck Potion",
+    "icon": "🍀"
+   }
+  },
+  {
+   "level": 7,
+   "free": {
+    "type": "Cash",
+    "amount": 17500,
+    "label": "$17.5K",
+    "icon": "💵"
+   },
+   "premium": {
+    "type": "Cash",
+    "amount": 105000,
+    "label": "$105K",
+    "icon": "💰"
+   }
+  },
+  {
+   "level": 8,
+   "free": {
+    "type": "Cash",
+    "amount": 20000,
+    "label": "$20K",
+    "icon": "💵"
+   },
+   "premium": {
+    "type": "Cash",
+    "amount": 120000,
+    "label": "$120K",
+    "icon": "💰"
+   }
+  },
+  {
+   "level": 9,
+   "free": {
+    "type": "Potion",
+    "id": "LuckPotion",
+    "label": "Luck Potion",
+    "icon": "🧪"
+   },
+   "premium": {
+    "type": "Potion",
+    "id": "LuckPotion",
+    "count": 3,
+    "label": "3x Luck Potion",
+    "icon": "🍀"
+   }
+  },
+  {
+   "level": 10,
+   "free": {
+    "type": "Lucky",
+    "id": "SuperLucky",
+    "label": "Lucky Block",
+    "icon": "🎲"
+   },
+   "premium": {
+    "type": "Crate",
+    "label": "Exclusive Crate",
+    "icon": "📦"
+   }
+  },
+  {
+   "level": 11,
+   "free": {
+    "type": "Cash",
+    "amount": 27500,
+    "label": "$27.5K",
+    "icon": "💵"
+   },
+   "premium": {
+    "type": "Cash",
+    "amount": 165000,
+    "label": "$165K",
+    "icon": "💰"
+   }
+  },
+  {
+   "level": 12,
+   "free": {
+    "type": "Potion",
+    "id": "MoneyPotion",
+    "label": "Money Potion",
+    "icon": "🧪"
+   },
+   "premium": {
+    "type": "Potion",
+    "id": "LuckPotion",
+    "count": 3,
+    "label": "3x Luck Potion",
+    "icon": "🍀"
+   }
+  },
+  {
+   "level": 13,
+   "free": {
+    "type": "Cash",
+    "amount": 32500,
+    "label": "$32.5K",
+    "icon": "💵"
+   },
+   "premium": {
+    "type": "Cash",
+    "amount": 195000,
+    "label": "$195K",
+    "icon": "💰"
+   }
+  },
+  {
+   "level": 14,
+   "free": {
+    "type": "Cash",
+    "amount": 35000,
+    "label": "$35K",
+    "icon": "💵"
+   },
+   "premium": {
+    "type": "Cash",
+    "amount": 210000,
+    "label": "$210K",
+    "icon": "💰"
+   }
+  },
+  {
+   "level": 15,
+   "free": {
+    "type": "Lucky",
+    "id": "MegaLucky",
+    "label": "Lucky Block",
+    "icon": "🎲"
+   },
+   "premium": {
+    "type": "Lucky",
+    "id": "MegaLucky",
+    "label": "Mega Lucky",
+    "icon": "🎲"
+   }
+  },
+  {
+   "level": 16,
+   "free": {
+    "type": "Cash",
+    "amount": 40000,
+    "label": "$40K",
+    "icon": "💵"
+   },
+   "premium": {
+    "type": "Cash",
+    "amount": 240000,
+    "label": "$240K",
+    "icon": "💰"
+   }
+  },
+  {
+   "level": 17,
+   "free": {
+    "type": "Cash",
+    "amount": 42500,
+    "label": "$42.5K",
+    "icon": "💵"
+   },
+   "premium": {
+    "type": "Cash",
+    "amount": 255000,
+    "label": "$255K",
+    "icon": "💰"
+   }
+  },
+  {
+   "level": 18,
+   "free": {
+    "type": "Potion",
+    "id": "SpeedPotion",
+    "label": "Speed Potion",
+    "icon": "🧪"
+   },
+   "premium": {
+    "type": "Potion",
+    "id": "LuckPotion",
+    "count": 3,
+    "label": "3x Luck Potion",
+    "icon": "🍀"
+   }
+  },
+  {
+   "level": 19,
+   "free": {
+    "type": "Cash",
+    "amount": 47500,
+    "label": "$47.5K",
+    "icon": "💵"
+   },
+   "premium": {
+    "type": "Cash",
+    "amount": 285000,
+    "label": "$285K",
+    "icon": "💰"
+   }
+  },
+  {
+   "level": 20,
+   "free": {
+    "type": "Lucky",
+    "id": "MegaLucky",
+    "label": "Lucky Block",
+    "icon": "🎲"
+   },
+   "premium": {
+    "type": "Crate",
+    "label": "Exclusive Crate",
+    "icon": "📦"
+   }
+  }
+ ],
+ "Crate": {
+  "name": "Exclusive Track Crate",
+  "drops": [
+   {
+    "piece": "Corkscrew",
+    "chance": 50
+   },
+   {
+    "piece": "JumpGap",
+    "chance": 30
+   },
+   {
+    "piece": "Loop",
+    "chance": 15
+   },
+   {
+    "piece": "SpiralTower",
+    "chance": 4.99
+   },
+   {
+    "piece": "SkyLeap",
+    "chance": 0.01
+   }
+  ]
+ },
+ "Products": {
+  "Gamepasses": {
+   "X2Money": {
+    "id": 0,
+    "price": 9,
+    "name": "X2 Money"
+   },
+   "X2Luck": {
+    "id": 0,
+    "price": 9,
+    "name": "X2 Luck"
+   },
+   "PremiumPass": {
+    "id": 0,
+    "price": 99,
+    "name": "Premium Pass"
+   }
+  },
+  "DevProducts": {
+   "StarterPack": {
+    "id": 0,
+    "price": 19,
+    "name": "Starter Pack"
+   },
+   "Crate1": {
+    "id": 0,
+    "price": 29,
+    "name": "1 Crate"
+   },
+   "Crate3": {
+    "id": 0,
+    "price": 55,
+    "name": "3 Crates"
+   },
+   "Levels5": {
+    "id": 0,
+    "price": 49,
+    "name": "+5 Levels"
+   },
+   "Levels10": {
+    "id": 0,
+    "price": 89,
+    "name": "+10 Levels"
+   },
+   "Levels25": {
+    "id": 0,
+    "price": 199,
+    "name": "+25 Levels"
+   },
+   "SkipRebirth": {
+    "id": 0,
+    "price": 19,
+    "name": "Skip Rebirth"
+   },
+   "PassSkip": {
+    "id": 0,
+    "price": 25,
+    "name": "Skip Pass Level"
+   }
+  }
+ },
+ "StarterPack": [
+  {
+   "type": "Crate",
+   "label": "Epic Crate",
+   "icon": "📦"
+  },
+  {
+   "type": "Potion",
+   "id": "MoneyPotion",
+   "duration": 900,
+   "label": "15 min",
+   "icon": "💵"
+  },
+  {
+   "type": "Potion",
+   "id": "LuckPotion",
+   "duration": 900,
+   "label": "15 min",
+   "icon": "🍀"
+  },
+  {
+   "type": "Car",
+   "id": "Hatchback",
+   "label": "Hatchback",
+   "icon": "🚗"
+  }
+ ],
+ "Config": {
+  "BaseSlots": 6,
+  "BaseSpinCooldown": 2.0,
+  "XPPerSpin": 4,
+  "RebirthBaseCost": 100000,
+  "RebirthCostGrowth": 5,
+  "RebirthMoneyBonus": 0.3,
+  "FriendBoostPer": 0.1,
+  "FriendBoostMax": 0.5,
+  "DailyCooldownHours": 20,
+  "DailyResetHours": 48
+ }
+}
