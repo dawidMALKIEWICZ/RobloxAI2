@@ -172,6 +172,75 @@ if __name__ == "__main__":
         camera((cx + 520, 260, 330), (cx, 20, -120), 22)
         render("preview_pieces.png")
         sys.exit(0)
+    if shots[0] == "plot2":
+        sys.path.insert(0, os.path.join(ROOT, "tools"))
+        from rbx import CF as RCF
+        import math as _m
+        mp = load(os.path.join(ROOT, "src/Workspace/Map.model.json"))
+        tl = {c["Name"]: c for c in load(os.path.join(ROOT,
+              "src/ReplicatedStorage/Assets/Tiles.model.json"))["Children"]}
+        cars = {c["Name"]: c for c in load(os.path.join(ROOT,
+                "src/ReplicatedStorage/Assets/Cars.model.json"))["Children"]}
+
+        def find(node, name):
+            if node.get("Name") == name:
+                return node
+            for c in node.get("Children", []):
+                r = find(c, name)
+                if r:
+                    return r
+            return None
+
+        def cfof(d):
+            c = d["Properties"]["CFrame"]["CFrame"]
+            return RCF(*c["position"], R=tuple(tuple(r) for r in c["orientation"]))
+        plot = find(mp, "Plot1")
+        go = cfof(find(plot, "GridOrigin"))
+        layout = [(7, 7, 0, "Start"), (7, 6, 0, "Straight"), (7, 5, 0, "Turn"), (8, 5, 1, "Turn"),
+                  (8, 6, 2, "Loop"), (8, 7, 2, "Corkscrew"), (8, 8, 2, "Jump"), (8, 9, 2, "Turn"),
+                  (7, 9, 3, "Turn"), (7, 8, 0, "Hill"), (6, 4, 0, "SkyLeap"),
+                  (5, 6, 0, "BoostPad"), (5, 7, 1, "BankedTurn"), (9, 7, 0, "Spiral")]
+        extra = []
+
+        def place(model, cf):
+            pp = []
+            walk(model, pp)
+            for cls, pr in pp:
+                pr = dict(pr)
+                pr["CFrame"] = {"CFrame": (cf * cfof({"Properties": pr})).json()["CFrame"]}
+                extra.append((cls, pr))
+        for x, z, r, tid in layout:
+            cf = go * RCF(x * 10 - 70, 0.3, z * 10 - 70) * RCF.ry(-r * _m.pi / 2)
+            place(tl[tid], cf)
+        # pad 7x7
+        extra.append(("Part", {"Size": {"Vector3": [70, 0.3, 70]},
+                               "CFrame": {"CFrame": (go * RCF(0, 0.15, 0)).json()["CFrame"]},
+                               "Color": {"Color3": [0.72, 0.94, 0.56]}}))
+        place(cars["Muscle"], go * RCF(0, 0.3 + 0.6, -6) * RCF.ry(0))
+        mpp = []
+        walk(mp, mpp)
+        add_parts(mpp)
+        add_parts(extra)
+        setup(res=(1600, 900))
+        g = go.p
+        camera((g[0] + 70, g[1] + 55, g[2] + 40), (g[0] + 2, g[1] + 2, g[2] - 3), 30)
+        render("preview_plot2.png")
+        sys.exit(0)
+    if shots[0] == "tiles":
+        d = load(os.path.join(ROOT, "src/ReplicatedStorage/Assets/Tiles.model.json"))
+        for i, mdl in enumerate(d["Children"]):
+            pp = []
+            walk(mdl, pp)
+            add_parts(pp, offset=((i % 6) * 14, 0, (i // 6) * 16))
+        add_parts([("Part", {"Size": {"Vector3": [400, 1, 400]},
+                             "CFrame": {"CFrame": {"position": [35, -0.5, 16],
+                                                   "orientation": [[1, 0, 0], [0, 1, 0],
+                                                                   [0, 0, 1]]}},
+                             "Color": {"Color3": [0.55, 0.85, 0.4]}})])
+        setup(res=(1600, 1000))
+        camera((35, 62, 78), (35, 0, 14), 34)
+        render("preview_tiles.png")
+        sys.exit(0)
     if shots[0] == "track":
         sys.path.insert(0, os.path.join(ROOT, "tools"))
         from rbx import CF as RCF
@@ -241,14 +310,14 @@ if __name__ == "__main__":
         for i, mdl in enumerate(d["Children"]):
             pp = []
             walk(mdl, pp)
-            add_parts(pp, offset=((i % 5) * 14 - 28, 0, (i // 5) * 22))
+            add_parts(pp, offset=((i % 5) * 6 - 12, 0, (i // 5) * 9))
         add_parts([("Part", {"Size": {"Vector3": [200, 1, 200]},
                              "CFrame": {"CFrame": {"position": [0, -0.5, 0],
                                                    "orientation": [[1, 0, 0], [0, 1, 0],
                                                                    [0, 0, 1]]}},
                              "Color": {"Color3": [0.85, 0.87, 0.9]}})])
         setup(res=(1600, 900))
-        camera((-38, 30, -42), (0, 2, 11), 32)
+        camera((-16, 13, -18), (0, 1, 4.5), 32)
         render("preview_cars.png")
         sys.exit(0)
     if shots == ["styles"]:
@@ -290,9 +359,9 @@ if __name__ == "__main__":
     setup()
     T = 100
     views = {
-        "overview": ((420, T + 420, 520), (0, T - 30, 0), 26),
-        "hub": ((110, T + 70, 110), (0, T + 6, 0), 24),
-        "plot": ((250 + 95, T + 55, 60), (250, T + 4, 0), 26),
+        "overview": ((600, T + 650, 800), (0, T - 40, 0), 26),
+        "hub": ((115, T + 60, 115), (0, T + 6, 0), 26),
+        "plot": ((360 + 170, T + 110, 140), (360, T, 0), 30),
         "shops": ((-20, T + 30, -30), (40, T + 8, 30), 24),
     }
     for s in shots:

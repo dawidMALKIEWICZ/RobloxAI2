@@ -5,6 +5,7 @@
     {"Name": "DataUpdate", "ClassName": "RemoteEvent"},
     {"Name": "Notify", "ClassName": "RemoteEvent"},
     {"Name": "Earned", "ClassName": "RemoteEvent"},
-    {"Name": "Rolled", "ClassName": "RemoteEvent"}
+    {"Name": "Rolled", "ClassName": "RemoteEvent"},
+    {"Name": "RareRoll", "ClassName": "RemoteEvent"}
   ]
 }

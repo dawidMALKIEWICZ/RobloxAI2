@@ -37,153 +37,153 @@
    "name": "Straight",
    "tier": "Common",
    "odds": 2,
-   "value": 10,
-   "turns": false,
-   "desc": "A plain straight road.",
+   "value": 1,
+   "ports": "SN",
+   "desc": "A plain piece of road.",
    "icon": "⬆️",
    "order": 1
   },
   {
-   "id": "GentleCurve",
-   "name": "Gentle Curve",
+   "id": "Turn",
+   "name": "Turn",
    "tier": "Common",
-   "odds": 4,
-   "value": 18,
-   "turns": true,
-   "desc": "A soft 45° bend.",
-   "icon": "↗️",
+   "odds": 3,
+   "value": 2,
+   "ports": "SE",
+   "desc": "A 90° corner.",
+   "icon": "↪️",
    "order": 2
   },
   {
-   "id": "SharpTurn",
-   "name": "Sharp Turn",
+   "id": "SpeedBump",
+   "name": "Speed Bump",
    "tier": "Common",
-   "odds": 10,
-   "value": 35,
-   "turns": true,
-   "desc": "A tight 90° corner.",
-   "icon": "↪️",
+   "odds": 6,
+   "value": 3,
+   "ports": "SN",
+   "desc": "A little bump.",
+   "icon": "〰️",
    "order": 3
   },
   {
-   "id": "Ramp",
-   "name": "Ramp",
+   "id": "Hill",
+   "name": "Hill",
    "tier": "Rare",
-   "odds": 25,
-   "value": 80,
-   "turns": false,
-   "desc": "Climbs 16 studs higher.",
-   "icon": "📐",
+   "odds": 15,
+   "value": 6,
+   "ports": "SN",
+   "desc": "Up and over!",
+   "icon": "⛰️",
    "order": 4
   },
   {
-   "id": "BumpyHills",
-   "name": "Bumpy Hills",
+   "id": "BankedTurn",
+   "name": "Banked Turn",
    "tier": "Rare",
-   "odds": 60,
-   "value": 160,
-   "turns": false,
-   "desc": "Three bouncy humps.",
-   "icon": "〰️",
+   "odds": 35,
+   "value": 12,
+   "ports": "SE",
+   "desc": "A fast tilted corner.",
+   "icon": "🔄",
    "order": 5
   },
   {
-   "id": "BankedCurve",
-   "name": "Banked Curve",
+   "id": "BoostPad",
+   "name": "Boost Pad",
    "tier": "Rare",
-   "odds": 150,
-   "value": 320,
-   "turns": true,
-   "desc": "A fast tilted 90° curve.",
-   "icon": "🔄",
+   "odds": 80,
+   "value": 25,
+   "ports": "SN",
+   "desc": "Doubles your speed.",
+   "icon": "⚡",
    "order": 6
   },
   {
    "id": "Chicane",
    "name": "Chicane",
    "tier": "Epic",
-   "odds": 400,
-   "value": 650,
-   "turns": false,
-   "desc": "Left-right S bends.",
+   "odds": 250,
+   "value": 60,
+   "ports": "SN",
+   "desc": "Left-right wiggle.",
    "icon": "🐍",
    "order": 7
+  },
+  {
+   "id": "Jump",
+   "name": "Jump",
+   "tier": "Epic",
+   "odds": 700,
+   "value": 150,
+   "ports": "SN",
+   "desc": "Fly over a gap.",
+   "icon": "🦘",
+   "order": 8
   },
   {
    "id": "Corkscrew",
    "name": "Corkscrew",
    "tier": "Epic",
-   "odds": 1200,
-   "value": 1500,
-   "turns": false,
+   "odds": 2000,
+   "value": 400,
+   "ports": "SN",
    "desc": "A full barrel roll.",
    "icon": "🌀",
-   "order": 8
-  },
-  {
-   "id": "JumpGap",
-   "name": "Jump Gap",
-   "tier": "Epic",
-   "odds": 3000,
-   "value": 3200,
-   "turns": false,
-   "desc": "Fly over a 40 stud gap.",
-   "icon": "🦘",
    "order": 9
   },
   {
    "id": "Loop",
    "name": "Loop",
    "tier": "Legendary",
-   "odds": 8000,
-   "value": 7500,
-   "turns": false,
-   "desc": "A full vertical loop.",
+   "odds": 6000,
+   "value": 1000,
+   "ports": "SN",
+   "desc": "A vertical loop.",
    "icon": "➰",
    "order": 10
   },
   {
-   "id": "BoostTunnel",
-   "name": "Boost Tunnel",
+   "id": "Spiral",
+   "name": "Spiral",
    "tier": "Legendary",
    "odds": 20000,
-   "value": 15000,
-   "turns": false,
-   "desc": "Neon arches double your speed.",
-   "icon": "⚡",
-   "order": 11
-  },
-  {
-   "id": "SpiralTower",
-   "name": "Spiral Tower",
-   "tier": "Legendary",
-   "odds": 75000,
-   "value": 40000,
-   "turns": false,
-   "desc": "Two spirals up a golden tower.",
+   "value": 3000,
+   "ports": "SN",
+   "desc": "Spin up the pole, slide down.",
    "icon": "🗼",
-   "order": 12
+   "order": 11
   },
   {
    "id": "WaveRider",
    "name": "Wave Rider",
-   "tier": "Mythical",
-   "odds": 250000,
-   "value": 120000,
-   "turns": false,
-   "desc": "Swoops and rolls like a wave.",
+   "tier": "Legendary",
+   "odds": 60000,
+   "value": 9000,
+   "ports": "SN",
+   "desc": "Swoops and rolls.",
    "icon": "🌊",
-   "order": 13
+   "order": 12
   },
   {
    "id": "WallRide",
    "name": "Wall Ride",
    "tier": "Mythical",
-   "odds": 1000000,
-   "value": 400000,
-   "turns": false,
-   "desc": "Drive sideways on the wall!",
+   "odds": 250000,
+   "value": 30000,
+   "ports": "SN",
+   "desc": "Drive on the wall!",
    "icon": "🧱",
+   "order": 13
+  },
+  {
+   "id": "DoubleLoop",
+   "name": "Double Loop",
+   "tier": "Mythical",
+   "odds": 1000000,
+   "value": 100000,
+   "ports": "SN",
+   "desc": "Two loops in a row.",
+   "icon": "➿",
    "order": 14
   },
   {
@@ -191,9 +191,9 @@
    "name": "Teleport Gate",
    "tier": "Mythical",
    "odds": 5000000,
-   "value": 1500000,
-   "turns": false,
-   "desc": "Warp to a floating road.",
+   "value": 400000,
+   "ports": "SN",
+   "desc": "Warp through a portal.",
    "icon": "🌌",
    "order": 15
   },
@@ -202,9 +202,9 @@
    "name": "Sky Leap",
    "tier": "Secret",
    "odds": 19000000,
-   "value": 6000000,
-   "turns": false,
-   "desc": "Teleport, loop, then leap over everything!",
+   "value": 1500000,
+   "ports": "SN",
+   "desc": "Teleport, loop, leap!",
    "icon": "🌠",
    "order": 16
   }
@@ -419,34 +419,34 @@
    "desc": "x2 Spin Speed"
   }
  ],
- "LuckyBlocks": [
+ "Dice": [
   {
-   "id": "Lucky",
-   "name": "Lucky Block",
-   "price": 5000,
+   "id": "Golden",
+   "name": "Golden Dice",
+   "price": 2500,
    "luck": 5,
    "color": "#ffcc1a"
   },
   {
-   "id": "SuperLucky",
-   "name": "Super Lucky Block",
-   "price": 50000,
+   "id": "Frost",
+   "name": "Frost Dice",
+   "price": 25000,
    "luck": 25,
-   "color": "#3fa9ff"
+   "color": "#5cc8ff"
   },
   {
-   "id": "MegaLucky",
-   "name": "Mega Lucky Block",
-   "price": 500000,
+   "id": "Cosmic",
+   "name": "Cosmic Dice",
+   "price": 250000,
    "luck": 120,
    "color": "#b54dff"
   },
   {
-   "id": "UltraLucky",
-   "name": "Ultra Lucky Block",
-   "price": 5000000,
+   "id": "Rainbow",
+   "name": "Rainbow Dice",
+   "price": 2500000,
    "luck": 600,
-   "color": "#ff3b6b"
+   "color": "rainbow"
   }
  ],
  "Upgrades": [
@@ -456,10 +456,10 @@
    "branch": "Money",
    "stat": "Money",
    "value": 0.1,
-   "cost": 500,
+   "cost": 100,
    "requires": null,
    "col": 0,
-   "row": 2,
+   "row": 3,
    "icon": "🔧",
    "desc": "+10% Money"
   },
@@ -468,260 +468,364 @@
    "name": "Money I",
    "branch": "Money",
    "stat": "Money",
-   "value": 0.15,
-   "cost": 5000,
+   "value": 0.25,
+   "cost": 1500,
    "requires": "Root",
    "col": 1,
    "row": 0,
    "icon": "💵",
-   "desc": "+15% Money"
+   "desc": "+25% Money"
   },
   {
    "id": "Money2",
    "name": "Money II",
    "branch": "Money",
    "stat": "Money",
-   "value": 0.25,
-   "cost": 75000,
+   "value": 0.5,
+   "cost": 40000,
    "requires": "Money1",
    "col": 2,
    "row": 0,
    "icon": "💵",
-   "desc": "+25% Money"
+   "desc": "+50% Money"
   },
   {
    "id": "Money3",
    "name": "Money III",
    "branch": "Money",
    "stat": "Money",
-   "value": 0.5,
-   "cost": 1500000,
+   "value": 1.0,
+   "cost": 900000,
    "requires": "Money2",
    "col": 3,
    "row": 0,
    "icon": "💵",
-   "desc": "+50% Money"
+   "desc": "+100% Money"
   },
   {
    "id": "Money4",
    "name": "Golden Touch",
    "branch": "Money",
    "stat": "Money",
-   "value": 1.0,
-   "cost": 40000000,
+   "value": 2.0,
+   "cost": 25000000,
    "requires": "Money3",
    "col": 4,
    "row": 0,
    "icon": "💵",
-   "desc": "+100% Money"
+   "desc": "+200% Money"
   },
   {
    "id": "Luck1",
    "name": "Luck I",
    "branch": "Luck",
    "stat": "Luck",
-   "value": 0.2,
-   "cost": 8000,
+   "value": 0.25,
+   "cost": 2500,
    "requires": "Root",
    "col": 1,
    "row": 1,
    "icon": "🍀",
-   "desc": "+20% Luck"
+   "desc": "+25% Luck"
   },
   {
    "id": "Luck2",
    "name": "Luck II",
    "branch": "Luck",
    "stat": "Luck",
-   "value": 0.4,
-   "cost": 120000,
+   "value": 0.5,
+   "cost": 60000,
    "requires": "Luck1",
    "col": 2,
    "row": 1,
    "icon": "🍀",
-   "desc": "+40% Luck"
+   "desc": "+50% Luck"
   },
   {
    "id": "Luck3",
    "name": "Luck III",
    "branch": "Luck",
    "stat": "Luck",
-   "value": 0.75,
-   "cost": 2500000,
+   "value": 1.0,
+   "cost": 1500000,
    "requires": "Luck2",
    "col": 3,
    "row": 1,
    "icon": "🍀",
-   "desc": "+75% Luck"
+   "desc": "+100% Luck"
   },
   {
    "id": "Luck4",
    "name": "Four-Leaf",
    "branch": "Luck",
    "stat": "Luck",
-   "value": 1.5,
-   "cost": 60000000,
+   "value": 2.0,
+   "cost": 40000000,
    "requires": "Luck3",
    "col": 4,
    "row": 1,
    "icon": "🍀",
-   "desc": "+150% Luck"
+   "desc": "+200% Luck"
   },
   {
    "id": "Speed1",
    "name": "Speed I",
    "branch": "Speed",
    "stat": "Speed",
-   "value": 0.1,
-   "cost": 3000,
+   "value": 0.15,
+   "cost": 1000,
    "requires": "Root",
    "col": 1,
    "row": 2,
    "icon": "⚡",
-   "desc": "+10% Car Speed"
+   "desc": "+15% Car Speed"
   },
   {
    "id": "Speed2",
    "name": "Speed II",
    "branch": "Speed",
    "stat": "Speed",
-   "value": 0.2,
-   "cost": 50000,
+   "value": 0.3,
+   "cost": 25000,
    "requires": "Speed1",
    "col": 2,
    "row": 2,
    "icon": "⚡",
-   "desc": "+20% Car Speed"
+   "desc": "+30% Car Speed"
   },
   {
    "id": "Speed3",
    "name": "Speed III",
    "branch": "Speed",
    "stat": "Speed",
-   "value": 0.35,
-   "cost": 1000000,
+   "value": 0.5,
+   "cost": 600000,
    "requires": "Speed2",
    "col": 3,
    "row": 2,
    "icon": "⚡",
-   "desc": "+35% Car Speed"
+   "desc": "+50% Car Speed"
   },
   {
    "id": "Speed4",
    "name": "Nitro",
    "branch": "Speed",
    "stat": "Speed",
-   "value": 0.6,
-   "cost": 25000000,
+   "value": 0.8,
+   "cost": 15000000,
    "requires": "Speed3",
    "col": 4,
    "row": 2,
    "icon": "⚡",
-   "desc": "+60% Car Speed"
+   "desc": "+80% Car Speed"
   },
   {
-   "id": "Spin1",
-   "name": "Quick Spin I",
-   "branch": "Spin",
-   "stat": "SpinSpeed",
+   "id": "Roll1",
+   "name": "Quick Roll I",
+   "branch": "Roll",
+   "stat": "RollSpeed",
    "value": 0.2,
-   "cost": 4000,
+   "cost": 1200,
    "requires": "Root",
    "col": 1,
-   "row": 3,
-   "icon": "🎰",
-   "desc": "-20% Spin Cooldown"
+   "row": 4,
+   "icon": "🎲",
+   "desc": "-20% Roll Time"
   },
   {
-   "id": "Spin2",
-   "name": "Quick Spin II",
-   "branch": "Spin",
-   "stat": "SpinSpeed",
+   "id": "Roll2",
+   "name": "Quick Roll II",
+   "branch": "Roll",
+   "stat": "RollSpeed",
    "value": 0.2,
-   "cost": 90000,
-   "requires": "Spin1",
+   "cost": 30000,
+   "requires": "Roll1",
    "col": 2,
-   "row": 3,
-   "icon": "🎰",
-   "desc": "-20% Spin Cooldown"
+   "row": 4,
+   "icon": "🎲",
+   "desc": "-20% Roll Time"
   },
   {
-   "id": "Spin3",
-   "name": "Auto Spin",
-   "branch": "Spin",
-   "stat": "AutoSpin",
+   "id": "Roll3",
+   "name": "Auto Roll",
+   "branch": "Roll",
+   "stat": "AutoRoll",
    "value": 1,
-   "cost": 250000,
-   "requires": "Spin2",
+   "cost": 120000,
+   "requires": "Roll2",
    "col": 3,
-   "row": 3,
-   "icon": "🎰",
-   "desc": "Unlocks Auto Spin"
+   "row": 4,
+   "icon": "🎲",
+   "desc": "Unlocks Auto Roll"
   },
   {
-   "id": "Spin4",
-   "name": "Turbo Spin",
-   "branch": "Spin",
-   "stat": "SpinSpeed",
+   "id": "Roll4",
+   "name": "Turbo Roll",
+   "branch": "Roll",
+   "stat": "RollSpeed",
    "value": 0.3,
-   "cost": 10000000,
-   "requires": "Spin3",
+   "cost": 8000000,
+   "requires": "Roll3",
    "col": 4,
-   "row": 3,
-   "icon": "🎰",
-   "desc": "-30% Spin Cooldown"
+   "row": 4,
+   "icon": "🎲",
+   "desc": "-30% Roll Time"
   },
   {
-   "id": "Track1",
-   "name": "Track Slots I",
-   "branch": "Track",
-   "stat": "Slots",
-   "value": 2,
-   "cost": 10000,
+   "id": "Plot1",
+   "name": "Plot 9x9",
+   "branch": "Plot",
+   "stat": "PlotSize",
+   "value": 9,
+   "cost": 5000,
    "requires": "Root",
    "col": 1,
-   "row": 4,
-   "icon": "🛣️",
-   "desc": "+2 Track Slots"
+   "row": 5,
+   "icon": "🗺️",
+   "desc": "Plot grows to 9x9"
   },
   {
-   "id": "Track2",
-   "name": "Track Slots II",
-   "branch": "Track",
-   "stat": "Slots",
-   "value": 2,
-   "cost": 200000,
-   "requires": "Track1",
+   "id": "Plot2",
+   "name": "Plot 11x11",
+   "branch": "Plot",
+   "stat": "PlotSize",
+   "value": 11,
+   "cost": 150000,
+   "requires": "Plot1",
    "col": 2,
-   "row": 4,
-   "icon": "🛣️",
-   "desc": "+2 Track Slots"
+   "row": 5,
+   "icon": "🗺️",
+   "desc": "Plot grows to 11x11"
   },
   {
-   "id": "Track3",
-   "name": "Track Slots III",
-   "branch": "Track",
-   "stat": "Slots",
-   "value": 2,
-   "cost": 4000000,
-   "requires": "Track2",
+   "id": "Plot3",
+   "name": "Plot 13x13",
+   "branch": "Plot",
+   "stat": "PlotSize",
+   "value": 13,
+   "cost": 3000000,
+   "requires": "Plot2",
    "col": 3,
-   "row": 4,
-   "icon": "🛣️",
-   "desc": "+2 Track Slots"
+   "row": 5,
+   "icon": "🗺️",
+   "desc": "Plot grows to 13x13"
   },
   {
-   "id": "Track4",
-   "name": "Track Slots IV",
-   "branch": "Track",
-   "stat": "Slots",
-   "value": 2,
-   "cost": 80000000,
-   "requires": "Track3",
+   "id": "Plot4",
+   "name": "Plot 15x15",
+   "branch": "Plot",
+   "stat": "PlotSize",
+   "value": 15,
+   "cost": 60000000,
+   "requires": "Plot3",
    "col": 4,
-   "row": 4,
-   "icon": "🛣️",
-   "desc": "+2 Track Slots"
+   "row": 5,
+   "icon": "🗺️",
+   "desc": "Plot grows to 15x15"
+  },
+  {
+   "id": "Elements1",
+   "name": "Elements +20 (50)",
+   "branch": "Elements",
+   "stat": "Elements",
+   "value": 20,
+   "cost": 800,
+   "requires": "Root",
+   "col": 1,
+   "row": 3,
+   "icon": "🧱",
+   "desc": "+20 max track elements"
+  },
+  {
+   "id": "Elements2",
+   "name": "Elements +20 (70)",
+   "branch": "Elements",
+   "stat": "Elements",
+   "value": 20,
+   "cost": 6000,
+   "requires": "Elements1",
+   "col": 2,
+   "row": 3,
+   "icon": "🧱",
+   "desc": "+20 max track elements"
+  },
+  {
+   "id": "Elements3",
+   "name": "Elements +20 (90)",
+   "branch": "Elements",
+   "stat": "Elements",
+   "value": 20,
+   "cost": 40000,
+   "requires": "Elements2",
+   "col": 3,
+   "row": 3,
+   "icon": "🧱",
+   "desc": "+20 max track elements"
+  },
+  {
+   "id": "Elements4",
+   "name": "Elements +20 (110)",
+   "branch": "Elements",
+   "stat": "Elements",
+   "value": 20,
+   "cost": 250000,
+   "requires": "Elements3",
+   "col": 4,
+   "row": 3,
+   "icon": "🧱",
+   "desc": "+20 max track elements"
+  },
+  {
+   "id": "Elements5",
+   "name": "Elements +20 (130)",
+   "branch": "Elements",
+   "stat": "Elements",
+   "value": 20,
+   "cost": 1500000,
+   "requires": "Elements4",
+   "col": 5,
+   "row": 3,
+   "icon": "🧱",
+   "desc": "+20 max track elements"
+  },
+  {
+   "id": "Elements6",
+   "name": "Elements +20 (150)",
+   "branch": "Elements",
+   "stat": "Elements",
+   "value": 20,
+   "cost": 9000000,
+   "requires": "Elements5",
+   "col": 6,
+   "row": 3,
+   "icon": "🧱",
+   "desc": "+20 max track elements"
+  },
+  {
+   "id": "Elements7",
+   "name": "Elements +20 (170)",
+   "branch": "Elements",
+   "stat": "Elements",
+   "value": 20,
+   "cost": 50000000,
+   "requires": "Elements6",
+   "col": 7,
+   "row": 3,
+   "icon": "🧱",
+   "desc": "+20 max track elements"
+  },
+  {
+   "id": "Elements8",
+   "name": "Elements +20 (190)",
+   "branch": "Elements",
+   "stat": "Elements",
+   "value": 20,
+   "cost": 250000000,
+   "requires": "Elements7",
+   "col": 8,
+   "row": 3,
+   "icon": "🧱",
+   "desc": "+20 max track elements"
   }
  ],
  "Daily": [
@@ -755,9 +859,9 @@
   },
   {
    "day": 5,
-   "type": "Lucky",
-   "id": "SuperLucky",
-   "label": "Super Lucky",
+   "type": "Dice",
+   "id": "Frost",
+   "label": "Frost Dice",
    "icon": "🎲"
   },
   {
@@ -779,14 +883,14 @@
    "level": 1,
    "free": {
     "type": "Cash",
-    "amount": 2500,
-    "label": "$2.5K",
+    "amount": 1000,
+    "label": "$1K",
     "icon": "💵"
    },
    "premium": {
     "type": "Cash",
-    "amount": 15000,
-    "label": "$15K",
+    "amount": 6000,
+    "label": "$6K",
     "icon": "💰"
    }
   },
@@ -794,14 +898,14 @@
    "level": 2,
    "free": {
     "type": "Cash",
-    "amount": 5000,
-    "label": "$5K",
+    "amount": 2000,
+    "label": "$2K",
     "icon": "💵"
    },
    "premium": {
     "type": "Cash",
-    "amount": 30000,
-    "label": "$30K",
+    "amount": 12000,
+    "label": "$12K",
     "icon": "💰"
    }
   },
@@ -825,29 +929,29 @@
    "level": 4,
    "free": {
     "type": "Cash",
-    "amount": 10000,
-    "label": "$10K",
+    "amount": 4000,
+    "label": "$4K",
     "icon": "💵"
    },
    "premium": {
     "type": "Cash",
-    "amount": 60000,
-    "label": "$60K",
+    "amount": 24000,
+    "label": "$24K",
     "icon": "💰"
    }
   },
   {
    "level": 5,
    "free": {
-    "type": "Lucky",
-    "id": "SuperLucky",
-    "label": "Lucky Block",
+    "type": "Dice",
+    "id": "Frost",
+    "label": "Frost Dice",
     "icon": "🎲"
    },
    "premium": {
-    "type": "Lucky",
-    "id": "MegaLucky",
-    "label": "Mega Lucky",
+    "type": "Dice",
+    "id": "Cosmic",
+    "label": "Cosmic Dice",
     "icon": "🎲"
    }
   },
@@ -871,14 +975,14 @@
    "level": 7,
    "free": {
     "type": "Cash",
-    "amount": 17500,
-    "label": "$17.5K",
+    "amount": 7000,
+    "label": "$7K",
     "icon": "💵"
    },
    "premium": {
     "type": "Cash",
-    "amount": 105000,
-    "label": "$105K",
+    "amount": 42000,
+    "label": "$42K",
     "icon": "💰"
    }
   },
@@ -886,14 +990,14 @@
    "level": 8,
    "free": {
     "type": "Cash",
-    "amount": 20000,
-    "label": "$20K",
+    "amount": 8000,
+    "label": "$8K",
     "icon": "💵"
    },
    "premium": {
     "type": "Cash",
-    "amount": 120000,
-    "label": "$120K",
+    "amount": 48000,
+    "label": "$48K",
     "icon": "💰"
    }
   },
@@ -916,9 +1020,9 @@
   {
    "level": 10,
    "free": {
-    "type": "Lucky",
-    "id": "SuperLucky",
-    "label": "Lucky Block",
+    "type": "Dice",
+    "id": "Frost",
+    "label": "Frost Dice",
     "icon": "🎲"
    },
    "premium": {
@@ -931,14 +1035,14 @@
    "level": 11,
    "free": {
     "type": "Cash",
-    "amount": 27500,
-    "label": "$27.5K",
+    "amount": 11000,
+    "label": "$11K",
     "icon": "💵"
    },
    "premium": {
     "type": "Cash",
-    "amount": 165000,
-    "label": "$165K",
+    "amount": 66000,
+    "label": "$66K",
     "icon": "💰"
    }
   },
@@ -962,14 +1066,14 @@
    "level": 13,
    "free": {
     "type": "Cash",
-    "amount": 32500,
-    "label": "$32.5K",
+    "amount": 13000,
+    "label": "$13K",
     "icon": "💵"
    },
    "premium": {
     "type": "Cash",
-    "amount": 195000,
-    "label": "$195K",
+    "amount": 78000,
+    "label": "$78K",
     "icon": "💰"
    }
   },
@@ -977,29 +1081,29 @@
    "level": 14,
    "free": {
     "type": "Cash",
-    "amount": 35000,
-    "label": "$35K",
+    "amount": 14000,
+    "label": "$14K",
     "icon": "💵"
    },
    "premium": {
     "type": "Cash",
-    "amount": 210000,
-    "label": "$210K",
+    "amount": 84000,
+    "label": "$84K",
     "icon": "💰"
    }
   },
   {
    "level": 15,
    "free": {
-    "type": "Lucky",
-    "id": "MegaLucky",
-    "label": "Lucky Block",
+    "type": "Dice",
+    "id": "Cosmic",
+    "label": "Cosmic Dice",
     "icon": "🎲"
    },
    "premium": {
-    "type": "Lucky",
-    "id": "MegaLucky",
-    "label": "Mega Lucky",
+    "type": "Dice",
+    "id": "Cosmic",
+    "label": "Cosmic Dice",
     "icon": "🎲"
    }
   },
@@ -1007,14 +1111,14 @@
    "level": 16,
    "free": {
     "type": "Cash",
-    "amount": 40000,
-    "label": "$40K",
+    "amount": 16000,
+    "label": "$16K",
     "icon": "💵"
    },
    "premium": {
     "type": "Cash",
-    "amount": 240000,
-    "label": "$240K",
+    "amount": 96000,
+    "label": "$96K",
     "icon": "💰"
    }
   },
@@ -1022,14 +1126,14 @@
    "level": 17,
    "free": {
     "type": "Cash",
-    "amount": 42500,
-    "label": "$42.5K",
+    "amount": 17000,
+    "label": "$17K",
     "icon": "💵"
    },
    "premium": {
     "type": "Cash",
-    "amount": 255000,
-    "label": "$255K",
+    "amount": 102000,
+    "label": "$102K",
     "icon": "💰"
    }
   },
@@ -1053,23 +1157,23 @@
    "level": 19,
    "free": {
     "type": "Cash",
-    "amount": 47500,
-    "label": "$47.5K",
+    "amount": 19000,
+    "label": "$19K",
     "icon": "💵"
    },
    "premium": {
     "type": "Cash",
-    "amount": 285000,
-    "label": "$285K",
+    "amount": 114000,
+    "label": "$114K",
     "icon": "💰"
    }
   },
   {
    "level": 20,
    "free": {
-    "type": "Lucky",
-    "id": "MegaLucky",
-    "label": "Lucky Block",
+    "type": "Dice",
+    "id": "Cosmic",
+    "label": "Cosmic Dice",
     "icon": "🎲"
    },
    "premium": {
@@ -1083,11 +1187,11 @@
   "name": "Exclusive Track Crate",
   "drops": [
    {
-    "piece": "Corkscrew",
+    "piece": "Jump",
     "chance": 50
    },
    {
-    "piece": "JumpGap",
+    "piece": "Corkscrew",
     "chance": 30
    },
    {
@@ -1095,7 +1199,7 @@
     "chance": 15
    },
    {
-    "piece": "SpiralTower",
+    "piece": "Spiral",
     "chance": 4.99
    },
    {
@@ -1138,26 +1242,6 @@
     "price": 55,
     "name": "3 Crates"
    },
-   "Levels5": {
-    "id": 0,
-    "price": 49,
-    "name": "+5 Levels"
-   },
-   "Levels10": {
-    "id": 0,
-    "price": 89,
-    "name": "+10 Levels"
-   },
-   "Levels25": {
-    "id": 0,
-    "price": 199,
-    "name": "+25 Levels"
-   },
-   "SkipRebirth": {
-    "id": 0,
-    "price": 19,
-    "name": "Skip Rebirth"
-   },
    "PassSkip": {
     "id": 0,
     "price": 25,
@@ -1190,18 +1274,30 @@
    "id": "Hatchback",
    "label": "Hatchback",
    "icon": "🚗"
+  },
+  {
+   "type": "Dice",
+   "id": "Cosmic",
+   "label": "Cosmic Dice",
+   "icon": "🎲"
   }
  ],
  "Config": {
-  "BaseSlots": 6,
-  "BaseSpinCooldown": 2.0,
-  "XPPerSpin": 4,
-  "RebirthBaseCost": 100000,
-  "RebirthCostGrowth": 5,
-  "RebirthMoneyBonus": 0.3,
+  "BaseElements": 30,
+  "BaseGrid": 7,
+  "MaxGrid": 15,
+  "Cell": 10,
+  "BaseRollTime": 2.0,
+  "XPPerRoll": 4,
   "FriendBoostPer": 0.1,
   "FriendBoostMax": 0.5,
   "DailyCooldownHours": 20,
-  "DailyResetHours": 48
+  "DailyResetHours": 48,
+  "OfflineRate": 0.25,
+  "OfflineMaxHours": 8,
+  "StartInventory": {
+   "Straight": 8,
+   "Turn": 4
+  }
  }
 }

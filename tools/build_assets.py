@@ -11,43 +11,55 @@ import random
 from rbx import CF, Inst, part, write_model
 
 # ------------------------------------------------------------------ cars
+CAR_SCALE = 0.42  # mini cars for the 6 stud wide mini track
+
+
+def cartoon(mat):
+    """Only flat cartoon materials: textured ones become SmoothPlastic."""
+    return mat if mat in ("Neon", "Glass", "ForceField") else "SmoothPlastic"
+
 
 
 class Kit:
-    def __init__(self, m):
+    def __init__(self, m, s=1.0):
         self.m = m
+        self.s = s
+
+    def _cf(self, pos, rot=None):
+        cf = CF(*(c * self.s for c in pos))
+        return cf * rot if rot else cf
+
+    def _sz(self, size):
+        return tuple(c * self.s for c in size)
 
     def box(self, name, size, pos, color, mat="SmoothPlastic", rot=None, **kw):
-        cf = CF(*pos)
-        if rot:
-            cf = cf * rot
-        p = part(name, size, cf, color, mat, collide=False, **kw)
+        p = part(name, self._sz(size), self._cf(pos, rot), color, cartoon(mat), collide=False,
+                 **kw)
         self.m.add(p)
         return p
 
     def wedge(self, name, size, pos, color, mat="SmoothPlastic", rot=None, **kw):
-        cf = CF(*pos)
-        if rot:
-            cf = cf * rot
-        p = part(name, size, cf, color, mat, cls="WedgePart", collide=False, **kw)
+        p = part(name, self._sz(size), self._cf(pos, rot), color, cartoon(mat), cls="WedgePart",
+                 collide=False, **kw)
         self.m.add(p)
         return p
 
-    def wheel(self, pos, r, w, tire="#1e1e1e", rim="#d9d9d9"):
-        self.m.add(part("Tire", (w, r * 2, r * 2), CF(*pos), tire, "SmoothPlastic",
+    def wheel(self, pos, r, w, tire="#2a2a30", rim="#e6e6e6"):
+        self.m.add(part("Tire", self._sz((w, r * 2, r * 2)), self._cf(pos), tire,
                         shape="Cylinder", collide=False))
-        self.m.add(part("Rim", (w + 0.1, r * 1.1, r * 1.1), CF(*pos), rim, "Metal",
+        self.m.add(part("Rim", self._sz((w + 0.1, r * 1.1, r * 1.1)), self._cf(pos), rim,
                         shape="Cylinder", collide=False))
 
     def ball(self, name, d, pos, color, mat="SmoothPlastic", **kw):
-        p = part(name, (d, d, d), CF(*pos), color, mat, shape="Ball", collide=False, **kw)
+        p = part(name, self._sz((d, d, d)), self._cf(pos), color, cartoon(mat), shape="Ball",
+                 collide=False, **kw)
         self.m.add(p)
         return p
 
     def cyl(self, name, r, length, pos, color, mat="SmoothPlastic", axis="z", **kw):
         rot = {"x": CF(), "y": CF.rz(math.pi / 2), "z": CF.ry(math.pi / 2)}[axis]
-        p = part(name, (length, r * 2, r * 2), CF(*pos) * rot, color, mat, shape="Cylinder",
-                 collide=False, **kw)
+        p = part(name, self._sz((length, r * 2, r * 2)), self._cf(pos, rot), color, cartoon(mat),
+                 shape="Cylinder", collide=False, **kw)
         self.m.add(p)
         return p
 
@@ -224,23 +236,32 @@ def build_cars():
     for i, (cid, display, price, speed, mult, builder) in enumerate(CARS):
         m = Inst("Model", cid, attrs={"DisplayName": display, "Price": price, "Speed": speed,
                                       "MoneyMult": mult, "Order": i + 1})
-        m.add(part("Root", (2, 1, 2), CF(0, 0.5, 0), "#ffffff", transparency=1, collide=False,
+        m.add(part("Root", (1, 0.4, 1), CF(0, 0.2, 0), "#ffffff", transparency=1, collide=False,
                    touch=False))
-        builder(Kit(m))
+        builder(Kit(m, CAR_SCALE))
         root.add(m)
     return root
 
 
 # ------------------------------------------------------------------ island styles
-SPOTS = [(-36, -24), (-38, 10), (-28, 30), (36, 18), (30, 34), (40, -2), (-14, -40), (16, -38)]
+from build_map import DECOR_SPOTS as SPOTS  # noqa: E402  (plot margins around the grid)
+BACK_L = (-72, 98)   # free corner spots for big props
+BACK_R = (72, 98)
 
 
 def d_classic(k, rng):
     for i, (x, z) in enumerate(SPOTS):
         s = rng.uniform(0.85, 1.15)
-        k.box("Trunk", (2 * s, 10 * s, 2 * s), (x, 5 * s, z), "#8a5a2b", "Wood")
-        k.box("Leaves", (11 * s, 6 * s, 11 * s), (x, 12 * s, z), "#3fae2f", "Grass")
-        k.box("LeavesTop", (7 * s, 5 * s, 7 * s), (x, 17 * s, z), "#4cc23a", "Grass")
+        if i % 3 == 2:
+            k.box("Rock", (4 * s, 2.6 * s, 3.4 * s), (x, 1.1 * s, z), "#8d8f9e",
+                  rot=CF.ry(rng.uniform(0, 3)))
+            k.box("Bush", (3.6, 2.6, 3.6), (x + 5, 1.2, z + 3), "#5fd13f", rot=CF.ry(0.6))
+            continue
+        k.box("Trunk", (1.6 * s, 6 * s, 1.6 * s), (x, 3 * s, z), "#8a5a2b")
+        k.box("Leaves1", (9 * s, 4.5 * s, 9 * s), (x, 7.5 * s, z), "#4cc23a", rot=CF.ry(0.3))
+        k.box("Leaves2", (6.5 * s, 4 * s, 6.5 * s), (x, 11.2 * s, z), "#3fae2f",
+              rot=CF.ry(0.3 + math.pi / 4))
+        k.box("Leaves3", (3.6 * s, 3 * s, 3.6 * s), (x, 14.2 * s, z), "#4cc23a", rot=CF.ry(0.3))
 
 
 def d_desert(k, rng):
@@ -258,7 +279,7 @@ def d_desert(k, rng):
         k.ball("Flower", 1.2, (x, h + 0.4, z), "#ff5fa2")
     for i in range(4):
         w = 14 - i * 3.5
-        k.box("Pyramid", (w, 3, w), (-30, 1.5 + i * 3, -6), "#e3b765", "Sandstone")
+        k.box("Pyramid", (w, 3, w), (BACK_L[0], 1.5 + i * 3, BACK_L[1]), "#e3b765")
 
 
 def d_snow(k, rng):
@@ -297,7 +318,7 @@ def d_candy(k, rng):
             k.box("CaneEnd", (1.4, 2.4, 1.4), (x + 2.6, 11.4, z), "#ffffff")
     for j in range(6):
         a = j * math.tau / 6
-        k.ball("Gumdrop", 3.4, (-24 + math.cos(a) * 6, 1.2, -4 + math.sin(a) * 6),
+        k.ball("Gumdrop", 3.4, (BACK_L[0] + math.cos(a) * 6, 1.2, BACK_L[1] + math.sin(a) * 6),
                cols[j % len(cols)], "Glass", transparency=0.1)
 
 
@@ -319,9 +340,8 @@ def d_jungle(k, rng):
                                               top[2] + math.sin(ang) * 4),
                   "#2e9b3a", "Grass", rot=CF.ry(-ang + math.pi / 2) * CF.rx(-0.3))
         k.ball("Coconut", 1.4, (top[0], 14.4, top[2] + 0.8), "#6b4423")
-    for j in range(5):
-        k.ball("Bush", 5, (rng.uniform(-40, 40), 1.4, rng.uniform(12, 26) * (1 if j % 2 else -1)),
-               "#3c8f2c", "Grass")
+    for j, (x, z) in enumerate(SPOTS[:6]):
+        k.ball("Bush", 5, (x + 6, 1.4, z + 5), "#3c8f2c")
 
 
 def d_lava(k, rng):
@@ -337,8 +357,8 @@ def d_lava(k, rng):
                   rot=CF.ry(rng.uniform(0, 3)) * CF.rz(0.15))
     for j in range(5):
         r = 12 - j * 2.2
-        k.cyl("Volcano", r, 3, (-28, 1.5 + j * 3, -4), "#3a2a2a", "Basalt", axis="y")
-    k.cyl("Crater", 2.6, 0.6, (-28, 15.2, -4), "#ff6a00", "Neon", axis="y")
+        k.cyl("Volcano", r, 3, (BACK_L[0], 1.5 + j * 3, BACK_L[1]), "#3a2a2a", axis="y")
+    k.cyl("Crater", 2.6, 0.6, (BACK_L[0], 15.2, BACK_L[1]), "#ff6a00", "Neon", axis="y")
 
 
 def d_cyber(k, rng):
@@ -350,10 +370,9 @@ def d_cyber(k, rng):
                   ["#ff2fd6", "#2fe6ff", "#9b5cff"][j], "Neon")
         k.box("Holo", (3, 3, 3), (x, h + 2.5, z), "#2fe6ff", "Neon", transparency=0.35,
               rot=CF.angles(0.6, 0.6, 0))
-    for j in range(5):
-        x = -40 + j * 20
-        k.box("GridLine", (0.3, 0.1, 2 * math.sqrt(47 ** 2 - x * x)), (x, 0.05, 0), "#2fe6ff",
-              "Neon")
+    for side in (-1, 1):
+        k.box("NeonEdgeX", (0.4, 0.3, 216), (side * 97, 0.2, 0), "#2fe6ff", "Neon")
+        k.box("NeonEdgeZ", (196, 0.3, 0.4), (0, 0.2, side * 107), "#ff2fd6", "Neon")
 
 
 def d_space(k, rng):
@@ -367,34 +386,36 @@ def d_space(k, rng):
                 k.box("Crystal", (1.6, h, 1.6), (x + rng.uniform(-2, 2), h / 2, z + rng.uniform(-2, 2)),
                       "#b54dff", "Neon", rot=CF.angles(rng.uniform(-.3, .3), 0, rng.uniform(-.3, .3)))
     # rocket
-    k.cyl("Rocket", 2.6, 16, (-26, 9, -6), "#ffffff", "Metal", axis="y")
-    k.box("RocketTip", (3.6, 3.6, 3.6), (-26, 18, -6), "#ff3b3b", rot=CF.angles(0.78, 0, 0.78))
+    rx, rz = BACK_L
+    k.cyl("Rocket", 2.6, 16, (rx, 9, rz), "#ffffff", axis="y")
+    k.box("RocketTip", (3.6, 3.6, 3.6), (rx, 18, rz), "#ff3b3b", rot=CF.angles(0.78, 0, 0.78))
     for a in range(3):
         ang = a * math.tau / 3
-        k.box("RocketFin", (0.6, 5, 3), (-26 + math.cos(ang) * 3, 3, -6 + math.sin(ang) * 3),
+        k.box("RocketFin", (0.6, 5, 3), (rx + math.cos(ang) * 3, 3, rz + math.sin(ang) * 3),
               "#ff3b3b", rot=CF.ry(-ang))
-    k.box("FlagPole", (0.4, 10, 0.4), (-14, 5, 20), "#d9d9d9", "Metal")
-    k.box("Flag", (0.2, 3, 5), (-14, 8.5, 22.5), "#3b6bff")
+    fx, fz = BACK_R
+    k.box("FlagPole", (0.4, 10, 0.4), (fx, 5, fz), "#d9d9d9")
+    k.box("Flag", (0.2, 3, 5), (fx, 8.5, fz + 2.5), "#3b6bff")
 
 
 STYLES = [
     # id, display, price, money bonus, grass (color, material), dirt, rock, decor
-    ("Classic", "Classic Meadow", 0, 0.0, ("#5fd13f", "Grass"), ("#9b6634", "Ground"),
-     ("#7d7468", "Rock"), d_classic),
-    ("Desert", "Desert Dunes", 10_000, 0.05, ("#e8c872", "Sand"), ("#c9944a", "Sandstone"),
-     ("#a8743c", "Sandstone"), d_desert),
-    ("Snowy", "Snowy Peaks", 40_000, 0.10, ("#f4f8ff", "Snow"), ("#8fa9c2", "Ice"),
-     ("#6b7f99", "Slate"), d_snow),
+    ("Classic", "Classic Meadow", 0, 0.0, ("#5fd13f", "SmoothPlastic"), ("#9b6634", "SmoothPlastic"),
+     ("#7d7468", "SmoothPlastic"), d_classic),
+    ("Desert", "Desert Dunes", 10_000, 0.05, ("#e8c872", "SmoothPlastic"), ("#c9944a", "SmoothPlastic"),
+     ("#a8743c", "SmoothPlastic"), d_desert),
+    ("Snowy", "Snowy Peaks", 40_000, 0.10, ("#f4f8ff", "SmoothPlastic"), ("#8fa9c2", "SmoothPlastic"),
+     ("#6b7f99", "SmoothPlastic"), d_snow),
     ("Candy", "Candy Land", 150_000, 0.15, ("#ff9ad5", "SmoothPlastic"), ("#8a4b2a", "SmoothPlastic"),
      ("#f3e0c0", "SmoothPlastic"), d_candy),
-    ("Jungle", "Lost Jungle", 500_000, 0.20, ("#2e9b3a", "LeafyGrass"), ("#5a3a1e", "Mud"),
-     ("#4a5a3a", "Rock"), d_jungle),
-    ("Lava", "Lava Lands", 2_000_000, 0.25, ("#3a3030", "Basalt"), ("#3a2020", "CrackedLava"),
-     ("#1b1b1b", "Basalt"), d_lava),
-    ("Cyber", "Cyber City", 8_000_000, 0.32, ("#14142a", "SmoothPlastic"), ("#1f1f3a", "Metal"),
-     ("#0d0d1a", "Metal"), d_cyber),
-    ("Space", "Moon Base", 30_000_000, 0.40, ("#c9c9d1", "Slate"), ("#8a8a96", "Slate"),
-     ("#5c5c6a", "Slate"), d_space),
+    ("Jungle", "Lost Jungle", 500_000, 0.20, ("#2e9b3a", "SmoothPlastic"), ("#5a3a1e", "SmoothPlastic"),
+     ("#4a5a3a", "SmoothPlastic"), d_jungle),
+    ("Lava", "Lava Lands", 2_000_000, 0.25, ("#3a3030", "SmoothPlastic"), ("#3a2020", "SmoothPlastic"),
+     ("#1b1b1b", "SmoothPlastic"), d_lava),
+    ("Cyber", "Cyber City", 8_000_000, 0.32, ("#14142a", "SmoothPlastic"), ("#1f1f3a", "SmoothPlastic"),
+     ("#0d0d1a", "SmoothPlastic"), d_cyber),
+    ("Space", "Moon Base", 30_000_000, 0.40, ("#c9c9d1", "SmoothPlastic"), ("#8a8a96", "SmoothPlastic"),
+     ("#5c5c6a", "SmoothPlastic"), d_space),
 ]
 
 

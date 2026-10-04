@@ -1,9 +1,10 @@
 # Track RNG (Roblox)
 
-Gra RNG: kręcisz (SPIN) i losujesz części toru, od zwykłej prostej (1 na 2) po **Sky Leap**
-(1 na 19 mln: teleport, potem pętla i skok nad wszystkim). Każdy z 8 graczy ma swoją wyspę i swój
-tor, a samochód jeździ po nim i zarabia pieniądze. Za pieniądze kupujesz lepsze auta, style
-wyspy, mikstury, lucky blocki i ulepszenia z drzewka.
+Gra RNG: klikasz **Roll** i losujesz kafelki toru, od prostej (1 na 2) po **Sky Leap**
+(1 na 19 mln: teleport, pętla i skok). W trybie **Build** stawiasz je na siatce swojej kwadratowej
+działki i budujesz mini tor (startowo 7x7 pól i 30 elementów; Skills rozszerzają do 15x15 pól
+i 190 elementów). Mini auto jeździ po torze od linii startu i zarabia za każdy przejechany kafelek.
+Za pieniądze kupujesz auta (Car Dealer), style wyspy, mikstury, specjalne kostki i Skills.
 
 ## Jak otworzyć
 
@@ -27,11 +28,11 @@ Services*.
 | Element | Gdzie |
 |---|---|
 | Wyspa główna + 8 wysp graczy + mosty | `Workspace/Map` |
-| 4 sklepy: Potions, Lucky Blocks, Car Dealer, Island Styles (podejdź i wciśnij E) | `Map/Hub/Shop_*` |
-| 16 części toru (Common → Secret) | `ReplicatedStorage/Assets/TrackPieces` |
-| 10 samochodów | `ReplicatedStorage/Assets/Cars` |
+| 4 sklepy: Car Dealer, Island Styles, Potions, Dice Shop (podejdź i wciśnij E) | `Map/Hub/Shop_*` |
+| 16 kafelków toru + Start (Common → Secret) | `ReplicatedStorage/Assets/Tiles` |
+| 10 mini samochodów | `ReplicatedStorage/Assets/Cars` |
 | 8 stylów wyspy (kolory + dekoracje) | `ReplicatedStorage/Assets/IslandStyles` |
-| UI zbudowane jako obiekty (HUD, Shop, Daily, Index, Pass, Rebirth, Upgrades, sklepy) | `StarterGui/MainGui` |
+| UI zbudowane jako obiekty (HUD, Build, Roll, Skills, Shop, Daily, Index, Pass, sklepy) | `StarterGui/MainGui` |
 | Logika serwera | `ServerScriptService/Server` |
 | Klient (podpina UI pod serwer) | `StarterPlayer/StarterPlayerScripts/Client` |
 | Balans gry (ceny, szanse, nagrody) | `ReplicatedStorage/Shared/GameData` |
@@ -42,10 +43,17 @@ Mapa, części toru, auta, style i UI są generowane skryptami Pythona z folderu
 uruchom:
 ```
 cd tools
-python3 gamedata.py && python3 build_map.py && python3 build_track.py \
+python3 gamedata.py && python3 build_map.py && python3 build_tiles.py \
   && python3 build_assets.py && python3 build_ui.py
 cd .. && rojo build -o TrackRNG.rbxl
 ```
 Możesz też zmieniać wszystko bezpośrednio w Studio. UI to zwykłe Frame/TextButton.
+
+## Sterowanie budowaniem
+
+**Build** → kliknij kafelek w ekwipunku → pojawia się blueprint (zielony = można postawić).
+`R` obraca, lewy klik stawia, prawy klik/`Q` anuluje, **Delete** zdejmuje kafelki z toru.
+Auto startuje z linii startu na środku działki i jedzie, dopóki droga się łączy. Gdy tor wraca do
+startu od tyłu, jeździ w kółko.
 
 Podglądy (renderowane w Blenderze i przeglądarce) są w folderze `renders/`.

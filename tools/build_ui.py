@@ -5,7 +5,7 @@ the client so it fits any screen. Names here are the contract with the client sc
 """
 import math
 
-from gamedata import (CRATE, DAILY, LUCKY_BLOCKS, PASS, POTIONS, PRODUCTS, STARTER_PACK, TIERS,
+from gamedata import (CRATE, DAILY, DICE, PASS, POTIONS, PRODUCTS, STARTER_PACK, TIERS,
                       UPGRADES, car_list, piece_list, style_list)
 from rbx import C3, CS, FONT, Inst, NS, U2, UD, V2, write_model
 
@@ -166,119 +166,241 @@ def window(name, title, icon, preset, w, h, extra_right=0):
 
 
 # ------------------------------------------------------------------ HUD
+DARK_PANEL = "#1b2033"
+
+
+def icon_button(name, icon, text, pos, size=(170, 150), anchor=(0, 0), its=96, ts=42):
+    """Frameless cartoon icon with a stroked label (image-5 style)."""
+    w, h = size
+    b = Inst("TextButton", name, {**base_props(pos, (0, w, 0, h), anchor),
+                                  "BackgroundTransparency": 1, "Text": "",
+                                  "AutoButtonColor": False})
+    b.add(emoji("Icon", icon, (0.5, 0, 0, 0), (0, w, 0, h - 30), its, anchor=(0.5, 0)))
+    b.add(label("Label", text, (0, 0, 1, -50), (1, 0, 0, 50), ts, st=4))
+    return b
+
+
+def badge(name, text, pos, color="#ff2d55", size=46):
+    f = frame(name, pos, (0, size, 0, size), color=color, rad=size // 2, st=4, anchor=(0.5, 0.5))
+    f.add(label("Text", text, (0, 0, 0, 0), (1, 0, 1, 0), int(size * 0.62), st=2))
+    return f
+
+
+def dark_panel(name, pos, size, anchor=(0, 0), transp=0.35):
+    return frame(name, pos, size, color=DARK_PANEL, transp=transp, rad=16, st=3,
+                 anchor=anchor, st_color="#0c0f1a")
+
+
 def hud():
     h = frame("HUD", (0, 0, 0, 0), (1, 0, 1, 0), st=0, rad=0)
-    # top tabs
-    top = frame("TopBar", (0.5, 0, 0, 0), (0, 900, 0, 120), anchor=(0.5, 0), st=0, rad=0)
-    top.add(button("ShopTab", "Shop", (0.5, -178, 0, 6), (0, 254, 0, 88), "pink", 52,
-                   anchor=(1, 0)))
-    top.add(button("BaseTab", "My Base", (0.5, 0, 0, 0), (0, 336, 0, 108), "blue", 62,
-                   anchor=(0.5, 0)))
-    top.add(button("UpgradesTab", "Upgrades", (0.5, 178, 0, 6), (0, 262, 0, 88), "green", 48))
-    h.add(top)
 
-    # left menu
-    left = frame("LeftMenu", (0, 24, 0.5, -230), (0, 350, 0, 520), st=0, rad=0)
-    d = button("DailyButton", "Daily Rewards", (0, 0, 0, 0), (0, 342, 0, 92), "green", 40)
-    badge = frame("Badge", (1, -12, 0, -14), (0, 42, 0, 42), color="#ff2d3d", rad=21, st=4)
-    badge.add(label("Text", "!", (0, 0, 0, 0), (1, 0, 1, 0), 32, st=2))
-    d.add(badge)
-    left.add(d)
-    sq = [("ShopButton", "Shop", "pink", "🛒"), ("PassButton", "Pass", "yellow", "🎟️"),
-          ("RebirthButton", "Rebirth", "purple", "🔄"), ("IndexButton", "Index", "blue", "📘")]
-    for i, (n, t, pr, ic) in enumerate(sq):
-        x = (i % 2) * 176
-        y = 110 + (i // 2) * 176
-        b = button(n, "", (0, x, 0, y), (0, 166, 0, 166), pr, 1)
-        b.children = [c for c in b.children if c.name != "Label"]
-        b.add(emoji("Icon", ic, (0.5, 0, 0, 6), (0, 120, 0, 110), 84, anchor=(0.5, 0)))
-        b.add(label("Label", t, (0, 0, 1, -54), (1, 0, 0, 50), 40))
+    # cash (top-left)
+    cash = dark_panel("CashPanel", (0, 24, 0, 24), (0, 430, 0, 96))
+    cash.add(emoji("Coin", "🪙", (0, 8, 0.5, 0), (0, 84, 0, 84), 64, anchor=(0, 0.5)))
+    cash.add(label("Amount", "$0", (0, 100, 0, 0), (1, -110, 1, 0), 64, align="Left", st=5))
+    h.add(cash)
+    h.add(label("IncomeLabel", "+$0/s", (0, 34, 0, 124), (0, 400, 0, 40), 32, color="#9dff7a",
+                align="Left"))
+
+    # left column of frameless icon buttons
+    left = frame("LeftMenu", (0, 26, 0, 190), (0, 190, 0, 660), st=0, rad=0)
+    for i, (n, ic, t) in enumerate([("ShopButton", "🛒", "Shop"), ("IndexButton", "📘", "Index"),
+                                    ("DailyButton", "📅", "Daily"), ("PassButton", "🎟️", "Pass")]):
+        b = icon_button(n, ic, t, (0, 0, 0, i * 162))
+        if n == "DailyButton":
+            b.add(badge("Badge", "!", (1, -30, 0, 22)))
         left.add(b)
     h.add(left)
 
-    # right menu
-    right = frame("RightMenu", (1, -20, 0.5, -300), (0, 250, 0, 470), anchor=(1, 0), st=0, rad=0)
-    sp = Inst("TextButton", "StarterPackButton", {
-        **base_props((0.5, 0, 0, 0), (0, 200, 0, 220), (0.5, 0)), "BackgroundTransparency": 1,
-        "Text": "", "AutoButtonColor": False})
-    sp.add(label("Title", "Starter Pack", (0, 0, 0, 0), (1, 0, 0, 40), 30))
-    sp.add(emoji("Icon", "🎁", (0.5, 0, 0, 34), (0, 140, 0, 140), 112, anchor=(0.5, 0)))
+    # teleports (top-centre)
+    top = frame("TopBar", (0.5, 0, 0, 14), (0, 900, 0, 100), anchor=(0.5, 0), st=0, rad=0)
+    top.add(button("CarsTab", "Cars", (0.5, -176, 0, 8), (0, 240, 0, 80), "blue", 46,
+                   anchor=(1, 0), rad=22, icon="🚗", icon_ts=46))
+    top.add(button("BaseTab", "My Base", (0.5, 0, 0, 0), (0, 320, 0, 96), "green", 52,
+                   anchor=(0.5, 0), rad=24, icon="🏠", icon_ts=54))
+    top.add(button("StylesTab", "Styles", (0.5, 176, 0, 8), (0, 240, 0, 80), "pink", 46,
+                   rad=22, icon="🎨", icon_ts=46))
+    h.add(top)
+
+    # rare roll feed (top-right)
+    feed = dark_panel("RareFeed", (1, -20, 0, 20), (0, 470, 0, 248), anchor=(1, 0), transp=0.5)
+    feed.add(label("Title", "🏆 Rare Rolls", (0, 14, 0, 6), (1, -28, 0, 40), 32, align="Left"))
+    for i in range(5):
+        row = frame(f"Row{i + 1}", (0, 12, 0, 50 + i * 38), (1, -24, 0, 34), st=0, rad=0)
+        row.add(label("Player", "", (0, 0, 0, 0), (0.36, 0, 1, 0), 24, color="#cfd8ff",
+                      align="Left", st=2))
+        row.add(label("Piece", "", (0.36, 0, 0, 0), (0.36, 0, 1, 0), 24, align="Left", st=2))
+        row.add(label("Odds", "", (0.72, 0, 0, 0), (0.28, 0, 1, 0), 24, color="#ffe14d",
+                      align="Right", st=2))
+        feed.add(row)
+    h.add(feed)
+
+    # right column: starter pack + passes + active potions
+    right = frame("RightMenu", (1, -24, 0, 300), (0, 250, 0, 430), anchor=(1, 0), st=0, rad=0)
+    sp = icon_button("StarterPackButton", "🎁", "Starter Pack", (0.5, 0, 0, 0), (230, 170),
+                     anchor=(0.5, 0), its=104, ts=34)
     sp.add(label("Price", robux(PRODUCTS["DevProducts"]["StarterPack"]["price"]),
-                 (0, 0, 0, 172), (1, 0, 0, 44), 36, color="#7dff6b"))
+                 (1, -6, 0, 6), (0, 90, 0, 40), 34, color="#7dff6b", anchor=(1, 0)))
     right.add(sp)
-    right.add(button("X2MoneyButton", "X2 Money", (0.5, 0, 0, 236), (0, 246, 0, 92), "purple",
-                     40, anchor=(0.5, 0), sub=robux(PRODUCTS["Gamepasses"]["X2Money"]["price"])))
-    right.add(button("X2LuckButton", "X2 Luck", (0.5, 0, 0, 342), (0, 246, 0, 92), "purple", 40,
-                     anchor=(0.5, 0), sub=robux(PRODUCTS["Gamepasses"]["X2Luck"]["price"])))
+    right.add(button("X2MoneyButton", "X2 Money", (0.5, 0, 0, 186), (0, 240, 0, 84), "purple",
+                     38, anchor=(0.5, 0), rad=18,
+                     sub=robux(PRODUCTS["Gamepasses"]["X2Money"]["price"])))
+    right.add(button("X2LuckButton", "X2 Luck", (0.5, 0, 0, 284), (0, 240, 0, 84), "purple", 38,
+                     anchor=(0.5, 0), rad=18,
+                     sub=robux(PRODUCTS["Gamepasses"]["X2Luck"]["price"])))
     h.add(right)
-
-    # bottom-left stats
-    st = frame("Stats", (0, 24, 1, -20), (0, 520, 0, 190), anchor=(0, 1), st=0, rad=0)
-    st.add(emoji("RebirthIcon", "🔄", (0, 0, 0, 0), (0, 56, 0, 56), 44))
-    st.add(label("RebirthCount", "0", (0, 62, 0, 0), (0, 200, 0, 56), 46, color="#ff6b8a",
-                 align="Left"))
-    row = frame("MoneyRow", (0, 0, 0, 58), (0, 520, 0, 84), st=0, rad=0)
-    row.add(Inst("UIListLayout", "Layout", {"FillDirection": "Horizontal",
-                                            "VerticalAlignment": "Center", "Padding": UD(0, 14),
-                                            "SortOrder": "LayoutOrder"}))
-    money = label("Money", "$0", (0, 0, 0, 0), (0, 0, 1, 0), 76, color="#7dff4f", align="Left",
-                  st=5)
-    money.props["AutomaticSize"] = "X"
-    money.props["LayoutOrder"] = 1
-    row.add(money)
-    add_btn = button("AddMoneyButton", "+", (0, 0, 0, 0), (0, 62, 0, 62), "green", 50, rad=10)
-    add_btn.props["LayoutOrder"] = 2
-    row.add(add_btn)
-    st.add(row)
-    st.add(label("FriendBoost", "Friend Boost: +0%", (0, 0, 0, 144), (0, 420, 0, 42), 32,
-                 align="Left"))
-    h.add(st)
-
-    # bottom-centre level bar
-    lv = frame("LevelBar", (0.5, 0, 1, -16), (0, 800, 0, 172), anchor=(0.5, 1), st=0, rad=0)
-    lv.add(label("Multiplier", "x1 Multiplier", (1, 0, 0, 0), (0, 320, 0, 38), 32,
-                 color="#ffe14d", align="Right", anchor=(1, 0)))
-    b = bar("Bar", (0, 0, 0, 40), (1, 0, 0, 58), 0.0)
-    b.add(label("LevelText", "Level 1", (0, 18, 0, 0), (0.5, 0, 1, 0), 36, align="Left"))
-    b.add(label("XPText", "0/100 XP", (0.5, 0, 0, 0), (0.5, -18, 1, 0), 34, align="Right"))
-    lv.add(b)
-    for i, (n, t, col) in enumerate([("Levels5", "+5 Levels", "#ffffff"),
-                                     ("Levels10", "+10 Levels", "#ffffff"),
-                                     ("Levels25", "+25 Levels", "#ffffff")]):
-        lv.add(button(n, t, (0, i * 272, 0, 108), (0, 256, 0, 64), "green", 36))
-    h.add(lv)
-
-    # bottom-right boosts
-    bo = frame("Boosts", (1, -20, 1, -16), (0, 300, 0, 96), anchor=(1, 1), st=0, rad=0)
-    for i, (n, ic, v) in enumerate([("MoneyBoost", "💵", "x1"), ("RebirthBoost", "🔄", "x1"),
-                                    ("LuckBoost", "🍀", "x1")]):
-        f = frame(n, (0, i * 100, 0, 0), (0, 92, 0, 92), st=0, rad=0)
-        f.add(emoji("Icon", ic, (0.5, 0, 0, 0), (0, 70, 0, 64), 52, anchor=(0.5, 0)))
-        f.add(label("Value", v, (0, 0, 1, -32), (1, 0, 0, 32), 28))
-        bo.add(f)
-    h.add(bo)
-
-    # spin panel (game specific)
-    spn = frame("SpinPanel", (1, -24, 1, -112), (0, 470, 0, 214), anchor=(1, 1), st=0, rad=0)
-    spn.add(label("LuckLabel", "🍀 Luck x1", (1, 0, 0, 0), (0, 300, 0, 40), 32, color="#9dff7a",
-                  align="Right", anchor=(1, 0)))
-    spn.add(label("SlotsLabel", "Track 0/6", (0, 0, 0, 0), (0, 160, 0, 40), 30, align="Left"))
-    sb = button("SpinButton", "SPIN!", (1, 0, 0, 46), (0, 300, 0, 134), "gold", 78,
-                anchor=(1, 0), rad=18, st=6)
-    sb.add(frame("Cooldown", (0, 0, 1, 0), (1, 0, 0, 0), color="#000000", transp=0.55, rad=18,
-                 st=0, anchor=(0, 1)))
-    spn.add(sb)
-    spn.add(button("AutoButton", "AUTO", (0, 0, 0, 74), (0, 150, 0, 78), "gray", 40,
-                   sub="OFF"))
-    spn.add(bar("CooldownBar", (1, 0, 0, 188), (0, 300, 0, 24), 1.0, "yellow", anchor=(1, 0)))
-    h.add(spn)
-
-    # active potion timers (filled by client from template)
-    pot = frame("ActivePotions", (0, 24, 0, 180), (0, 400, 0, 120), st=0, rad=0)
+    pot = frame("ActivePotions", (1, -24, 0, 740), (0, 420, 0, 110), anchor=(1, 0), st=0, rad=0)
     pot.add(Inst("UIListLayout", "Layout", {"FillDirection": "Horizontal",
+                                            "HorizontalAlignment": "Right",
                                             "Padding": UD(0, 10), "SortOrder": "LayoutOrder"}))
     h.add(pot)
+
+    # bottom-left stats (luck + roll time)
+    st = frame("Stats", (0, 24, 1, -20), (0, 420, 0, 150), anchor=(0, 1), st=0, rad=0)
+    st.add(emoji("LuckIcon", "🍀", (0, 0, 0, 0), (0, 110, 0, 90), 76))
+    st.add(label("Luck", "1.00x", (0, 0, 0, 86), (0, 110, 0, 40), 34))
+    st.add(emoji("RollIcon", "🎲", (0, 130, 0, 0), (0, 110, 0, 90), 76))
+    st.add(label("RollTime", "2.00s", (0, 130, 0, 86), (0, 110, 0, 40), 34))
+    st.add(label("FriendBoost", "👥 +0%", (0, 260, 0, 86), (0, 150, 0, 40), 30,
+                 color="#cfd8ff"))
+    h.add(st)
+
+    # bottom-right earnings
+    er = frame("Earnings", (1, -24, 1, -20), (0, 520, 0, 170), anchor=(1, 1), st=0, rad=0)
+    er.add(label("ElementsText", "🧱 Elements 0/30", (1, 0, 0, 0), (0, 400, 0, 40), 32,
+                 align="Right", anchor=(1, 0)))
+    er.add(label("OfflineTitle", "Offline Earnings (Per hour)", (1, 0, 0, 52), (0, 520, 0, 38),
+                 30, color="#ffe14d", align="Right", anchor=(1, 0)))
+    er.add(emoji("Coin", "🪙", (1, -250, 0, 96), (0, 64, 0, 64), 52))
+    er.add(label("OfflineAmount", "$0", (1, 0, 0, 92), (0, 240, 0, 70), 58, align="Right",
+                 anchor=(1, 0), st=5))
+    h.add(er)
+
+    # roll area: Build | Roll | Skills
+    ra = frame("RollArea", (0.5, 0, 1, -8), (0, 760, 0, 330), anchor=(0.5, 1), st=0, rad=0)
+    ra.add(icon_button("BuildButton", "🔨", "Build", (0.5, -250, 1, -6), (190, 170),
+                       anchor=(0.5, 1), its=108, ts=46))
+    sk = icon_button("SkillsButton", "", "Skills", (0.5, 250, 1, -6), (190, 170),
+                     anchor=(0.5, 1), its=108, ts=46)
+    for nm, x, y, sz in (("ArrowL", 0.28, 62, 70), ("ArrowR", 0.72, 62, 70), ("ArrowC", 0.5, 46, 110)):
+        sk.add(label(nm, "▲", (x, 0, 0, y), (0, sz, 0, sz), sz, color="#b54dff", st=5,
+                     anchor=(0.5, 0.5)))
+    sk.add(badge("Badge", "0", (1, -36, 0, 26), size=54))
+    ra.add(sk)
+    roll = Inst("TextButton", "RollButton", {
+        **base_props((0.5, 0, 1, -6), (0, 230, 0, 230), (0.5, 1)), "BackgroundTransparency": 1,
+        "Text": "", "AutoButtonColor": False})
+    die = frame("Die", (0.5, 0, 0, 10), (0, 176, 0, 176), color="#ffffff", rad=34, st=7,
+                anchor=(0.5, 0))
+    die.add(Inst("UIGradient", "Gradient", {"Color": CS((0, "#ffffff"), (1, "#d5dbe8")),
+                                            "Rotation": 90}))
+    for i, (px, py) in enumerate([(0.25, 0.25), (0.75, 0.25), (0.5, 0.5), (0.25, 0.75),
+                                  (0.75, 0.75)]):
+        die.add(frame(f"Pip{i}", (px, 0, py, 0), (0, 32, 0, 32), color="#15131f", rad=16, st=0,
+                      anchor=(0.5, 0.5)))
+    die.add(frame("Cooldown", (0, 0, 1, 0), (1, 0, 0, 0), color="#000000", transp=0.5, rad=34,
+                  st=0, anchor=(0, 1)))
+    roll.add(die)
+    roll.add(label("Label", "Roll", (0, 0, 1, -64), (1, 0, 0, 70), 70, st=6))
+    ra.add(roll)
+    # special dice above the roll button
+    dice_bar = frame("DiceBar", (0.5, 0, 0, 0), (0, 340, 0, 84), anchor=(0.5, 0), st=0, rad=0)
+    for i, dd in enumerate(DICE):
+        x = 6 + i * 84
+        preset = "rainbow" if dd["color"] == "rainbow" else None
+        chip = Inst("TextButton", f"Dice_{dd['id']}", {
+            **base_props((0, x, 0, 6), (0, 72, 0, 72)),
+            "BackgroundColor3": C3("#ffffff" if preset else dd["color"]), "Text": "",
+            "AutoButtonColor": False})
+        if preset:
+            chip.add(gradient("rainbow"))
+        chip.add(corner(16))
+        chip.add(stroke(4))
+        chip.add(label("Count", "0", (0, 0, 0, 0), (1, 0, 1, 0), 34, st=3))
+        dice_bar.add(chip)
+    ra.add(dice_bar)
+    ra.add(button("AutoButton", "AUTO", (0.5, 128, 1, -230), (0, 124, 0, 50), "gray", 28,
+                  rad=14, sub="OFF"))
+    h.add(ra)
     return h
+
+
+def build_panel():
+    """Inventory drawer opened by the Build button."""
+    p = frame("BuildPanel", (0.5, 0, 1, -348), (0, 1240, 0, 270), preset="body", rad=20, st=5,
+              anchor=(0.5, 1), visible=False)
+    p.add(label("Title", "🔨 Build", (0, 20, 0, 6), (0, 300, 0, 54), 46, align="Left", st=4))
+    p.add(label("Counter", "Elements 0/30", (0, 300, 0, 10), (0, 300, 0, 46), 34,
+                color="#ffe14d", align="Left"))
+    p.add(label("Hint", "R = rotate • Right click = cancel", (0, 590, 0, 14),
+                (0, 260, 0, 40), 19, color="#cfd8ff", align="Left", st=2))
+    p.add(button("RotateButton", "Rotate", (1, -380, 0, 10), (0, 140, 0, 50), "blue", 30, rad=12))
+    p.add(button("DeleteButton", "Delete", (1, -230, 0, 10), (0, 140, 0, 50), "red", 30, rad=12))
+    p.add(button("Close", "X", (1, -16, 0, 10), (0, 56, 0, 50), "red", 34, anchor=(1, 0),
+                 rad=12))
+    sc = Inst("ScrollingFrame", "Items", {
+        **base_props((0, 16, 0, 72), (1, -32, 1, -86)), "BackgroundTransparency": 1,
+        "ScrollBarThickness": 8, "CanvasSize": U2(0, 0, 0, 0), "AutomaticCanvasSize": "X",
+        "ScrollingDirection": "X", "ScrollBarImageColor3": C3("#ffffff")})
+    sc.add(Inst("UIListLayout", "Layout", {"FillDirection": "Horizontal", "Padding": UD(0, 12),
+                                           "SortOrder": "LayoutOrder",
+                                           "VerticalAlignment": "Center"}))
+    for pc in piece_list():
+        col, dk = TIER_COL[pc["tier"]]
+        c = Inst("TextButton", f"Item_{pc['id']}", {
+            **base_props((0, 0, 0, 0), (0, 160, 0, 172)), "BackgroundColor3": C3("#1d2233"),
+            "Text": "", "AutoButtonColor": False, "LayoutOrder": pc["order"]})
+        c.add(corner(14))
+        c.add(Inst("UIStroke", "Stroke", {"Thickness": 4, "Color": C3(col),
+                                          "ApplyStrokeMode": "Border"}))
+        vp = Inst("ViewportFrame", "Viewport", {
+            **base_props((0.5, 0, 0, 6), (1, -12, 0, 108), (0.5, 0)),
+            "BackgroundColor3": C3(col), "BackgroundTransparency": 0.7,
+            "Ambient": C3("#d0d0d0"), "LightColor": C3("#ffffff")})
+        vp.add(corner(10))
+        c.add(vp)
+        c.add(label("Count", "x0", (1, -8, 0, 8), (0, 70, 0, 30), 28, align="Right",
+                    anchor=(1, 0)))
+        c.add(label("Name", pc["name"], (0, 4, 1, -56), (1, -8, 0, 30), 24))
+        c.add(label("Tier", pc["tier"], (0, 4, 1, -30), (1, -8, 0, 26), 20, color=col, st=2))
+        sc.add(c)
+    p.add(sc)
+    return p
+
+
+def roll_reel():
+    """Image-4 style reel: cards slide sideways and stop on the rolled piece."""
+    r = frame("RollReel", (0.5, 0, 0, 150), (0, 1240, 0, 330), anchor=(0.5, 0), st=0, rad=0,
+              visible=False)
+    strip_bg = frame("Back", (0, 0, 0, 30), (1, 0, 0, 250), color="#0e1220", transp=0.35, rad=24,
+                     st=0)
+    strip_bg.add(Inst("UIGradient", "Fade", {
+        "Transparency": NS((0, 1), (0.12, 0), (0.88, 0), (1, 1))}))
+    r.add(strip_bg)
+    clip = frame("Clip", (0, 0, 0, 30), (1, 0, 0, 250), st=0, rad=0, clip=True)
+    clip.add(frame("Strip", (0.5, 0, 0, 0), (0, 10, 1, 0), st=0, rad=0))
+    r.add(clip)
+    r.add(frame("Highlight", (0.5, 0, 0, 34), (0, 196, 0, 242), color="#ffffff", transp=1,
+                rad=18, st=6, st_color="#ffe14d", anchor=(0.5, 0)))
+    r.add(label("Pointer", "▼", (0.5, 0, 0, -4), (0, 60, 0, 44), 46, color="#ffe14d",
+                anchor=(0.5, 0)))
+    r.add(label("Arrow1", "◀", (0, -10, 0, 155), (0, 60, 0, 70), 60, color="#e6ecff"))
+    r.add(label("Arrow2", "▶", (1, -50, 0, 155), (0, 60, 0, 70), 60, color="#e6ecff"))
+    r.add(label("Result", "", (0, 0, 1, -40), (1, 0, 0, 44), 38, color="#9dff7a", st=4))
+    return r
+
+
+def reel_card():
+    c = frame("ReelCard", (0, 0, 0, 10), (0, 184, 0, 230), color="#1d2233", rad=16, st=4)
+    c.add(label("Odds", "1 in 2", (0, 0, 0, 4), (1, 0, 0, 34), 30, color="#ffffff", st=4))
+    vp = Inst("ViewportFrame", "Viewport", {
+        **base_props((0.5, 0, 0, 40), (1, -14, 0, 130), (0.5, 0)),
+        "BackgroundColor3": C3("#ffffff"), "BackgroundTransparency": 0.75,
+        "Ambient": C3("#d0d0d0"), "LightColor": C3("#ffffff")})
+    vp.add(corner(12))
+    c.add(vp)
+    c.add(label("Name", "Straight", (0, 4, 1, -54), (1, -8, 0, 44), 30, st=4))
+    return c
 
 
 # ------------------------------------------------------------------ windows
@@ -326,11 +448,11 @@ def shop_window():
     s.add(label("Name2", "Track Crate", (0, 18, 0, 202), (0, 190, 0, 30), 26))
     s.add(label("Plus", "+", (0, 206, 0, 80), (0, 60, 0, 70), 72))
     for i, it in enumerate(STARTER_PACK[1:]):
-        x = 280 + i * 140
-        f = frame(f"Item{i + 1}", (0, x, 0, 70), (0, 126, 0, 150), preset="dark", rad=10, st=4)
+        x = 270 + i * 108
+        f = frame(f"Item{i + 1}", (0, x, 0, 70), (0, 100, 0, 150), preset="dark", rad=10, st=4)
         f.add(label("Count", "x1", (0, 0, 0, 0), (1, 0, 0, 30), 26))
         f.add(emoji("Icon", it["icon"], (0.5, 0, 0, 28), (0, 70, 0, 66), 52, anchor=(0.5, 0)))
-        f.add(label("Name", it["label"], (0, 2, 1, -38), (1, -4, 0, 34), 24))
+        f.add(label("Name", it["label"], (0, 2, 1, -38), (1, -4, 0, 34), 20))
         s.add(f)
     s.add(label("Value", "VALUE!", (0, 720, 0, 70), (0, 220, 0, 50), 44, color="#ffe14d"))
     s.add(button("BuyButton", robux(PRODUCTS["DevProducts"]["StarterPack"]["price"]),
@@ -491,55 +613,28 @@ def pass_window():
     return root
 
 
-def rebirth_window():
-    w, h = 800, 520
-    root, body = window("RebirthWindow", "Rebirth", "🔄", "purple", w, h)
-    cur = frame("Current", (0, 24, 0, 34), (0, 300, 0, 110), preset="green", rad=12, st=4)
-    cur.add(label("Title", "Rebirth 0", (0, 0, 0, 2), (1, 0, 0, 40), 32))
-    cur.add(label("Value", "X1 Money", (0, 0, 0, 40), (1, 0, 0, 64), 52))
-    body.add(cur)
-    body.add(label("Arrow", "➡", (0.5, 0, 0, 89), (0, 100, 0, 80), 70, anchor=(0.5, 0.5),
-                   color="#cfe6ff"))
-    nxt = frame("Next", (1, -24, 0, 34), (0, 300, 0, 110), preset="green", rad=12, st=4,
-                anchor=(1, 0))
-    nxt.add(label("Title", "Rebirth 1", (0, 0, 0, 2), (1, 0, 0, 40), 32))
-    nxt.add(label("Value", "X1.3 Money", (0, 0, 0, 40), (1, 0, 0, 64), 52))
-    body.add(nxt)
-    req = frame("Requirements", (0, 24, 0, 162), (1, -48, 0, 130), preset="dark", rad=12, st=4)
-    req.add(label("Title", "Requirements:", (0, 0, 0, 6), (1, 0, 0, 36), 34))
-    req.add(label("ReqText", "Have $100K (resets cash and track pieces)", (0, 10, 0, 42),
-                  (1, -20, 0, 32), 26, color="#e6ecff"))
-    req.add(bar("Bar", (0, 16, 1, -44), (1, -32, 0, 34), 0.0, text="$0 / $100K", ts=24))
-    body.add(req)
-    body.add(button("RebirthButton", "Rebirth", (0, 24, 1, -26), (0, 290, 0, 100), "green", 54,
-                    anchor=(0, 1)))
-    body.add(label("Or", "OR", (0.5, 0, 1, -76), (0, 100, 0, 60), 46, anchor=(0.5, 0.5)))
-    body.add(button("SkipButton", "Skip", (1, -24, 1, -26), (0, 290, 0, 100), "purple", 50,
-                    anchor=(1, 1), sub="[keep your stats]"))
-    sk = body.children[-1]
-    sk.add(label("Price", robux(PRODUCTS["DevProducts"]["SkipRebirth"]["price"]),
-                 (1, 10, 0, -26), (0, 90, 0, 44), 34, color="#7dff6b", anchor=(1, 0)))
-    return root
+BRANCH_PRESET = {"Money": "green", "Luck": "cyan", "Speed": "orange", "Roll": "purple",
+                 "Plot": "yellow", "Elements": "blue"}
+BRANCH_NAMES = [("Money", 0), ("Luck", 1), ("Speed", 2), ("Elements", 3), ("Roll", 4),
+                ("Plot", 5)]
 
 
-BRANCH_PRESET = {"Money": "green", "Luck": "cyan", "Speed": "orange", "Spin": "purple",
-                 "Track": "blue"}
-
-
-def upgrades_window():
-    w, h = 1240, 760
-    root, body = window("UpgradesWindow", "Upgrades", "⬆️", "green", w, h)
-    tree = frame("Tree", (0, 18, 0, 22), (1, -36, 0, 500), color="#1c2340", transp=0.2, rad=12,
+def skills_window():
+    w, h = 1320, 820
+    root, body = window("SkillsWindow", "Skills", "⏫", "purple", w, h)
+    tree = frame("Tree", (0, 18, 0, 22), (1, -36, 0, 560), color="#1c2340", transp=0.2, rad=12,
                  st=3)
-    gx, gy = 230, 96
-    ox, oy = 90, 58
-    node_r = 76
+    gx, gy = 126, 88
+    ox, oy = 176, 52
+    node_r = 70
 
     def pos(u):
         return ox + u["col"] * gx, oy + u["row"] * gy
 
+    for br, row in BRANCH_NAMES:
+        tree.add(label(f"Branch_{br}", br, (0, 8, 0, oy + row * gy - 18), (0, 100, 0, 36), 26,
+                       color=PRESETS[BRANCH_PRESET[br]][1], align="Left"))
     byid = {u["id"]: u for u in UPGRADES}
-    # lines first (behind nodes)
     for u in UPGRADES:
         if not u["requires"]:
             continue
@@ -556,22 +651,22 @@ def upgrades_window():
         n = button(f"Node_{u['id']}", "", (0, x, 0, y), (0, node_r, 0, node_r),
                    BRANCH_PRESET[u["branch"]], 1, anchor=(0.5, 0.5), rad=node_r // 2, st=5)
         n.children = [c for c in n.children if c.name != "Label"]
-        n.add(emoji("Icon", u["icon"], (0, 0, 0, 0), (1, 0, 1, 0), 40))
-        n.add(label("Level", "", (0.5, 0, 1, 2), (0, 160, 0, 26), 20, anchor=(0.5, 0)))
+        n.add(emoji("Icon", u["icon"], (0, 0, 0, 0), (1, 0, 1, 0), 38))
+        n.add(label("Level", "", (0.5, 0, 1, 0), (0, 130, 0, 24), 20, anchor=(0.5, 0), st=2))
         n.add(frame("Locked", (0, 0, 0, 0), (1, 0, 1, 0), color="#000000", transp=0.5,
                     rad=node_r // 2, st=0))
-        n.add(label("Owned", "✔", (1, 6, 0, -6), (0, 34, 0, 34), 30, color="#5fff3a",
+        n.add(label("Owned", "✔", (1, 6, 0, -6), (0, 32, 0, 32), 28, color="#5fff3a",
                     anchor=(1, 0), visible=False))
         tree.add(n)
     body.add(tree)
     info = frame("Info", (0, 18, 1, -18), (1, -36, 0, 150), preset="dark", rad=12, st=4,
                  anchor=(0, 1))
     info.add(emoji("Icon", "🔧", (0, 16, 0.5, 0), (0, 110, 0, 110), 80, anchor=(0, 0.5)))
-    info.add(label("NameText", "Engine Tune", (0, 140, 0, 14), (0, 560, 0, 52), 46,
+    info.add(label("NameText", "Engine Tune", (0, 140, 0, 14), (0, 600, 0, 52), 46,
                    align="Left"))
-    info.add(label("DescText", "+10% Money", (0, 140, 0, 70), (0, 560, 0, 40), 32,
+    info.add(label("DescText", "+10% Money", (0, 140, 0, 70), (0, 600, 0, 40), 32,
                    color="#cfe6ff", align="Left"))
-    info.add(label("CostText", "$500", (1, -340, 0.5, 0), (0, 300, 0, 60), 46, color="#7dff4f",
+    info.add(label("CostText", "$100", (1, -340, 0.5, 0), (0, 300, 0, 60), 46, color="#7dff4f",
                    align="Right", anchor=(1, 0.5)))
     info.add(button("BuyButton", "BUY", (1, -18, 0.5, 0), (0, 300, 0, 96), "green", 54,
                     anchor=(1, 0.5)))
@@ -655,43 +750,30 @@ def potion_window():
     return root
 
 
-def lucky_window():
+def dice_window():
     w, h = 1020, 470
-    root, body = window("LuckyShopWindow", "Lucky Blocks", "🎲", "yellow", w, h)
-    for i, b in enumerate(LUCKY_BLOCKS):
+    root, body = window("DiceShopWindow", "Dice Shop", "🎲", "yellow", w, h)
+    for i, d in enumerate(DICE):
         x = 22 + i * 246
-        card = frame(f"Lucky_{b['id']}", (0, x, 0, 30), (0, 232, 0, 330), preset="dark", rad=12,
+        card = frame(f"Dice_{d['id']}", (0, x, 0, 30), (0, 232, 0, 330), preset="dark", rad=12,
                      st=4)
-        blk = frame("Block", (0.5, 0, 0, 18), (0, 120, 0, 120), color=b["color"], rad=10, st=5,
-                    anchor=(0.5, 0))
-        blk.add(label("Q", "?", (0, 0, 0, 0), (1, 0, 1, 0), 92, st=5))
+        rb = d["color"] == "rainbow"
+        blk = frame("Die", (0.5, 0, 0, 18), (0, 120, 0, 120), color=None if rb else d["color"],
+                    preset="rainbow" if rb else None, rad=22, st=5, anchor=(0.5, 0))
+        for j, (px, py) in enumerate([(0.27, 0.27), (0.73, 0.27), (0.5, 0.5), (0.27, 0.73),
+                                      (0.73, 0.73)]):
+            blk.add(frame(f"Pip{j}", (px, 0, py, 0), (0, 20, 0, 20), color="#ffffff", rad=10,
+                          st=2, anchor=(0.5, 0.5)))
         card.add(blk)
-        card.add(label("NameText", b["name"], (0, 4, 0, 150), (1, -8, 0, 40), 26))
-        card.add(label("LuckText", f"🍀 x{b['luck']} Luck Spin", (0, 4, 0, 192), (1, -8, 0, 34),
+        card.add(label("NameText", d["name"], (0, 4, 0, 150), (1, -8, 0, 40), 30))
+        card.add(label("LuckText", f"🍀 x{d['luck']} Luck Roll", (0, 4, 0, 192), (1, -8, 0, 34),
                        26, color="#9dff7a"))
         card.add(label("OwnedText", "Owned: 0", (0, 4, 0, 230), (1, -8, 0, 30), 24,
                        color="#cfe6ff"))
-        card.add(button("BuyButton", short(b["price"]), (0, 11, 1, -10), (0.5, -16, 0, 62),
-                        "green", 28, anchor=(0, 1)))
-        card.add(button("OpenButton", "OPEN", (1, -11, 1, -10), (0.5, -16, 0, 62), "yellow", 28,
-                        anchor=(1, 1)))
+        card.add(button("BuyButton", short(d["price"]), (0.5, 0, 1, -10), (1, -22, 0, 62),
+                        "green", 32, anchor=(0.5, 1)))
         body.add(card)
     return root
-
-
-def spin_popup():
-    p = frame("SpinPopup", (0.5, 0, 0, 150), (0, 700, 0, 250), preset="dark", rad=18, st=6,
-              anchor=(0.5, 0), visible=False)
-    p.add(label("Header", "YOU ROLLED", (0, 0, 0, 8), (1, 0, 0, 50), 44, color="#ffe14d"))
-    p.add(emoji("Icon", "⬆️", (0, 24, 0.5, 18), (0, 110, 0, 110), 84, anchor=(0, 0.5)))
-    p.add(label("PieceName", "Straight", (0, 150, 0, 62), (1, -170, 0, 76), 66, align="Left",
-                st=5))
-    p.add(label("Tier", "Common", (0, 150, 0, 136), (0, 260, 0, 40), 36, align="Left"))
-    p.add(label("Odds", "1 in 2", (1, -24, 0, 136), (0, 280, 0, 40), 34, align="Right",
-                anchor=(1, 0)))
-    p.add(label("Status", "Added to your track!", (0, 0, 1, -50), (1, 0, 0, 40), 32,
-                color="#9dff7a"))
-    return p
 
 
 def toasts():
@@ -702,7 +784,8 @@ def toasts():
 
 
 def templates():
-    t = Inst("Folder", "Templates")
+    # an invisible frame: its children are clone sources and never render
+    t = frame("Templates", (0, 0, 0, 0), (0, 10, 0, 10), st=0, rad=0, visible=False)
     toast = frame("Toast", (0, 0, 0, 0), (0, 640, 0, 64), preset="dark", rad=14, st=4)
     toast.add(label("Text", "Message", (0, 10, 0, 0), (1, -20, 1, 0), 34))
     t.add(toast)
@@ -710,6 +793,7 @@ def templates():
     pot.add(emoji("Icon", "🧪", (0.5, 0, 0, 2), (0, 70, 0, 60), 50, anchor=(0.5, 0)))
     pot.add(label("Time", "5:00", (0, 0, 1, -40), (1, 0, 0, 36), 28))
     t.add(pot)
+    t.add(reel_card())
     return t
 
 
@@ -719,15 +803,16 @@ def build():
     root = frame("Root", (0.5, 0, 0.5, 0), (0, 1920, 0, 1080), anchor=(0.5, 0.5), st=0, rad=0)
     root.add(Inst("UIScale", "Scale", {"Scale": 1}))
     root.add(hud())
+    root.add(build_panel())
     wins = frame("Windows", (0, 0, 0, 0), (1, 0, 1, 0), st=0, rad=0)
-    for f in (shop_window, daily_window, index_window, pass_window, rebirth_window,
-              upgrades_window, car_window, style_window, potion_window, lucky_window):
+    for f in (shop_window, daily_window, index_window, pass_window, skills_window, car_window,
+              style_window, potion_window, dice_window):
         wins.add(f())
     root.add(wins)
-    root.add(spin_popup())
+    root.add(roll_reel())
     root.add(toasts())
+    root.add(templates())
     gui.add(root)
-    gui.add(templates())
     return gui
 
 

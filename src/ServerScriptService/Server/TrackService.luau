@@ -1,4 +1,5 @@
--- Builds each player's track from their rolled pieces and drives their car along it.
+-- Places track tiles on each plot's grid, works out the drivable route from the start line and
+-- drives the player's mini car along it.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
@@ -6,6 +7,7 @@ local Stats = require(ReplicatedStorage.Shared.Stats)
 local PlotService = require(script.Parent.PlotService)
 
 local Assets = ReplicatedStorage:WaitForChild("Assets")
+local TilesFolder = Assets:WaitForChild("Tiles")
 
 local TrackService = {}
 
@@ -13,129 +15,127 @@ type Waypoint = { cf: CFrame, teleport: boolean, boost: number, pieceEnd: string
 type State = {
 	player: Player,
 	plot: Model,
-	pieces: { string },
 	path: { Waypoint },
 	lengths: { number },
 	car: Model?,
 	seg: number,
 	dist: number,
+	income: number,
 }
 
 local states: { [Player]: State } = {}
 local onEarn: ((Player, string, Vector3) -> ())? = nil
-local CAR_OFFSET = CFrame.new(0, 0.5, 0)
+local CAR_OFFSET = CFrame.new(0, 0.05, 0)
 
-local function flatLook(cf: CFrame): Vector3
-	local v = Vector3.new(cf.LookVector.X, 0, cf.LookVector.Z)
-	return if v.Magnitude > 1e-3 then v.Unit else Vector3.new(0, 0, -1)
-end
-
--- Turning pieces exist as _R and _L; pick the side that keeps the track heading outward.
-local function chooseVariant(pieceId: string, chain: CFrame, origin: CFrame): string
-	local piece = Stats.Pieces[pieceId]
-	if not piece.turns then
-		return pieceId
-	end
-	local out = flatLook(origin)
-	local head = flatLook(chain)
-	local crossY = out:Cross(head).Y
-	if crossY < -0.1 then
-		return pieceId .. "_L" -- already turned right, come back left
-	elseif crossY > 0.1 then
-		return pieceId .. "_R"
-	end
-	local lateral = (chain.Position - origin.Position):Dot(origin.RightVector)
-	return pieceId .. (if lateral > 0 then "_L" else "_R")
-end
-
-local function readPath(folder: Instance, chain: CFrame, pieceId: string, path: { Waypoint })
-	local wps = folder:GetChildren()
-	table.sort(wps, function(a, b)
-		return tonumber(a.Name) < tonumber(b.Name)
-	end)
-	-- waypoint 1 sits on the previous piece's exit, skip it
-	for i = 2, #wps do
-		local wp = wps[i] :: BasePart
-		table.insert(path, {
-			cf = chain * wp.CFrame,
-			teleport = wp:GetAttribute("Teleport") == true,
-			boost = wp:GetAttribute("Boost") or 1,
-			pieceEnd = if i == #wps then pieceId else nil,
-		})
-	end
-end
-
-local function buildPath(state: State)
-	local plot = state.plot
-	local trackFolder = plot:FindFirstChild("Track") :: Folder
-	trackFolder:ClearAllChildren()
-	local start = plot:FindFirstChild("TrackStart") :: Model
-	local origin = (start:FindFirstChild("TrackOrigin") :: BasePart).CFrame
-	local carStart = (start:FindFirstChild("CarStart") :: BasePart).CFrame
-	local path: { Waypoint } = {}
-	-- start straight on the island
-	local n = 8
-	for i = 0, n do
-		table.insert(path, {
-			cf = carStart:Lerp(origin, i / n),
-			teleport = false,
-			boost = 1,
-			pieceEnd = nil,
-		})
-	end
-	local chain = origin
-	local templates = Assets:WaitForChild("TrackPieces")
-	for index, pieceId in state.pieces do
-		local variant = chooseVariant(pieceId, chain, origin)
-		local template = templates:FindFirstChild(variant)
-		if template then
-			local m = template:Clone()
-			m.Name = string.format("%02d_%s", index, variant)
-			for _, p in m:GetDescendants() do
-				if p:IsA("BasePart") then
-					p.CFrame = chain * p.CFrame
-					p.Anchored = true
-				end
-			end
-			local pathFolder = m:FindFirstChild("Path")
-			local exit = m:FindFirstChild("Exit") :: BasePart
-			if pathFolder then
-				-- path parts were already moved into world space above
-				readPath(pathFolder, CFrame.identity, pieceId, path)
-				pathFolder:Destroy()
-			end
-			chain = exit.CFrame
-			exit:Destroy()
-			m.Parent = trackFolder
+-- local waypoint data of every tile, read once from the templates (A -> B order)
+local tileWaypoints: { [string]: { { cf: CFrame, teleport: boolean, boost: number } } } = {}
+for _, tile in TilesFolder:GetChildren() do
+	local list = {}
+	local folder = tile:FindFirstChild("Path")
+	if folder then
+		local wps = folder:GetChildren()
+		table.sort(wps, function(a, b)
+			return tonumber(a.Name) < tonumber(b.Name)
+		end)
+		for _, wp in wps do
+			table.insert(list, {
+				cf = (wp :: BasePart).CFrame,
+				teleport = wp:GetAttribute("Teleport") == true,
+				boost = wp:GetAttribute("Boost") or 1,
+			})
 		end
 	end
-	-- finish arch at the end of the track
-	local arch = Instance.new("Model")
-	arch.Name = "Finish"
-	for _, side in { -1, 1 } do
-		local post = Instance.new("Part")
-		post.Anchored = true
-		post.Size = Vector3.new(1.6, 14, 1.6)
-		post.CFrame = chain * CFrame.new(side * 9.5, 7, 0)
-		post.Color = Color3.fromRGB(43, 43, 51)
-		post.Parent = arch
-	end
-	local top = Instance.new("Part")
-	top.Anchored = true
-	top.Size = Vector3.new(21, 3, 2)
-	top.CFrame = chain * CFrame.new(0, 14.5, 0)
-	top.Color = Color3.fromRGB(255, 255, 255)
-	top.Material = Enum.Material.Neon
-	top.Parent = arch
-	arch.Parent = trackFolder
+	tileWaypoints[tile.Name] = list
+end
 
+local function tileName(x: number, z: number): string
+	return "T_" .. x .. "_" .. z
+end
+
+-- builds the 3D model of one tile on the plot
+function TrackService.spawnTile(plot: Model, x: number, z: number, r: number, id: string)
+	local template = TilesFolder:FindFirstChild(id)
+	if not template then
+		return
+	end
+	local folder = plot:FindFirstChild("Track") :: Folder
+	local old = folder:FindFirstChild(tileName(x, z))
+	if old then
+		old:Destroy()
+	end
+	local m = template:Clone()
+	local path = m:FindFirstChild("Path")
+	if path then
+		path:Destroy()
+	end
+	local cf = PlotService.cellCFrame(plot, x, z, r)
+	for _, p in m:GetDescendants() do
+		if p:IsA("BasePart") then
+			p.CFrame = cf * p.CFrame
+			p.Anchored = true
+		end
+	end
+	m.Name = tileName(x, z)
+	m:SetAttribute("PieceId", id)
+	m.Parent = folder
+end
+
+function TrackService.removeTile(plot: Model, x: number, z: number)
+	local folder = plot:FindFirstChild("Track") :: Folder
+	local old = folder:FindFirstChild(tileName(x, z))
+	if old then
+		old:Destroy()
+	end
+end
+
+local function buildPath(state: State, data)
+	local steps = Stats.tracePath(data)
+	local path: { Waypoint } = {}
+	local valueSum = 0
+	for _, step in steps do
+		local cf = PlotService.cellCFrame(state.plot, step.x, step.z, step.r)
+		local list = tileWaypoints[step.id] or {}
+		local n = #list
+		local first = if #path == 0 then 1 else 2 -- waypoint 1 sits on the previous tile's exit
+		for k = first, n do
+			local src = if step.forward then list[k] else list[n - k + 1]
+			local w = src.cf
+			if not step.forward then
+				w = w * CFrame.Angles(0, math.pi, 0) -- drive the tile backwards
+			end
+			local teleport = src.teleport
+			if not step.forward then
+				-- the teleport flag sits on the waypoint before the jump in A->B order
+				local nextSrc = list[n - k]
+				teleport = nextSrc ~= nil and nextSrc.teleport
+			end
+			table.insert(path, {
+				cf = cf * w,
+				teleport = teleport,
+				boost = src.boost,
+				pieceEnd = if k == n and step.id ~= "Start" then step.id else nil,
+			})
+		end
+		local piece = Stats.Pieces[step.id]
+		if piece then
+			valueSum += piece.value
+		end
+	end
 	state.path = path
 	state.lengths = {}
+	local total = 0
 	for i = 1, #path - 1 do
-		state.lengths[i] = (path[i + 1].cf.Position - path[i].cf.Position).Magnitude
+		local len = if path[i].teleport then 0 else (path[i + 1].cf.Position - path[i].cf.Position).Magnitude
+		state.lengths[i] = len
+		total += len
 	end
-	state.seg = 1
-	state.dist = 0
+	if state.seg > #path - 1 then
+		state.seg = 1
+		state.dist = 0
+	end
+	-- money per second for one lap, before multipliers
+	local lapTime = math.max(total / math.max(Stats.carSpeed(data), 1), 0.5) + 0.5
+	state.income = valueSum / lapTime
 end
 
 local function spawnCar(state: State, carId: string)
@@ -143,8 +143,8 @@ local function spawnCar(state: State, carId: string)
 		state.car:Destroy()
 		state.car = nil
 	end
-	local template = Assets:WaitForChild("Cars"):FindFirstChild(carId)
-		or Assets.Cars:FindFirstChild("Buggy")
+	local carsFolder = Assets:WaitForChild("Cars")
+	local template = carsFolder:FindFirstChild(carId) or carsFolder:FindFirstChild("Buggy")
 	local car = template:Clone() :: Model
 	car.PrimaryPart = car:FindFirstChild("Root") :: BasePart
 	for _, p in car:GetDescendants() do
@@ -167,45 +167,43 @@ function TrackService.setEarnHandler(fn: (Player, string, Vector3) -> ())
 	onEarn = fn
 end
 
--- (Re)builds the track if the piece list changed. Returns true if rebuilt.
-function TrackService.refresh(player: Player, data, force: boolean?)
+-- builds every placed tile (on join) and the route
+function TrackService.load(player: Player, data)
 	local plot = PlotService.get(player)
 	if not plot then
-		return false
+		return
 	end
-	local pieces = Stats.trackPieces(data)
-	local state = states[player]
-	if state and not force then
-		local same = #state.pieces == #pieces
-		if same then
-			for i, id in pieces do
-				if state.pieces[i] ~= id then
-					same = false
-					break
-				end
-			end
-		end
-		if same then
-			return false
-		end
+	(plot:FindFirstChild("Track") :: Folder):ClearAllChildren()
+	local c = Stats.center()
+	TrackService.spawnTile(plot, c, c, 0, "Start")
+	for _, t in data.Placed do
+		TrackService.spawnTile(plot, t.x, t.z, t.r, t.id)
 	end
-	if not state then
-		state = {
-			player = player,
-			plot = plot,
-			pieces = pieces,
-			path = {},
-			lengths = {},
-			car = nil,
-			seg = 1,
-			dist = 0,
-		}
-		states[player] = state
-	end
-	state.pieces = pieces
-	buildPath(state)
+	local state: State = {
+		player = player,
+		plot = plot,
+		path = {},
+		lengths = {},
+		car = nil,
+		seg = 1,
+		dist = 0,
+		income = 0,
+	}
+	states[player] = state
+	buildPath(state, data)
 	spawnCar(state, data.EquippedCar)
-	return true
+end
+
+function TrackService.refreshPath(player: Player, data)
+	local state = states[player]
+	if state then
+		buildPath(state, data)
+	end
+end
+
+function TrackService.income(player: Player): number
+	local state = states[player]
+	return if state then state.income else 0
 end
 
 function TrackService.setCar(player: Player, carId: string)
@@ -223,9 +221,9 @@ function TrackService.clear(player: Player)
 	if state.car then
 		state.car:Destroy()
 	end
-	local trackFolder = state.plot:FindFirstChild("Track")
-	if trackFolder then
-		trackFolder:ClearAllChildren()
+	local folder = state.plot:FindFirstChild("Track")
+	if folder then
+		folder:ClearAllChildren()
 	end
 	states[player] = nil
 end
@@ -236,7 +234,10 @@ function TrackService.start(getData: (Player) -> any)
 			local data = getData(player)
 			local car = state.car
 			local path = state.path
-			if not data or not car or #path < 2 then
+			if not data or not car then
+				continue
+			end
+			if #path < 2 then
 				continue
 			end
 			local remaining = Stats.carSpeed(data) * dt * (path[state.seg].boost or 1)
@@ -246,7 +247,7 @@ function TrackService.start(getData: (Player) -> any)
 				local a = path[state.seg]
 				local b = path[state.seg + 1]
 				if not b then
-					state.seg = 1 -- lap finished: back to the start gate
+					state.seg = 1 -- end of the road: back to the start line
 					state.dist = 0
 					break
 				end

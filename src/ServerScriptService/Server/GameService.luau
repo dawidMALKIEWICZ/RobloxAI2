@@ -1,4 +1,4 @@
--- All gameplay rules: spinning, economy, shops, upgrades, rewards, rebirths and Robux products.
+-- All gameplay rules: rolling, building, economy, shops, skills, rewards and Robux products.
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -16,7 +16,7 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local GameService = {}
 
 local rng = Random.new()
-local lastSpin: { [Player]: number } = {}
+local lastRoll: { [Player]: number } = {}
 local friends: { [Player]: number } = {}
 local productKeyById: { [number]: string } = {}
 local passKeyById: { [number]: string } = {}
@@ -37,22 +37,27 @@ local function notify(player: Player, text: string, color: string?)
 	Remotes.Notify:FireClient(player, text, color or "#ffffff")
 end
 
+local function income(player: Player, data): number
+	return TrackService.income(player) * Stats.moneyMult(data, friends[player])
+end
+
 local function snapshot(player: Player)
 	local data = DataService.get(player)
 	if not data then
 		return nil
 	end
 	local f = friends[player] or 0
+	local _, closed = Stats.tracePath(data)
 	return {
 		Data = data,
 		MoneyMult = Stats.moneyMult(data, f),
 		Luck = Stats.luck(data),
-		Speed = Stats.carSpeed(data),
-		Cooldown = Stats.spinCooldown(data),
-		Slots = Stats.slots(data),
-		Track = Stats.trackPieces(data),
+		RollTime = Stats.rollTime(data),
+		MaxElements = Stats.maxElements(data),
+		GridSize = Stats.gridSize(data),
 		Friends = f,
-		RebirthCost = Stats.rebirthCost(data.Rebirths),
+		Income = income(player, data),
+		Closed = closed,
 		ServerTime = os.time(),
 	}
 end
@@ -69,8 +74,7 @@ local function setCash(player: Player, data)
 	player:SetAttribute("Cash", data.Cash)
 	local ls = player:FindFirstChild("leaderstats")
 	if ls then
-		(ls:FindFirstChild("Cash") :: StringValue).Value = Format.money(data.Cash);
-		(ls:FindFirstChild("Rebirths") :: IntValue).Value = data.Rebirths
+		(ls:FindFirstChild("Cash") :: StringValue).Value = Format.money(data.Cash)
 	end
 end
 
@@ -91,13 +95,8 @@ local function addXP(player: Player, data, xp: number)
 		leveled = true
 	end
 	if leveled then
-		notify(player, "Level up! You are now level " .. data.Level, "#ffe14d")
+		notify(player, "Season Pass level " .. data.Level .. "!", "#ffe14d")
 	end
-end
-
-local function addLevels(player: Player, data, n: number)
-	data.Level += n
-	notify(player, "+" .. n .. " Levels!", "#ffe14d")
 end
 
 -- ------------------------------------------------------------------ rolling
@@ -127,54 +126,34 @@ local function crateRoll()
 	return Stats.Pieces[GameData.Crate.drops[1].piece]
 end
 
--- Adds a rolled piece to the player and rebuilds their track when it improves it.
+-- adds a rolled piece to the inventory (it is placed later in build mode)
 local function giveRoll(player: Player, data, piece, source: string)
-	local placed = Stats.wouldPlace(data, piece.id)
 	local isNew = not data.Discovered[piece.id]
-	data.Parts[piece.id] = (data.Parts[piece.id] or 0) + 1
+	data.Inventory[piece.id] = (data.Inventory[piece.id] or 0) + 1
 	data.Discovered[piece.id] = true
-	data.Spins += 1
-	local bonus = 0
-	if not placed then
-		bonus = math.floor(piece.value * 2 * Stats.moneyMult(data, friends[player]))
-		addCash(player, data, bonus)
-	end
-	addXP(player, data, GameData.Config.XPPerSpin)
-	if placed then
-		TrackService.refresh(player, data)
-	end
+	data.Rolls += 1
+	addXP(player, data, GameData.Config.XPPerRoll)
 	if piece.odds >= 1000 then
-		for _, other in Players:GetPlayers() do
-			notify(other, player.DisplayName .. " rolled " .. piece.name .. " (1 in "
-				.. Format.commas(piece.odds) .. ")!", Stats.Tiers[piece.tier].color)
-		end
+		Remotes.RareRoll:FireAllClients(player.DisplayName, piece.id)
 	end
-	local result = {
-		piece = piece.id,
-		placed = placed,
-		bonus = bonus,
-		new = isNew,
-		source = source,
-	}
-	return result
+	return { piece = piece.id, new = isNew, source = source }
 end
 
 -- ------------------------------------------------------------------ rewards
 local function grantReward(player: Player, data, rw)
 	local t = rw.type
 	if t == "Cash" then
-		local amount = math.floor(rw.amount * Stats.rebirthMult(data.Rebirths))
-		addCash(player, data, amount)
-		notify(player, "+" .. Format.money(amount), "#7dff4f")
+		addCash(player, data, rw.amount)
+		notify(player, "+" .. Format.money(rw.amount), "#7dff4f")
 	elseif t == "Potion" then
 		local pot = Stats.Potions[rw.id]
 		local count = rw.count or 1
 		local dur = rw.duration or pot.duration
 		data.Potions[pot.effect] = (data.Potions[pot.effect] or 0) + dur * count
 		notify(player, pot.name .. " activated!", pot.color)
-	elseif t == "Lucky" then
-		data.LuckyInv[rw.id] = (data.LuckyInv[rw.id] or 0) + 1
-		notify(player, "Got a " .. Stats.Lucky[rw.id].name .. "!", Stats.Lucky[rw.id].color)
+	elseif t == "Dice" then
+		data.Dice[rw.id] = (data.Dice[rw.id] or 0) + 1
+		notify(player, "Got a " .. Stats.Dice[rw.id].name .. "!", "#ffe14d")
 	elseif t == "Crate" then
 		local result = giveRoll(player, data, crateRoll(), "Crate")
 		Remotes.Rolled:FireClient(player, result)
@@ -205,18 +184,9 @@ local function grantProduct(player: Player, key: string): boolean
 		for _ = 1, 3 do
 			grantReward(player, data, { type = "Crate" })
 		end
-	elseif key == "Levels5" then
-		addLevels(player, data, 5)
-	elseif key == "Levels10" then
-		addLevels(player, data, 10)
-	elseif key == "Levels25" then
-		addLevels(player, data, 25)
 	elseif key == "PassSkip" then
-		addLevels(player, data, 1)
-	elseif key == "SkipRebirth" then
-		data.Rebirths += 1
-		setCash(player, data)
-		notify(player, "Rebirth " .. data.Rebirths .. "! Stats kept.", "#b54dff")
+		data.Level += 1
+		notify(player, "Season Pass level " .. data.Level .. "!", "#ffe14d")
 	else
 		return false
 	end
@@ -246,25 +216,93 @@ function Actions.GetData(player)
 	return true, nil, snapshot(player)
 end
 
-function Actions.Spin(player, data)
-	local now = os.clock()
-	local cd = Stats.spinCooldown(data)
-	if lastSpin[player] and now - lastSpin[player] < cd * 0.85 then
-		return false, "Too fast!"
-	end
-	lastSpin[player] = now
-	local result = giveRoll(player, data, roll(Stats.luck(data)), "Spin")
+local function doRoll(player: Player, data, luckMult: number, source: string)
+	local result = giveRoll(player, data, roll(Stats.luck(data) * luckMult), source)
 	sendUpdate(player)
 	return true, nil, result
 end
 
-function Actions.SetAuto(player, data, on)
-	if on and not Stats.hasUpgrade(data, "AutoSpin") then
-		return false, "Unlock Auto Spin in Upgrades!"
+function Actions.Roll(player, data)
+	local now = os.clock()
+	if lastRoll[player] and now - lastRoll[player] < Stats.rollTime(data) * 0.85 then
+		return false, "Too fast!"
 	end
-	data.AutoSpin = on == true
+	lastRoll[player] = now
+	return doRoll(player, data, 1, "Roll")
+end
+
+function Actions.UseDice(player, data, id)
+	local d = Stats.Dice[id]
+	if not d or (data.Dice[id] or 0) <= 0 then
+		return false, "You don't have this dice!"
+	end
+	data.Dice[id] -= 1
+	return doRoll(player, data, d.luck, d.name)
+end
+
+function Actions.SetAuto(player, data, on)
+	if on and not Stats.hasUpgrade(data, "AutoRoll") then
+		return false, "Unlock Auto Roll in Skills!"
+	end
+	data.AutoRoll = on == true
 	sendUpdate(player)
 	return true
+end
+
+function Actions.Place(player, data, args)
+	if type(args) ~= "table" then
+		return false
+	end
+	local x, z, r, id = tonumber(args.x), tonumber(args.z), tonumber(args.r), args.id
+	if not x or not z or not r or type(id) ~= "string" or not Stats.Pieces[id] then
+		return false, "Invalid piece"
+	end
+	x, z, r = math.floor(x), math.floor(z), math.floor(r) % 4
+	if not Stats.inUnlocked(data, x, z) then
+		return false, "Expand your plot in Skills to build there!"
+	end
+	if Stats.isStart(x, z) or Stats.placedMap(data)[Stats.cellKey(x, z)] then
+		return false, "That spot is taken!"
+	end
+	if (data.Inventory[id] or 0) <= 0 then
+		return false, "You have no " .. Stats.Pieces[id].name .. " left!"
+	end
+	if #data.Placed >= Stats.maxElements(data) then
+		return false, "Element limit reached! Upgrade it in Skills."
+	end
+	data.Inventory[id] -= 1
+	table.insert(data.Placed, { x = x, z = z, r = r, id = id })
+	local plot = PlotService.get(player)
+	if plot then
+		TrackService.spawnTile(plot, x, z, r, id)
+	end
+	TrackService.refreshPath(player, data)
+	sendUpdate(player)
+	return true
+end
+
+function Actions.Remove(player, data, args)
+	if type(args) ~= "table" then
+		return false
+	end
+	local x, z = tonumber(args.x), tonumber(args.z)
+	if not x or not z then
+		return false
+	end
+	for i, t in data.Placed do
+		if t.x == x and t.z == z then
+			table.remove(data.Placed, i)
+			data.Inventory[t.id] = (data.Inventory[t.id] or 0) + 1
+			local plot = PlotService.get(player)
+			if plot then
+				TrackService.removeTile(plot, x, z)
+			end
+			TrackService.refreshPath(player, data)
+			sendUpdate(player)
+			return true
+		end
+	end
+	return false, "Nothing to remove there"
 end
 
 function Actions.BuyCar(player, data, id)
@@ -272,21 +310,18 @@ function Actions.BuyCar(player, data, id)
 	if not car then
 		return false, "Unknown car"
 	end
-	if data.Cars[id] then
-		data.EquippedCar = id
-		TrackService.setCar(player, id)
-		sendUpdate(player)
-		return true, car.name .. " equipped!"
+	if not data.Cars[id] then
+		if data.Cash < car.price then
+			return false, "Not enough cash!"
+		end
+		addCash(player, data, -car.price)
+		data.Cars[id] = true
 	end
-	if data.Cash < car.price then
-		return false, "Not enough cash!"
-	end
-	addCash(player, data, -car.price)
-	data.Cars[id] = true
 	data.EquippedCar = id
 	TrackService.setCar(player, id)
+	TrackService.refreshPath(player, data)
 	sendUpdate(player)
-	return true, "Bought " .. car.name .. "!"
+	return true, car.name .. " equipped!"
 end
 
 function Actions.BuyStyle(player, data, id)
@@ -320,39 +355,29 @@ function Actions.BuyPotion(player, data, id)
 	end
 	addCash(player, data, -pot.price)
 	data.Potions[pot.effect] = (data.Potions[pot.effect] or 0) + pot.duration
+	TrackService.refreshPath(player, data)
 	sendUpdate(player)
 	return true, pot.name .. " activated!"
 end
 
-function Actions.BuyLucky(player, data, id)
-	local b = Stats.Lucky[id]
-	if not b then
-		return false, "Unknown block"
+function Actions.BuyDice(player, data, id)
+	local d = Stats.Dice[id]
+	if not d then
+		return false, "Unknown dice"
 	end
-	if data.Cash < b.price then
+	if data.Cash < d.price then
 		return false, "Not enough cash!"
 	end
-	addCash(player, data, -b.price)
-	data.LuckyInv[id] = (data.LuckyInv[id] or 0) + 1
+	addCash(player, data, -d.price)
+	data.Dice[id] = (data.Dice[id] or 0) + 1
 	sendUpdate(player)
-	return true, "Bought " .. b.name .. "!"
-end
-
-function Actions.OpenLucky(player, data, id)
-	local b = Stats.Lucky[id]
-	if not b or (data.LuckyInv[id] or 0) <= 0 then
-		return false, "You don't have this block!"
-	end
-	data.LuckyInv[id] -= 1
-	local result = giveRoll(player, data, roll(Stats.luck(data) * b.luck), b.name)
-	sendUpdate(player)
-	return true, nil, result
+	return true, "Bought a " .. d.name .. "!"
 end
 
 function Actions.BuyUpgrade(player, data, id)
 	local u = Stats.Upgrades[id]
 	if not u then
-		return false, "Unknown upgrade"
+		return false, "Unknown skill"
 	end
 	if data.Upgrades[id] then
 		return false, "Already owned"
@@ -365,9 +390,13 @@ function Actions.BuyUpgrade(player, data, id)
 	end
 	addCash(player, data, -u.cost)
 	data.Upgrades[id] = true
-	if u.stat == "Slots" then
-		TrackService.refresh(player, data)
+	if u.stat == "PlotSize" then
+		local plot = PlotService.get(player)
+		if plot then
+			PlotService.buildPad(plot, Stats.gridSize(data))
+		end
 	end
+	TrackService.refreshPath(player, data)
 	sendUpdate(player)
 	return true, u.name .. " unlocked!"
 end
@@ -410,22 +439,8 @@ function Actions.ClaimPass(player, data)
 	return true, "Claimed " .. count .. " rewards!"
 end
 
-function Actions.Rebirth(player, data)
-	local cost = Stats.rebirthCost(data.Rebirths)
-	if data.Cash < cost then
-		return false, "You need " .. Format.money(cost) .. " to rebirth!"
-	end
-	data.Cash = 0
-	data.Parts = {}
-	data.Rebirths += 1
-	setCash(player, data)
-	TrackService.refresh(player, data, true)
-	sendUpdate(player)
-	return true, "Rebirth " .. data.Rebirths .. "! Money x" .. Stats.rebirthMult(data.Rebirths)
-end
-
-function Actions.Teleport(player)
-	PlotService.teleport(player)
+function Actions.Teleport(player, _data, target)
+	PlotService.teleport(player, target)
 	return true
 end
 
@@ -488,7 +503,7 @@ function GameService.onEarn(player: Player, pieceId: string, pos: Vector3)
 	if not data or not piece then
 		return
 	end
-	local amount = math.floor(piece.value * Stats.moneyMult(data, friends[player]))
+	local amount = math.max(1, math.floor(piece.value * Stats.moneyMult(data, friends[player])))
 	addCash(player, data, amount)
 	Remotes.Earned:FireClient(player, amount, pos)
 end
@@ -503,13 +518,9 @@ function GameService.playerAdded(player: Player)
 	local cash = Instance.new("StringValue")
 	cash.Name = "Cash"
 	cash.Parent = ls
-	local reb = Instance.new("IntValue")
-	reb.Name = "Rebirths"
-	reb.Parent = ls
 	ls.Parent = player
 	setCash(player, data)
 
-	-- gamepasses bought on the website
 	for key, v in GameData.Products.Gamepasses do
 		if v.id ~= 0 then
 			local ok, owns = pcall(function()
@@ -524,10 +535,24 @@ function GameService.playerAdded(player: Player)
 	local plot = PlotService.claim(player)
 	if plot then
 		PlotService.applyStyle(plot, data.EquippedStyle)
-		TrackService.refresh(player, data, true)
+		PlotService.buildPad(plot, Stats.gridSize(data))
+		TrackService.load(player, data)
 	else
 		notify(player, "Server is full - no free plot!", "#ff3b6b")
 	end
+
+	-- offline earnings
+	if data.LastOnline > 0 and data.LastIncome > 0 then
+		local cfg = GameData.Config
+		local secs = math.min(os.time() - data.LastOnline, cfg.OfflineMaxHours * 3600)
+		local earned = math.floor(data.LastIncome * secs * cfg.OfflineRate)
+		if earned > 0 then
+			addCash(player, data, earned)
+			task.delay(3, notify, player, "Welcome back! Offline earnings: +" .. Format.money(earned),
+				"#7dff4f")
+		end
+	end
+
 	local function onChar(char: Model)
 		char:WaitForChild("HumanoidRootPart")
 		task.wait(0.1)
@@ -542,10 +567,15 @@ function GameService.playerAdded(player: Player)
 end
 
 function GameService.playerRemoving(player: Player)
+	local data = DataService.get(player)
+	if data then
+		data.LastIncome = income(player, data)
+		data.LastOnline = os.time()
+	end
 	TrackService.clear(player)
 	PlotService.release(player)
 	DataService.release(player)
-	lastSpin[player] = nil
+	lastRoll[player] = nil
 	friends[player] = nil
 	refreshFriends()
 end
@@ -568,13 +598,14 @@ function GameService.start()
 	TrackService.setEarnHandler(GameService.onEarn)
 	TrackService.start(DataService.get)
 
-	-- potion timers
+	-- potion timers + income bookkeeping
 	task.spawn(function()
 		while true do
 			task.wait(1)
 			for _, player in Players:GetPlayers() do
 				local data = DataService.get(player)
 				if data then
+					data.LastIncome = income(player, data)
 					local expired = false
 					for effect, left in data.Potions do
 						if left > 0 then

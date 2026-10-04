@@ -190,7 +190,7 @@ background:url(data:image/png;base64,{bgdata}) center/cover;}}
 
 if __name__ == "__main__":
     names = sys.argv[1:] or ["HUD"]
-    bg = os.path.join(ROOT, "renders/preview_plot.png")
+    bg = os.path.join(ROOT, "renders/preview_plot2.png")
     jobs = []
     for nm in names:
         show = [] if nm == "HUD" else [nm]

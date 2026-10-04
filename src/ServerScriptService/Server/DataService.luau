@@ -6,7 +6,7 @@ local RunService = game:GetService("RunService")
 
 local DataService = {}
 
-local STORE_NAME = "TrackRNG_v1"
+local STORE_NAME = "TrackRNG_v2"
 local AUTOSAVE = 60
 
 local store = nil
@@ -26,27 +26,29 @@ local loaded: { [Player]: boolean } = {}
 
 local function defaults()
 	return {
-		Version = 1,
+		Version = 2,
 		Cash = 0,
 		TotalEarned = 0,
 		Level = 1,
 		XP = 0,
-		Rebirths = 0,
-		Spins = 0,
-		Parts = {}, -- pieceId -> count
-		Discovered = {}, -- pieceId -> true
+		Rolls = 0,
+		Inventory = { Straight = 8, Turn = 4 }, -- pieceId -> count (not placed)
+		Placed = {}, -- list of { x, z, r, id }
+		Discovered = { Straight = true, Turn = true },
 		Cars = { Buggy = true },
 		EquippedCar = "Buggy",
 		Styles = { Classic = true },
 		EquippedStyle = "Classic",
 		Upgrades = {}, -- upgradeId -> true
 		Potions = {}, -- effect -> seconds left
-		LuckyInv = {}, -- blockId -> count
+		Dice = {}, -- diceId -> count
 		Daily = { Streak = 0, Last = 0 },
 		PassClaimed = { free = {}, premium = {} },
 		Passes = {}, -- X2Money / X2Luck / PremiumPass -> true
 		StarterPack = false,
-		AutoSpin = false,
+		AutoRoll = false,
+		LastOnline = 0,
+		LastIncome = 0, -- money per second, used for offline earnings
 	}
 end
 
@@ -54,7 +56,8 @@ local function reconcile(data, template)
 	for k, v in template do
 		if data[k] == nil then
 			data[k] = if type(v) == "table" then table.clone(v) else v
-		elseif type(v) == "table" and type(data[k]) == "table" then
+		elseif type(v) == "table" and type(data[k]) == "table" and k ~= "Inventory"
+			and k ~= "Discovered" then
 			reconcile(data[k], v)
 		end
 	end
@@ -95,6 +98,7 @@ function DataService.save(player: Player)
 	if not data or not store or not loaded[player] then
 		return
 	end
+	data.LastOnline = os.time()
 	local ok, err = pcall(function()
 		store:UpdateAsync(key(player.UserId), function()
 			return data
