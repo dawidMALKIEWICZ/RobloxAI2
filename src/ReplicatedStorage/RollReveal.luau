@@ -103,6 +103,12 @@ function Reveal.new(gui)
  self.RenderConnection=RunService.RenderStepped:Connect(function(dt)
   if not self.Frame.Visible then return end
   phase+=dt
+  if self.Orbs and self.Center then
+   for _,o in self.Orbs do
+    local a=phase*o.speed+o.phase
+    o.part.Position=self.Center+Vector3.new(math.cos(a)*o.radius,o.height+math.sin(a*2)*.8,math.sin(a)*o.radius)
+   end
+  end
   local camera=self.Frame.Reveal.Viewport.CurrentCamera
   if camera and self.Center and self.Distance then
    local angle=.72+math.sin(phase*.8)*.07
@@ -130,7 +136,26 @@ function Reveal:SetAuto(enabled)
  self.Frame.AutoButton.Stroke.Color=enabled and Color3.fromRGB(111,255,40) or Color3.new(0,0,0)
  self.Frame.AutoButton.Stroke.Transparency=enabled and .65 or .94
 end
+-- glowing orbs circling the rolled tile inside the viewport (Epic and rarer)
+function Reveal:AddOrbs(piece)
+ local rank=({Common=1,Rare=2,Epic=3,Legendary=4,Mythical=5,Secret=6})[piece.tier] or 1
+ self.Orbs={}
+ if rank<3 or not self.Center then return end
+ local world=self.Frame.Reveal.Viewport:FindFirstChildOfClass("WorldModel") if not world then return end
+ local color=COLORS[piece.tier] or COLORS.Common
+ local n=rank+3
+ for i=1,n do
+  local p=Instance.new("Part") p.Shape=Enum.PartType.Ball p.Material=Enum.Material.Neon p.Anchored=true p.CanCollide=false
+  p.Size=Vector3.one*(rank>=5 and .9 or .7) p.Color=rank>=6 and Color3.fromHSV(i/n,.6,1) or (i%3==0 and Color3.new(1,1,1) or color)
+  p.Parent=world
+  self.Orbs[#self.Orbs+1]={part=p,phase=i/n*math.pi*2,radius=6+(i%2)*1.6,height=(i%3)*1.2,speed=rank>=5 and 2.4 or 1.6}
+ end
+ local ring=Instance.new("Part") ring.Shape=Enum.PartType.Cylinder ring.Material=Enum.Material.Neon ring.Anchored=true ring.CanCollide=false
+ ring.Size=Vector3.new(.15,15,15) ring.Color=color ring.Transparency=.55 ring.CFrame=CFrame.new(self.Center-Vector3.new(0,1.2,0))*CFrame.Angles(0,0,math.pi/2)
+ ring.Parent=world
+end
 function Reveal:ShowPiece(piece)
+ self.Orbs={}
  local area=self.Frame.Reveal
  area.PieceName.Text=piece.name
  area.Odds.Text="1 in "..Format.short(piece.odds)
@@ -192,6 +217,7 @@ function Reveal:Play(result,fast,rollTime)
   if token~=self.Token or not frame.Visible then return end
  end
  self:ShowPiece(piece)
+ self:AddOrbs(piece)
  if self.VFX then self.VFX:RollResult(piece,result.new==true,self.Compact,fast) end
  area.New.Visible=result.new==true
  area.Pop.Scale=.84

@@ -746,6 +746,13 @@
   "whoosh": "rbxassetid://118864059393250",
   "window_close": "rbxassetid://82156394283201"
  },
+ "FX": {
+  "butterfly": "rbxassetid://122603803661824",
+  "leaf": "rbxassetid://100076691448795",
+  "star": "rbxassetid://103688509203666",
+  "streak": "rbxassetid://104886162183401",
+  "water": "rbxassetid://89262382016614"
+ },
  "Upgrades": [
   {
    "id": "Root",

@@ -1676,6 +1676,27 @@
    "tris": 84
   }
  ],
+ "World_Cloud": [
+  {
+   "center": [
+    0.5314,
+    1.4153,
+    -0.0651
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_Cloud__tex.fbx",
+   "group": "tex",
+   "hash": "41cc331b9fc12fa6299615bd1e6964ee4aff0349",
+   "kind": "tex",
+   "role": null,
+   "size": [
+    35.0628,
+    8.3306,
+    19.4165
+   ],
+   "tris": 864
+  }
+ ],
  "World_FloatingIsle": [
   {
    "center": [
@@ -1728,7 +1749,7 @@
    "color": null,
    "fbx": "assets/meshes/World_HubIsland__tex.fbx",
    "group": "tex",
-   "hash": "22f2e0e9796b9391b2805d627d0e5c3f079206a8",
+   "hash": "722bebf1a4a02f605c89aebbbafb1147a73fd9ed",
    "kind": "tex",
    "role": null,
    "size": [
@@ -1802,40 +1823,42 @@
   {
    "center": [
     0.0,
-    4.575,
-    -0.0
-   ],
-   "color": "#5fd3ff",
-   "fbx": "assets/meshes/World_Landmark__neon5fd3ff.fbx",
-   "group": "neon5fd3ff",
-   "hash": "5c4e15333a4754cdf986cab442c5c4641f4d6894",
-   "kind": "neon",
-   "role": null,
-   "size": [
-    20.0,
-    6.25,
-    20.0
-   ],
-   "tris": 72
-  },
-  {
-   "center": [
-    0.0,
-    8.5568,
+    3.85,
     -0.0
    ],
    "color": null,
    "fbx": "assets/meshes/World_Landmark__tex.fbx",
    "group": "tex",
-   "hash": "8938e56d10beeda89cc666082c980002cc3c9303",
+   "hash": "201ad18fe20923e82781994819dbb997eced3a84",
    "kind": "tex",
    "role": null,
    "size": [
     22.0,
-    17.1136,
+    7.7,
     22.0
    ],
-   "tris": 392
+   "tris": 284
+  }
+ ],
+ "World_LandmarkDie": [
+  {
+   "center": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_LandmarkDie__tex.fbx",
+   "group": "tex",
+   "hash": "7a60a634f6c5be0c0297bd6d38a04d13cc8ae5d0",
+   "kind": "tex",
+   "role": null,
+   "size": [
+    6.16,
+    6.16,
+    6.16
+   ],
+   "tris": 360
   }
  ],
  "World_PlotIsland": [
@@ -1905,7 +1928,7 @@
    "color": null,
    "fbx": "assets/meshes/World_PlotIsland__tex.fbx",
    "group": "tex",
-   "hash": "43b4ef98b8188a51854f6c76b30f740090f15412",
+   "hash": "6b9db5621c6f8bf15b8f84b6e2687b7dadaa5587",
    "kind": "tex",
    "role": null,
    "size": [
@@ -2003,101 +2026,6 @@
  "World_StallPotions": [
   {
    "center": [
-    -1.1,
-    4.9,
-    -2.2
-   ],
-   "color": "#5cc8ff",
-   "fbx": "assets/meshes/World_StallPotions__neon5cc8ff.fbx",
-   "group": "neon5cc8ff",
-   "hash": "b2b3d81332cce2138ec4c2a9326c29328fce8435",
-   "kind": "neon",
-   "role": null,
-   "size": [
-    3.1,
-    2.9,
-    0.9
-   ],
-   "tris": 24
-  },
-  {
-   "center": [
-    -3.475,
-    8.0,
-    -1.45
-   ],
-   "color": "#7dff6b",
-   "fbx": "assets/meshes/World_StallPotions__neon7dff6b.fbx",
-   "group": "neon7dff6b",
-   "hash": "32c9a1e710941d383d7191227545c2227f22429c",
-   "kind": "neon",
-   "role": null,
-   "size": [
-    3.45,
-    9.1,
-    2.4
-   ],
-   "tris": 36
-  },
-  {
-   "center": [
-    3.3,
-    4.9,
-    -2.2
-   ],
-   "color": "#b54dff",
-   "fbx": "assets/meshes/World_StallPotions__neonb54dff.fbx",
-   "group": "neonb54dff",
-   "hash": "b2b3d81332cce2138ec4c2a9326c29328fce8435",
-   "kind": "neon",
-   "role": null,
-   "size": [
-    3.1,
-    2.9,
-    0.9
-   ],
-   "tris": 24
-  },
-  {
-   "center": [
-    0.0,
-    4.9,
-    -2.2
-   ],
-   "color": "#ff5fd2",
-   "fbx": "assets/meshes/World_StallPotions__neonff5fd2.fbx",
-   "group": "neonff5fd2",
-   "hash": "5a906af232bc2531599e029089f164f3cef74f0c",
-   "kind": "neon",
-   "role": null,
-   "size": [
-    9.7,
-    2.9,
-    0.9
-   ],
-   "tris": 24
-  },
-  {
-   "center": [
-    1.1,
-    4.9,
-    -2.2
-   ],
-   "color": "#ffd23b",
-   "fbx": "assets/meshes/World_StallPotions__neonffd23b.fbx",
-   "group": "neonffd23b",
-   "hash": "b2b3d81332cce2138ec4c2a9326c29328fce8435",
-   "kind": "neon",
-   "role": null,
-   "size": [
-    3.1,
-    2.9,
-    0.9
-   ],
-   "tris": 24
-  },
-  {
-   "center": [
     0.0,
     7.0,
     0.647
@@ -2105,7 +2033,7 @@
    "color": null,
    "fbx": "assets/meshes/World_StallPotions__tex.fbx",
    "group": "tex",
-   "hash": "dac2148f21a4ea2bd1e0abc2b9e7990e74484e79",
+   "hash": "3e6b68603c24758b73419259ab2566da500821af",
    "kind": "tex",
    "role": null,
    "size": [
@@ -2113,7 +2041,7 @@
     14.0,
     9.4941
    ],
-   "tris": 4404
+   "tris": 4536
   }
  ],
  "World_StallStyles": [

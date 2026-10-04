@@ -4,6 +4,7 @@ Asset ids come from tools/mesh_ids.json (written by upload_assets.py). Missing i
 empty so the generators still run before an upload.
 """
 import json
+import math
 import os
 
 from rbx import CF, C3, V3, Inst
@@ -45,7 +46,9 @@ def mesh_parts(name, base=None, scale=1.0, collide=False, query=False, shadow=Tr
             "MeshId": asset(ids().get(e["fbx"])),
             "Size": V3(*size),
             "InitialSize": V3(*e["size"]),
-            "CFrame": (base * CF(*c)).json(),
+            # Roblox imports these meshes turned 180 degrees about Y (Blender x -> -x), so
+            # every MeshPart is turned back here
+            "CFrame": (base * CF(*c) * CF.ry(math.pi)).json(),
             "Anchored": True,
             "CanCollide": collide,
             "CanQuery": query,

@@ -27,7 +27,7 @@ GRASS, GRASS_D = "#74d65a", "#5fc048"
 DIRT, DIRT_D = "#b5793f", "#9a6534"
 SAND, SAND_W = "#f2dc9b", "#e3c47c"
 ROCK, ROCK_D = "#8d8f9e", "#6f7181"
-STONE, STONE_D = "#efe6d2", "#d9ccad"
+STONE, STONE_D = "#dccfb2", "#c2b394"
 
 
 # ------------------------------------------------------------------ island builder
@@ -193,24 +193,42 @@ def landmark():
     L.cyl(2.2, 6.0, (0, 0, 4.0), "#c9c2b3", verts=8)
     L.cyl(4.0, 0.8, (0, 0, 7.2), "#c9c2b3", verts=8, bevel=0.15)
     L.cyl(3.4, 0.2, (0, 0, 7.6), "#5fd3ff", verts=8, emit=0.3)
-    die = L.box((6, 6, 6), (0, 0, 12.5), "#ffd23f", rot=(math.radians(35), math.radians(-30), 0),
-                bevel=0.7, segs=2)
-    _ = die
-    pips = [(0, 0), (-1.6, -1.6), (1.6, 1.6)]
-    import mathutils
-    rot = mathutils.Euler((math.radians(35), math.radians(-30), 0)).to_matrix()
-    for face in range(3):
-        for dx, dy in pips[: face + 1 + (1 if face == 2 else 0)]:
-            v = [mathutils.Vector((dx, -3.05, dy)), mathutils.Vector((3.05, dx, dy)),
-                 mathutils.Vector((dx, dy, 3.05))][face]
-            p = rot @ v
-            L.box((1.1, 1.1, 1.1), (p.x, p.y, 12.5 + p.z), "#2b2f3a")
     # little splash jets around the basin
     for k in range(6):
         a = k * math.tau / 6
         o = L.cyl(0.35, 2.4, (math.cos(a) * 7.5, math.sin(a) * 7.5, 2.7), "#bff1ff", verts=6,
                   r2=0.1)
         o["grp"] = "glass"
+
+
+def landmark_die():
+    """The giant golden die above the fountain (separate so the game can spin it)."""
+    L.box((6, 6, 6), (0, 0, 0), "#ffd23f", bevel=0.7, segs=2)
+    pips = {0: [(0, 0)], 1: [(-1.6, -1.6), (1.6, 1.6)], 2: [(-1.6, -1.6), (0, 0), (1.6, 1.6)],
+            3: [(-1.6, -1.6), (1.6, -1.6), (-1.6, 1.6), (1.6, 1.6)],
+            4: [(-1.6, -1.6), (1.6, -1.6), (0, 0), (-1.6, 1.6), (1.6, 1.6)],
+            5: [(-1.6, -1.6), (1.6, -1.6), (-1.6, 0), (1.6, 0), (-1.6, 1.6), (1.6, 1.6)]}
+    faces = [((1, 0, 0), 0), ((-1, 0, 0), 5), ((0, 1, 0), 1), ((0, -1, 0), 4), ((0, 0, 1), 2),
+             ((0, 0, -1), 3)]
+    for n, k in faces:
+        for a, b in pips[k]:
+            if n[0]:
+                pos = (n[0] * 3.02, a, b)
+            elif n[1]:
+                pos = (a, n[1] * 3.02, b)
+            else:
+                pos = (a, b, n[2] * 3.02)
+            L.box((1.1 if not n[0] else 0.12, 1.1 if not n[1] else 0.12, 1.1 if not n[2] else 0.12),
+                  pos, "#2b2f3a")
+
+
+def cloud():
+    rng = random.Random(4)
+    for k in range(7):
+        w = rng.uniform(8, 16)
+        L.box((w, w * 0.8, rng.uniform(4, 7)), (rng.uniform(-14, 14), rng.uniform(-6, 6),
+                                                 rng.uniform(0, 3)), "#ffffff", bevel=1.2, segs=2)
+    L.box((34, 16, 2.5), (0, 0, -1.5), "#e8f1ff", bevel=1.0, segs=2)
 
 
 def bridge_piece():
@@ -275,7 +293,7 @@ def bench():
 MODELS = {
     "PlotIsland": plot_island, "HubIsland": hub_island, "Landmark": landmark,
     "BridgePiece": bridge_piece, "BridgePillar": bridge_pillar, "SignArch": sign_arch,
-    "FloatingIsle": floating_isle, "Lamp": lamp, "Flowers": flowers, "Bench": bench,
+    "FloatingIsle": floating_isle, "LandmarkDie": landmark_die, "Cloud": cloud, "Lamp": lamp, "Flowers": flowers, "Bench": bench,
     "StallCars": P.shop_cars, "StallStyles": P.shop_styles, "StallPotions": P.shop_potions,
     "StallDice": P.shop_dice, "TreeRound": P.tree_round, "TreePine": P.tree_pine,
     "TreePalm": P.tree_palm, "Bush": P.bush, "Rock": P.rock,
@@ -289,7 +307,7 @@ def mark_glow():
             continue
         m = o.material_slots[0].material
         b = m and m.node_tree and m.node_tree.nodes.get("Principled BSDF")
-        if b and b.inputs["Emission Strength"].default_value > 0:
+        if b and b.inputs["Emission Strength"].default_value >= 1.0:
             o["grp"] = "neon"
 
 

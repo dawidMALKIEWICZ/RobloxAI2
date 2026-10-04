@@ -145,9 +145,10 @@ def add(parts):
         bpy.context.scene.collection.objects.link(o)
         Rb = P @ R @ P.transposed()
         if cls == "MeshPart":
-            # fbx meshes are already in Blender axes: scale them in Blender axes
+            # fbx meshes are already in Blender axes: scale them in Blender axes, then apply the
+            # same 180 degree turn Roblox applies when it imports a mesh
             sb = (size[0], size[2], size[1])
-            m3 = Rb @ Matrix.Diagonal(sb)
+            m3 = Rb @ Matrix.Rotation(math.pi, 3, "Z") @ Matrix.Diagonal(sb)
         else:
             m3 = Rb @ P @ Matrix.Diagonal(size) @ P.transposed()
         m4 = m3.to_4x4()

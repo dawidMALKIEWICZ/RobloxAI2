@@ -156,6 +156,7 @@ local function spawnCar(state: State, carId: string)
 		end
 	end
 	car.Name = "Car"
+	car:SetAttribute("CarId", template.Name)
 	car.Parent = state.plot
 	state.car = car
 	if state.path[1] then

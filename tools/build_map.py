@@ -76,6 +76,9 @@ def hub(parent):
     m.add(vcyl("Beach", HUB_R + 9, 2, (0, TOP - 8.2, 0), "#ffffff", transparency=1))
     lm = Inst("Model", "Landmark")
     meshes(lm, "Landmark", base * CF(0, 0.3, 0), 1.3)
+    die = Inst("Model", "Die")   # spun and bobbed by the client (WorldFX)
+    meshes(die, "LandmarkDie", base * CF(0, 16.6, 0) * CF.angles(0.62, 0.5, 0.3), 1.3)
+    lm.add(die)
     lm.add(vcyl("Basin", 14.3, 2.4, (0, TOP + 1.2, 0), "#ffffff", transparency=1))
     lm.add(vcyl("Pillar", 3, 16, (0, TOP + 8, 0), "#ffffff", transparency=1))
     m.add(lm)
@@ -98,13 +101,9 @@ def hub(parent):
         shop(m, key, title, mesh, CF.look(pos, (math.cos(a), 0, math.sin(a))))
     deco = Inst("Model", "Decor")
     rng = random.Random(3)
-    for k in range(8):   # lamps along the paths
-        a = k * math.tau / 8
-        for r in (42, 72):
-            for s in (-1, 1):
-                x = math.cos(a) * r - math.sin(a) * 9 * s
-                z = math.sin(a) * r + math.cos(a) * 9 * s
-                prop(deco, "Lamp", CF(x, TOP, z), 1.3)
+    for k in range(8):   # one lamp beside each path where it meets the plaza
+        a = k * math.tau / 8 + 0.16
+        prop(deco, "Lamp", CF(math.cos(a) * 40, TOP, math.sin(a) * 40), 1.3)
     for k in (1, 3, 5, 7):  # benches facing the flower beds
         a = (k + 0.5) * math.tau / 8
         prop(deco, "Bench", CF.look((math.cos(a) * 38, TOP, math.sin(a) * 38),
@@ -221,6 +220,18 @@ def floating(parent):
     parent.add(m)
 
 
+def sky(parent):
+    """Blocky clouds, drifted slowly by the client."""
+    m = Inst("Folder", "Clouds")
+    rng = random.Random(21)
+    for k in range(16):
+        a = rng.uniform(0, math.tau)
+        r = rng.uniform(80, 950)
+        meshes(m, "Cloud", CF(math.cos(a) * r, TOP + rng.uniform(110, 190), math.sin(a) * r)
+               * CF.ry(rng.uniform(0, 6)), rng.uniform(1.4, 3.0), shadow=False)
+    parent.add(m)
+
+
 def build():
     root = Inst("Folder", "Map")
     hub(root)
@@ -244,6 +255,7 @@ def build():
         e2 = exit_point(cfs[j], PLOT_W, PLOT_D, neg3(dv))
         bridge(bridges, f"RingBridge{i + 1}_{j + 1}", sub(e1, mul(dv, 3)), add(e2, mul(dv, 3)))
     floating(root)
+    sky(root)
     root.add(part("VoidCatcher", (2048, 4, 2048), CF(0, WATER - 30, 0), "#000000",
                   transparency=1, collide=False))
     for ix in (-1, 0, 1):

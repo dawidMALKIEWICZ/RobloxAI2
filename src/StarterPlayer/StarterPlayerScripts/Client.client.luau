@@ -32,6 +32,7 @@ local templates = root:WaitForChild("Templates")
 local UIVisuals = require(ReplicatedStorage:WaitForChild("UIVisuals"))
 UIVisuals.Bind(gui)
 local vfx = require(ReplicatedStorage:WaitForChild("ClientVFX")).new(gui)
+require(ReplicatedStorage:WaitForChild("WorldFX")).new(gui)
 
 local snap = nil
 local snapTime = 0
@@ -795,10 +796,31 @@ local function checkMilestone(total: number)
 	end
 end
 
+-- the cash label counts up to the new value and gives a little bump when it grows
+local shownCash = nil
+local cashValue = Instance.new("NumberValue")
+cashValue.Changed:Connect(function(v)
+	hud.CashPanel.Amount.Text = Format.money(math.floor(v + 0.5))
+end)
+local cashBump = Instance.new("UIScale")
+cashBump.Name = "CountBump"
+cashBump.Parent = hud.CashPanel.Amount
+local function countCash(cash: number)
+	if shownCash == nil or cash < shownCash or cash - shownCash > shownCash * 50 then
+		cashValue.Value = cash
+	elseif cash > shownCash then
+		TweenService:Create(cashValue, TweenInfo.new(0.45, Enum.EasingStyle.Quad), { Value = cash }):Play()
+		cashBump.Scale = 1.08
+		TweenService:Create(cashBump, TweenInfo.new(0.3, Enum.EasingStyle.Back), { Scale = 1 }):Play()
+	end
+	shownCash = cash
+	hud.CashPanel.Amount.Text = Format.money(math.floor(cashValue.Value + 0.5))
+end
+
 local function refreshHUD()
 	local data = snap.Data
 	local cash = player:GetAttribute("Cash") or data.Cash
-	hud.CashPanel.Amount.Text = Format.money(cash)
+	countCash(cash)
 	checkMilestone(data.TotalEarned or 0)
 	windows.SkillsWindow.Header.Cash.Amount.Text = Format.money(cash)
 	hud.IncomeLabel.Text = "+" .. Format.money(snap.Income) .. "/s"

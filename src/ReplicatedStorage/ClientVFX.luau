@@ -17,8 +17,8 @@ local CUES = {Hover={"hover",.12},Click={"click",.42},Tick={"tick",.3},Whoosh={"
  Unlock={"unlock",.5},Potion={"potion",.55},Equip={"equip",.45},Milestone={"milestone",.6},BuildOpen={"build_open",.5}}
 local COLORS = {Common=Color3.fromRGB(182,255,132),Rare=Color3.fromRGB(67,203,255),Epic=Color3.fromRGB(195,91,255),Legendary=Color3.fromRGB(255,205,64),Mythical=Color3.fromRGB(255,77,159),Secret=Color3.fromRGB(204,255,251)}
 local RANK = {Common=1,Rare=2,Epic=3,Legendary=4,Mythical=5,Secret=6}
-local function tween(obj,duration,properties,style)
- local t=TweenService:Create(obj,TweenInfo.new(duration,style or Enum.EasingStyle.Quad,Enum.EasingDirection.Out),properties)
+local function tween(obj,duration,properties,style,direction)
+ local t=TweenService:Create(obj,TweenInfo.new(duration,style or Enum.EasingStyle.Quad,direction or Enum.EasingDirection.Out),properties)
  t:Play() return t
 end
 local function image(parent,name,asset,size,position,z)
@@ -163,7 +163,10 @@ function VFX:RollResult(piece,isNew,compact,auto)
  if rank>=3 then
   self:Rays(point,color,rank)
   self:EdgeGlow(color,rank)
-  self:Banner(string.upper(piece.tier)..(rank>=5 and "!!" or "!"),color,rank>=5 and 1.35 or 1.1,UDim2.new(.5,0,.5,-360),1.5+rank*.15,rank>=6)
+  local banner=self:Banner(string.upper(piece.tier)..(rank>=5 and "!!" or "!"),color,rank>=5 and 1.35 or 1.1,UDim2.new(.5,0,.5,-360),1.5+rank*.15,rank>=6)
+  if rank>=5 then self:Chromatic(banner,1.2+rank*.15) end
+  self:CameraPunch(4+rank*2,.6)
+  self:Tint(color,.8,rank>=5 and .6 or .4)
   self.ShakeUntil=os.clock()+.2+rank*.06 self.ShakeStrength=.03+rank*.016
  end
  if rank>=4 then
@@ -183,6 +186,13 @@ function VFX:Buildup(rank,color,duration)
  local dim=Instance.new("Frame") dim.Name="BuildupDim" dim.BackgroundColor3=Color3.new(0,0,0) dim.BackgroundTransparency=1 dim.BorderSizePixel=0
  dim.Size=UDim2.fromScale(1,1) dim.ZIndex=55 dim.Active=false dim.Parent=self.Root
  tween(dim,duration*.8,{BackgroundTransparency=rank>=6 and .25 or .5})
+ self:SpeedLines(duration,color)
+ local cam=self:CamFX()
+ if cam then
+  self.BaseFOV=self.BaseFOV or cam.FieldOfView
+  tween(cam,duration,{FieldOfView=self.BaseFOV-8-rank},Enum.EasingStyle.Quad,Enum.EasingDirection.In)
+  self:BlurTo(rank>=6 and 10 or 6,duration)
+ end
  local vp=self.Root.RollReel.Reveal.Viewport local beat=scaleFor(vp,"Heartbeat")
  local steps=math.floor(duration/.16)
  for i=1,steps do
@@ -194,7 +204,7 @@ function VFX:Buildup(rank,color,duration)
   end)
  end
  self:Sound("Whoosh",.6,.4)
- task.delay(duration,function() tween(dim,.35,{BackgroundTransparency=1}) Debris:AddItem(dim,.4) end)
+ task.delay(duration,function() tween(dim,.35,{BackgroundTransparency=1}) Debris:AddItem(dim,.4) self:BlurTo(0,.3) end)
 end
 function VFX:Banner(text,color,scale,position,hold,rainbow)
  local l=Instance.new("TextLabel") l.Name="Banner" l.BackgroundTransparency=1 l.AnchorPoint=Vector2.new(.5,.5)
@@ -306,6 +316,70 @@ function VFX:Potion(p)
  local holder=self.Root.HUD:FindFirstChild("ActivePotions")
  local point=holder and self:Point(holder) or self:Point(self.Root.HUD.CashPanel)
  self:UIBurst(point,c,self:Q(16),160) self:Shockwave(point,c,1)
+end
+-- ------------------------------------------------------------------ camera + screen effects
+function VFX:CamFX()
+ local cam=workspace.CurrentCamera if not cam then return nil end
+ if not self.Blur or self.Blur.Parent~=cam then
+  self.Blur=Instance.new("BlurEffect") self.Blur.Name="VFXBlur" self.Blur.Size=0 self.Blur.Parent=cam
+  self.Grade=Instance.new("ColorCorrectionEffect") self.Grade.Name="VFXGrade" self.Grade.Parent=cam
+ end
+ return cam
+end
+-- quick zoom-in-and-back kick of the camera field of view
+function VFX:CameraPunch(amount,dur)
+ local cam=self:CamFX() if not cam then return end
+ self.BaseFOV=self.BaseFOV or cam.FieldOfView
+ cam.FieldOfView=self.BaseFOV-amount
+ tween(cam,dur or .5,{FieldOfView=self.BaseFOV},Enum.EasingStyle.Back)
+end
+function VFX:BlurTo(size,dur) if not self:CamFX() then return end tween(self.Blur,dur or .25,{Size=size}) end
+function VFX:Tint(color,dur,strength)
+ if not self:CamFX() then return end
+ local g=self.Grade g.TintColor=Color3.new(1,1,1):Lerp(color,strength or .45) g.Brightness=.12 g.Saturation=.35
+ tween(g,dur or .6,{TintColor=Color3.new(1,1,1),Brightness=0,Saturation=0})
+end
+-- anime speed lines rushing towards the centre of the screen
+function VFX:SpeedLines(dur,color)
+ if self.Quality=="Low" then return end
+ local holder=Instance.new("Frame") holder.Name="SpeedLines" holder.BackgroundTransparency=1 holder.Size=UDim2.fromScale(1,1) holder.ZIndex=54 holder.Active=false holder.Parent=self.Root
+ local size=self.Root.AbsoluteSize/self.Root.Scale.Scale local c=Vector2.new(size.X/2,size.Y*.46)
+ local t0=os.clock()
+ task.spawn(function()
+  while os.clock()-t0<dur and holder.Parent and not self.Destroyed do
+   for _=1,3 do
+    local a=math.random()*math.pi*2 local r=math.max(size.X,size.Y)*.62
+    local len=math.random(160,320)
+    local l=Instance.new("Frame") l.BorderSizePixel=0 l.AnchorPoint=Vector2.new(.5,.5) l.BackgroundColor3=math.random()<.25 and color or Color3.new(1,1,1)
+    l.BackgroundTransparency=.25 l.Size=UDim2.fromOffset(len,math.random(3,7)) l.Rotation=math.deg(a) l.ZIndex=54
+    l.Position=UDim2.fromOffset(c.X+math.cos(a)*r,c.Y+math.sin(a)*r) l.Parent=holder
+    local g=Instance.new("UIGradient") g.Transparency=NumberSequence.new(0,1) g.Rotation=180 g.Parent=l
+    tween(l,.32,{Position=UDim2.fromOffset(c.X+math.cos(a)*r*.38,c.Y+math.sin(a)*r*.38),BackgroundTransparency=1},Enum.EasingStyle.Quad)
+    Debris:AddItem(l,.35)
+   end
+   task.wait(.03)
+  end
+  Debris:AddItem(holder,.4)
+ end)
+end
+-- red/cyan split copies of a label for a glitchy "impossible pull" look
+function VFX:Chromatic(label,dur)
+ if self.Quality=="Low" or not label.Parent then return end
+ for i,c in {Color3.fromRGB(255,40,80),Color3.fromRGB(40,220,255)} do
+  local copy=label:Clone() copy.Name="Chroma" copy.ZIndex=label.ZIndex-1 copy.TextColor3=c
+  for _,d in copy:GetChildren() do if not d:IsA("UIScale") then d:Destroy() end end
+  copy.TextTransparency=.35 copy.Parent=label.Parent
+  task.spawn(function()
+   local t0=os.clock()
+   while os.clock()-t0<dur and copy.Parent and label.Parent do
+    local k=(i==1 and -1 or 1)*(6+math.sin((os.clock()-t0)*30)*5)
+    copy.Position=label.Position+UDim2.fromOffset(k,math.random(-2,2)) copy.Rotation=label.Rotation
+    local s1,s2=copy:FindFirstChild("Pop"),label:FindFirstChild("Pop") if s1 and s2 then s1.Scale=s2.Scale end
+    task.wait()
+   end
+   copy:Destroy()
+  end)
+ end
 end
 function VFX:Milestone(text)
  self:Sound("Milestone")
@@ -427,7 +501,8 @@ function VFX:Error(button)
  end
 end
 function VFX:Toast(frame)
- local s=scaleFor(frame,"ToastPop") s.Scale=.9 tween(s,.26,{Scale=1},Enum.EasingStyle.Back)
+ local s=scaleFor(frame,"ToastPop") s.Scale=.6 tween(s,.32,{Scale=1},Enum.EasingStyle.Back)
+ frame.Rotation=-4 tween(frame,.4,{Rotation=0},Enum.EasingStyle.Elastic)
 end
 function VFX:Window(window)
  if window.Name=="BuildPanel" then
@@ -557,7 +632,12 @@ function VFX.new(gui)
   if p:IsA("GuiObject") and p.Name=="Halftone" then p:Destroy()
   elseif p:IsA("GuiObject") and p.Name:match("^Piece_") then self:WatchCard(p) end
  end
- for _,window in self.Root.Windows:GetChildren() do if window:IsA("GuiObject") then self:Connect(window:GetPropertyChangedSignal("Visible"),function() if window.Visible then self:Window(window) else self:Sound("Whoosh",.88,.16) end end) end end
+ local function anyOpen() for _,w in self.Root.Windows:GetChildren() do if w:IsA("GuiObject") and w.Visible and w.Name~="SkillsWindow" then return true end end return false end
+ for _,window in self.Root.Windows:GetChildren() do if window:IsA("GuiObject") then self:Connect(window:GetPropertyChangedSignal("Visible"),function()
+  if window.Visible then self:Window(window) else self:Sound("WindowClose") end
+  -- soft background blur while a menu is open
+  self:BlurTo(anyOpen() and (self.Quality=="Low" and 0 or 9) or 0,.25)
+ end) end end
  self:Connect(self.Root.BuildPanel:GetPropertyChangedSignal("Visible"),function() if self.Root.BuildPanel.Visible then self:Window(self.Root.BuildPanel) end end)
  for _,node in self.Root.Windows.SkillsWindow.Body.Tree:GetChildren() do if node:IsA("GuiButton") then self:Connect(node:GetPropertyChangedSignal("Visible"),function()
   if node.Visible and os.clock()-self.Started>1.5 and self.Root.Windows.SkillsWindow.Visible then local s=scaleFor(node,"Bounce") s.Scale=.8 tween(s,.35,{Scale=1},Enum.EasingStyle.Back) self:UIBurst(self:Point(node),Color3.fromRGB(127,255,109),6,65) end
@@ -565,8 +645,17 @@ function VFX.new(gui)
  local die=self.Root.HUD.RollArea.RollButton.Die:FindFirstChild("AtlasImage")
  local dieScale=die and scaleFor(die,"IdlePulse")
  local badge=self.Root.HUD.RollArea.SkillsButton.Badge local badgeScale=scaleFor(badge,"NotificationPulse")
+ local roll=self.Root.HUD.RollArea.RollButton
+ local shine=Instance.new("UIGradient") shine.Name="IdleShine"
+ shine.Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,0),NumberSequenceKeypoint.new(.42,0),NumberSequenceKeypoint.new(.5,.6),NumberSequenceKeypoint.new(.58,0),NumberSequenceKeypoint.new(1,0)})
+ shine.Rotation=25 shine.Offset=Vector2.new(-1,0)
+ if not roll:FindFirstChildOfClass("UIGradient") then shine.Parent=roll end
+ local menuScales={}
+ for i,b in self.Root.HUD.LeftMenu:GetChildren() do if b:IsA("GuiButton") then menuScales[#menuScales+1]={scaleFor(b,"IdleBob"),i} end end
  self:Connect(RunService.RenderStepped,function()
   if self.Destroyed then return end local now=os.clock()
+  if shine.Parent then shine.Offset=Vector2.new(((now*.45)%2.2)-1.1,0) end
+  for _,m in menuScales do m[1].Scale=1+math.sin(now*2+m[2]*.9)*.018 end
   if die and self.Root.HUD.Visible then die.Rotation=math.sin(now*1.5)*1.8 dieScale.Scale=1+math.sin(now*2.2)*.012 end
   badgeScale.Scale=(tonumber(badge.Text.Text) or 0)>0 and 1+math.sin(now*4)*.045 or 1
  end)

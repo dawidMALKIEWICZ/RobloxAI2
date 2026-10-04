@@ -105,7 +105,8 @@ def mesh_ids():
 def media_ids():
     """Icons (assets/icons/*.png) and sounds (assets/audio/*.ogg) -> tools/media_ids.json"""
     out = {"icons": {}, "audio": {}}
-    for kind, folder, ext, atype in (("icons", "icons", ".png", "Image"),
+    out["fx"] = {}
+    for kind, folder, ext, atype in (("icons", "icons", ".png", "Image"), ("fx", "fx", ".png", "Image"),
                                      ("audio", "audio", ".ogg", "Audio")):
         d = os.path.join(ROOT, "assets", folder)
         for f in sorted(os.listdir(d)):

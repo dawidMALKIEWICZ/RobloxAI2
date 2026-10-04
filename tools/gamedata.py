@@ -280,11 +280,15 @@ def audio():
     return {k: f"rbxassetid://{v}" for k, v in media()["audio"].items()}
 
 
+def fx():
+    return {k: f"rbxassetid://{v}" for k, v in media().get("fx", {}).items()}
+
+
 def data():
     return {
         "Tiers": TIERS, "Pieces": piece_list(), "Cars": car_list(), "Styles": style_list(),
         "Potions": with_icons(POTIONS, "Potion_"), "Dice": with_icons(DICE, "Dice_"),
-        "Audio": audio(), "Upgrades": UPGRADES, "Daily": DAILY,
+        "Audio": audio(), "FX": fx(), "Upgrades": UPGRADES, "Daily": DAILY,
         "Pass": PASS, "Crate": CRATE, "Products": PRODUCTS, "StarterPack": STARTER_PACK,
         "Config": CONFIG,
     }
