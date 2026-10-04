@@ -172,6 +172,70 @@ if __name__ == "__main__":
         camera((cx + 520, 260, 330), (cx, 20, -120), 22)
         render("preview_pieces.png")
         sys.exit(0)
+    if shots[0] == "track":
+        sys.path.insert(0, os.path.join(ROOT, "tools"))
+        from rbx import CF as RCF
+        import math as _m
+        mp = load(os.path.join(ROOT, "src/Workspace/Map.model.json"))
+        tp = load(os.path.join(ROOT, "src/ReplicatedStorage/Assets/TrackPieces.model.json"))
+        pieces = {c["Name"]: c for c in tp["Children"]}
+
+        def find(node, name):
+            if node.get("Name") == name:
+                return node
+            for c in node.get("Children", []):
+                r = find(c, name)
+                if r:
+                    return r
+            return None
+        plot = find(mp, "Plot1")
+        o = find(plot, "TrackOrigin")["Properties"]["CFrame"]["CFrame"]
+        origin = RCF(*o["position"], R=tuple(tuple(r) for r in o["orientation"]))
+        seq = (sys.argv[2] if len(sys.argv) > 2 else
+               "Straight,GentleCurve,SharpTurn,Ramp,BankedCurve,Corkscrew,JumpGap,Loop,"
+               "SpiralTower,TeleportGate,SkyLeap").split(",")
+        turns = {"GentleCurve", "SharpTurn", "BankedCurve"}
+
+        def flat(cf):
+            lv = cf.look_vector
+            L = _m.hypot(lv[0], lv[2]) or 1
+            return (lv[0] / L, 0, lv[2] / L)
+        chain = origin
+        allp = []
+        for pid in seq:
+            name = pid
+            if pid in turns:
+                out, head = flat(origin), flat(chain)
+                cy = out[2] * head[0] - out[0] * head[2]
+                if cy < -0.1:
+                    name = pid + "_L"
+                elif cy > 0.1:
+                    name = pid + "_R"
+                else:
+                    rv = (origin.R[0][0], origin.R[1][0], origin.R[2][0])
+                    d = [chain.p[i] - origin.p[i] for i in range(3)]
+                    lat = sum(d[i] * rv[i] for i in range(3))
+                    name = pid + ("_L" if lat > 0 else "_R")
+            pp = []
+            walk(pieces[name], pp)
+            ex = find(pieces[name], "Exit")["Properties"]["CFrame"]["CFrame"]
+            for cls, pr in pp:
+                c = pr["CFrame"]["CFrame"]
+                lc = RCF(*c["position"], R=tuple(tuple(r) for r in c["orientation"]))
+                wc = (chain * lc).json()["CFrame"]
+                pr = dict(pr)
+                pr["CFrame"] = {"CFrame": wc}
+                allp.append((cls, pr))
+            chain = chain * RCF(*ex["position"], R=tuple(tuple(r) for r in ex["orientation"]))
+        mpp = []
+        walk(mp, mpp)
+        add_parts(mpp)
+        add_parts(allp)
+        setup(res=(1600, 900))
+        cam_pos = (250 + 600, 100 + 420, 520)
+        camera(cam_pos, (250 + 330, 100 + 40, 60), 26)
+        render("preview_track.png")
+        sys.exit(0)
     if shots == ["cars"]:
         d = load(os.path.join(ROOT, "src/ReplicatedStorage/Assets/Cars.model.json"))
         for i, mdl in enumerate(d["Children"]):

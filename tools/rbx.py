@@ -141,11 +141,11 @@ def V2(x, y):
 
 
 def U2(xs, xo, ys, yo):
-    return {"UDim2": [[xs, xo], [ys, yo]]}
+    return {"UDim2": [[xs, int(round(xo))], [ys, int(round(yo))]]}
 
 
 def UD(s, o):
-    return {"UDim": [s, o]}
+    return {"UDim": [s, int(round(o))]}
 
 
 FONTS = {
@@ -218,6 +218,7 @@ def write_model(inst, relpath):
     path = os.path.join(SRC, relpath)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     d = inst.json()
+    d.pop("Name", None)  # the file name decides the instance name
     with open(path, "w", encoding="utf-8") as f:
         json.dump(d, f, ensure_ascii=False, separators=(",", ":"))
     n = sum(1 for _ in inst.walk())

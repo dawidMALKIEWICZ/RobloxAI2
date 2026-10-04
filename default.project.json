@@ -1,0 +1,41 @@
+{
+  "name": "TrackRNG",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$path": "src/ReplicatedStorage"
+    },
+    "ServerScriptService": {
+      "$path": "src/ServerScriptService"
+    },
+    "StarterGui": {
+      "$path": "src/StarterGui"
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "$path": "src/StarterPlayer/StarterPlayerScripts"
+      }
+    },
+    "Workspace": {
+      "$properties": {
+        "FallenPartsDestroyHeight": -500
+      },
+      "$path": "src/Workspace"
+    },
+    "Lighting": {
+      "$properties": {
+        "ClockTime": 14,
+        "Brightness": 2.5,
+        "Ambient": [0.45, 0.45, 0.5],
+        "OutdoorAmbient": [0.6, 0.62, 0.7],
+        "GlobalShadows": true
+      },
+      "$path": "src/Lighting"
+    },
+    "Players": {
+      "$properties": {
+        "CharacterAutoLoads": true
+      }
+    }
+  }
+}
