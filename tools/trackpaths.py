@@ -244,6 +244,69 @@ def t_skyleap(p):
     p.line((0, ROAD_Y, -HALF), 3)
 
 
+# ------------------------------------------------------------------ expansion tiles
+def t_bridge(p):
+    p.curve(lambda t: ((0, ROAD_Y + 1.3 * math.sin(math.pi * t) ** 2, HALF - CELL * t), (0, 1, 0)), 16)
+
+
+def t_camel(p):
+    p.curve(lambda t: ((0, ROAD_Y + 1.7 * math.sin(2 * math.pi * t) ** 2 * math.sin(math.pi * t) ** 0.5,
+                        HALF - CELL * t), (0, 1, 0)), 26)
+
+
+def t_halfpipe(p):
+    def fn(t):
+        win = math.sin(math.pi * t) ** 4
+        k = math.sin(2 * math.pi * t) * win * 1.15
+        roll = math.radians(45) * k
+        return ((-1.0 * k, ROAD_Y + 1.9 * abs(k), HALF - CELL * t), (math.sin(roll), math.cos(roll), 0))
+    p.curve(fn, 30, width=lambda t: lerp(HALF_W, 2.4, math.sin(math.pi * t) ** 2))
+
+
+def t_ring_of_fire(p):
+    t_jump(p)
+
+
+def t_launchpad(p):
+    p.curve(lambda t: ((0, ROAD_Y + 2.1 * t * t, lerp(HALF, 1.6, t)), (0, 1, 0)), 7,
+            flags={"Boost": 2.5})
+    y0 = ROAD_Y + 2.1
+    for i in range(1, 7):
+        u = i / 7
+        y = y0 + 4 * 2.6 * u * (1 - u) - 0.9 * u
+        p.s.append(((0, y, lerp(1.6, -2.2, u)), (0, 0, -1), (0, 1, 0), False, {"Boost": 2}, HALF_W))
+    y1 = y0 - 0.9
+    p.s.append(((0, y1, -2.2), (0, -0.4, -1), (0, 1, 0), False, {}, HALF_W))
+    p.curve(lambda t: ((0, y1 - (y1 - ROAD_Y) * smooth(t), lerp(-2.2, -HALF, t)), (0, 1, 0)), 6)
+
+
+def t_twister(p):
+    r = 1.5
+    p.line((0, ROAD_Y, 4.0), 2, w1=LANE_W + 0.4)
+
+    def fn(t):
+        ph = 2 * math.tau * smooth(t)
+        return ((-r * math.sin(ph), ROAD_Y + r - r * math.cos(ph), lerp(4.0, -4.0, t)),
+                (math.sin(ph), math.cos(ph), 0))
+    p.curve(fn, 44)
+    p.line((0, ROAD_Y, -HALF), 2, w1=HALF_W)
+
+
+def t_rainbow(p):
+    p.curve(lambda t: ((0, ROAD_Y + 0.9 * math.sin(2 * math.pi * t) ** 2, HALF - CELL * t), (0, 1, 0)),
+            22, flags={"Boost": 1.4})
+
+
+BH_IN = 2.6
+BH_OUT = -2.6
+
+
+def t_blackhole(p):
+    p.curve(lambda t: ((0, ROAD_Y - 0.0 * t, lerp(HALF, BH_IN, t)), (0, 1, 0)), 4)
+    p.teleport((0, ROAD_Y, BH_OUT))
+    p.line((0, ROAD_Y, -HALF), 4)
+
+
 # id, display, tier, odds, value, path fn, ports, desc
 TILES = [
     ("Straight", "Straight", "Common", 2, 1, t_straight, "SN", "A plain piece of road."),
@@ -266,7 +329,25 @@ TILES = [
      "Warp through a portal."),
     ("SkyLeap", "Sky Leap", "Secret", 19000000, 1500000, t_skyleap, "SN",
      "Teleport, loop, leap!"),
+    # expansion
+    ("Tunnel", "Tunnel", "Rare", 25, 9, t_straight, "SN", "A glowing rock tunnel."),
+    ("Bridge", "River Bridge", "Rare", 50, 18, t_bridge, "SN", "Hop over a little river."),
+    ("IceTurn", "Ice Turn", "Rare", 120, 35, t_turn, "SE", "A slippery frozen corner."),
+    ("CamelBack", "Camel Back", "Epic", 400, 100, t_camel, "SN", "Two bumps, double fun."),
+    ("HalfPipe", "Half Pipe", "Epic", 1200, 250, t_halfpipe, "SN", "Ride up both walls."),
+    ("NeonTurn", "Neon Turn", "Epic", 3500, 600, t_turn, "SE", "A corner lit with neon."),
+    ("RingOfFire", "Ring of Fire", "Legendary", 12000, 2000, t_ring_of_fire, "SN",
+     "Jump through the flames!"),
+    ("LaunchPad", "Launch Pad", "Legendary", 35000, 5500, t_launchpad, "SN",
+     "Boost and fly high."),
+    ("Twister", "Twister", "Mythical", 500000, 60000, t_twister, "SN", "Two barrel rolls."),
+    ("RainbowRoad", "Rainbow Road", "Mythical", 2500000, 220000, t_rainbow, "SN",
+     "A glowing rainbow speedway."),
+    ("BlackHole", "Black Hole", "Secret", 50000000, 3500000, t_blackhole, "SN",
+     "Swallowed and spat out!"),
 ]
+# order tiles by rarity so lists, the index and the reel read from common to secret
+TILES.sort(key=lambda t: t[3])
 START = ("Start", "Start", "Common", 1, 0, t_straight, "SN", "Start line")
 
 

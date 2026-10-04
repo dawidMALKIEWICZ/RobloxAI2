@@ -239,6 +239,11 @@ function WorldFX:Setup(map: Instance)
 					end)
 				end))
 			end
+			table.insert(self.Connections, plot:GetAttributeChangedSignal("OwnerId"):Connect(function()
+				if plot:GetAttribute("OwnerId") == Players.LocalPlayer.UserId then
+					self:ClaimCelebration(plot)
+				end
+			end))
 			local pad = plot:FindFirstChild("Pad")
 			if pad then
 				local function border()
@@ -442,6 +447,41 @@ function WorldFX:ShoreFoam(map: Instance)
 end
 
 -- ------------------------------------------------------------------ one-shot effects
+-- flat ring of light that races outwards over the ground
+function WorldFX:Wave(pos: Vector3, color: Color3, radius: number)
+	local r = Instance.new("Part")
+	r.Name = "Wave"
+	r.Anchored = true
+	r.CanCollide = false
+	r.CanQuery = false
+	r.CanTouch = false
+	r.CastShadow = false
+	r.Shape = Enum.PartType.Cylinder
+	r.Material = Enum.Material.Neon
+	r.Color = color
+	r.Transparency = 0.3
+	r.Size = Vector3.new(0.15, 2, 2)
+	r.CFrame = CFrame.new(pos) * CFrame.Angles(0, 0, math.pi / 2)
+	r.Parent = self.Folder
+	TweenService:Create(r, TweenInfo.new(0.9, Enum.EasingStyle.Quart), { Size = Vector3.new(0.05, radius * 2, radius * 2),
+		Transparency = 1 }):Play()
+	Debris:AddItem(r, 1)
+end
+
+-- the player's plot is ready: beam, fireworks and a wave over the island
+function WorldFX:ClaimCelebration(plot: Instance)
+	local pv = plot:FindFirstChild("Pivot") :: BasePart?
+	if not pv then
+		return
+	end
+	local color = Color3.fromHex(plot:GetAttribute("PlotColor") or "#3bd1ff")
+	local pos = pv.Position
+	task.delay(1.2, function()
+		self:Wave(pos + Vector3.new(0, 0.3, 0), color, 110)
+		self:Fireworks(pos + Vector3.new(0, 2, 0), { color, Color3.new(1, 1, 1), Color3.fromRGB(255, 214, 64) }, 8)
+	end)
+end
+
 function WorldFX:Burst(pos: Vector3, color: Color3, count: number)
 	local a = anchor(self.Folder, CFrame.new(pos), Vector3.one)
 	local e = emitter(a, {
@@ -699,6 +739,71 @@ function WorldFX:Character()
 	table.insert(self.Connections, plr.CharacterAdded:Connect(setup))
 end
 
+-- spinning hologram of a freshly rolled rare tile above the player
+function WorldFX:Hologram(piece, color: Color3, rank: number)
+	local char = Players.LocalPlayer.Character
+	local hrp = char and char:FindFirstChild("HumanoidRootPart") :: BasePart?
+	local template = ReplicatedStorage.Assets.Tiles:FindFirstChild(piece.id)
+	if not hrp or not template then
+		return
+	end
+	local m = template:Clone()
+	local path = m:FindFirstChild("Path")
+	if path then
+		path:Destroy()
+	end
+	for _, p in m:GetDescendants() do
+		if p:IsA("BasePart") then
+			p.Anchored = true
+			p.CanCollide = false
+			p.CanQuery = false
+			p.CastShadow = false
+			if p.Name == "Hitbox" then
+				p:Destroy()
+			end
+		end
+	end
+	m:ScaleTo(0.45)
+	m.Parent = self.Folder
+	local h = Instance.new("Highlight")
+	h.FillColor = color
+	h.FillTransparency = 0.55
+	h.OutlineColor = Color3.new(1, 1, 1)
+	h.DepthMode = Enum.HighlightDepthMode.Occluded
+	h.Parent = m
+	local base = hrp.Position + Vector3.new(0, 6.5, 0)
+	local ring = anchor(self.Folder, CFrame.new(base - Vector3.new(0, 2.6, 0)), Vector3.new(6, 0.2, 6))
+	local e = emitter(ring, {
+		Texture = TEX.Star, Rate = 14 + rank * 4, Lifetime = NumberRange.new(0.6, 1), Speed = NumberRange.new(2, 4),
+		EmissionDirection = Enum.NormalId.Top, Size = seq(0.5, 0), LightEmission = 1,
+		Color = ColorSequence.new(color, Color3.new(1, 1, 1)), Transparency = seq(0, 1),
+	})
+	local light = Instance.new("PointLight")
+	light.Color = color
+	light.Range = 18
+	light.Brightness = 2
+	light.Parent = ring
+	local t0 = os.clock()
+	local life = 2.2 + rank * 0.4
+	local conn
+	conn = RunService.Heartbeat:Connect(function()
+		local t = os.clock() - t0
+		if t > life or not m.Parent then
+			conn:Disconnect()
+			m:Destroy()
+			ring:Destroy()
+			return
+		end
+		local grow = math.min(1, t / 0.35)
+		local fade = math.clamp((life - t) / 0.4, 0, 1)
+		local pos = (hrp.Parent and hrp.Position or base) + Vector3.new(0, 6.5 + math.sin(t * 2.4) * 0.4, 0)
+		m:PivotTo(CFrame.new(pos) * CFrame.Angles(0.35, t * 2.2, 0))
+		m:ScaleTo(0.05 + 0.45 * (1 - (1 - grow) ^ 3) * fade + 0.0001)
+		ring.CFrame = CFrame.new(pos - Vector3.new(0, 2.6, 0))
+		e.Rate = fade > 0.5 and (14 + rank * 4) or 0
+	end)
+end
+
 -- ------------------------------------------------------------------ creatures
 function WorldFX:SpawnBirds()
 	for i = 1, 7 do
@@ -812,6 +917,45 @@ function WorldFX:Tile(m: Instance)
 				ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 100, 255)) }),
 			Transparency = seq(0.1, 1),
 		})
+	elseif id == "RingOfFire" then
+		for k = 0, 9 do
+			local a = k / 10 * math.pi * 2
+			aura(base * CFrame.new(math.cos(a) * 2.6, 4.0 + math.sin(a) * 2.6, 0), Vector3.new(0.4, 0.4, 0.4), {
+				Texture = TEX.Fire, Rate = 9, Lifetime = NumberRange.new(0.3, 0.55), Speed = NumberRange.new(1, 2.5),
+				EmissionDirection = Enum.NormalId.Top, Size = seq(1.0, 0.1), LightEmission = 1,
+				Color = ColorSequence.new(Color3.fromRGB(255, 230, 120), Color3.fromRGB(255, 70, 20)), Transparency = seq(0, 1),
+			})
+		end
+	elseif id == "BlackHole" then
+		aura(base * CFrame.new(0, 0.7, 0) * CFrame.Angles(0, 0, 0), Vector3.new(7.2, 0.2, 7.2), {
+			Texture = TEX.Star, Rate = 22, Lifetime = NumberRange.new(0.8, 1.2), Speed = NumberRange.new(3, 5),
+			Shape = Enum.ParticleEmitterShape.Disc, ShapeInOut = Enum.ParticleEmitterShapeInOut.Inward,
+			ShapeStyle = Enum.ParticleEmitterShapeStyle.Surface, Size = seq(0.45, 0), LightEmission = 1,
+			RotSpeed = NumberRange.new(200, 400), Color = ColorSequence.new(Color3.fromRGB(200, 120, 255), Color3.fromRGB(80, 230, 255)),
+			Transparency = seq(0.1, 1),
+		})
+	elseif id == "LaunchPad" then
+		aura(base * CFrame.new(0, 1.2, 2.5), Vector3.new(4, 0.2, 4), {
+			Texture = TEX.Streak, Rate = 12, Lifetime = NumberRange.new(0.3, 0.45), Speed = NumberRange.new(16, 20),
+			EmissionDirection = Enum.NormalId.Front, Size = seq(0.6, 0.1), LightEmission = 1,
+			Orientation = Enum.ParticleOrientation.VelocityParallel, Acceleration = Vector3.new(0, 20, 0),
+			Color = ColorSequence.new(Color3.fromRGB(255, 120, 220), Color3.fromRGB(255, 200, 60)), Transparency = seq(0.1, 1),
+		})
+	elseif id == "RainbowRoad" then
+		aura(base * CFrame.new(0, 1.4, 0), Vector3.new(6, 0.2, 9), {
+			Texture = TEX.Star, Rate = 14, Lifetime = NumberRange.new(0.7, 1.1), Speed = NumberRange.new(1, 3),
+			EmissionDirection = Enum.NormalId.Top, Size = seq(0.5, 0), LightEmission = 1,
+			Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 80, 80)),
+				ColorSequenceKeypoint.new(0.33, Color3.fromRGB(255, 230, 60)), ColorSequenceKeypoint.new(0.66, Color3.fromRGB(80, 220, 255)),
+				ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 100, 255)) }),
+			Transparency = seq(0.1, 1),
+		})
+	elseif id == "IceTurn" then
+		aura(base * CFrame.new(-2, 1, 2), Vector3.new(6, 0.2, 6), {
+			Texture = TEX.Smoke, Rate = 3, Lifetime = NumberRange.new(1.5, 2.2), Speed = NumberRange.new(0.3, 0.8),
+			EmissionDirection = Enum.NormalId.Top, Size = seq(1, 2.4), Color = ColorSequence.new(Color3.fromRGB(220, 245, 255)),
+			Transparency = seq(0.55, 1),
+		})
 	elseif rank >= 4 then
 		aura(base * CFrame.new(0, 1, 0), Vector3.new(8, 0.2, 8), {
 			Texture = TEX.Star, Rate = 2 + rank, Lifetime = NumberRange.new(1, 1.6), Speed = NumberRange.new(1, 2.5),
@@ -924,6 +1068,7 @@ function WorldFX:Step(dt: number)
 			die.next = t + 7 + math.random() * 4
 			die.roll = { start = t, ax = math.random(1, 2), az = math.random(0, 1) }
 			die.sparkle:Emit(low and 10 or 30)
+			self:Wave(die.base.Position - Vector3.new(0, 15.5, 0), Color3.fromRGB(255, 214, 90), 40)
 		end
 		local bob = math.sin(t * 1.4) * 0.9
 		die.model:PivotTo(CFrame.new(die.base.Position + Vector3.new(0, bob, 0))
@@ -1045,6 +1190,11 @@ function WorldFX:Step(dt: number)
 		local moved = cf.Position - s.last.Position
 		local speed = moved.Magnitude / math.max(dt, 1e-3)
 		local teleported = moved.Magnitude > 12
+		if near and teleported and moved.Magnitude < 60 then
+			-- the car warped through a portal: flash both ends
+			self:Burst(s.last.Position, Color3.fromRGB(190, 110, 255), 26)
+			self:Burst(cf.Position, Color3.fromRGB(110, 230, 255), 26)
+		end
 		for _, e in s.emitters do
 			e.Enabled = near and speed > 1 and not low or (near and speed > 1 and e.Rate > 20)
 		end

@@ -58,9 +58,47 @@ function UIFX:Connect(sig, fn)
 end
 
 -- ------------------------------------------------------------------ buttons: hover light sweep
+-- a white copy of an image with a moving bright band: a glint that follows the art's shape
+function UIFX:Glint(img: ImageLabel)
+	if img:FindFirstChild("Glint") then
+		return img.Glint:FindFirstChildOfClass("UIGradient")
+	end
+	local g = img:Clone()
+	g.Name = "Glint"
+	for _, c in g:GetChildren() do
+		c:Destroy()
+	end
+	g.ImageColor3 = Color3.new(1, 1, 1)
+	g.Size = UDim2.fromScale(1, 1)
+	g.Position = UDim2.fromScale(0.5, 0.5)
+	g.AnchorPoint = Vector2.new(0.5, 0.5)
+	g.ZIndex = img.ZIndex + 1
+	g.Parent = img
+	local grad = Instance.new("UIGradient")
+	grad.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.42, 1),
+		NumberSequenceKeypoint.new(0.5, 0.2), NumberSequenceKeypoint.new(0.58, 1), NumberSequenceKeypoint.new(1, 1) })
+	grad.Rotation = 25
+	grad.Offset = Vector2.new(-1.2, 0)
+	grad.Parent = g
+	return grad
+end
+
 function UIFX:Sweep(button: GuiObject)
 	if button:GetAttribute("Sweep") or button.AbsoluteSize.X < 40 then
 		return
+	end
+	local art = button:FindFirstChild("Art") or button:FindFirstChild("ItemIcon")
+	if art and art:IsA("ImageLabel") then
+		button:SetAttribute("Sweep", true)
+		local grad = self:Glint(art)
+		self:Connect(button.MouseEnter, function()
+			grad.Offset = Vector2.new(-1.2, 0)
+			tween(grad, 0.5, { Offset = Vector2.new(1.2, 0) }, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
+		end)
+		return
+	end
+	if button.BackgroundTransparency > 0.6 then
+		return   -- frameless icon buttons: no rectangle sweeping through empty space
 	end
 	button:SetAttribute("Sweep", true)
 	local holder = Instance.new("Frame")

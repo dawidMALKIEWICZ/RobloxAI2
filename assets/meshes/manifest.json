@@ -800,6 +800,84 @@
    "tris": 872
   }
  ],
+ "Tile_BlackHole": [
+  {
+   "center": [
+    0.0,
+    2.9,
+    -2.6
+   ],
+   "color": "#4fe0ff",
+   "fbx": "assets/meshes/Tile_BlackHole__neon4fe0ff.fbx",
+   "group": "neon4fe0ff",
+   "hash": "acdde525a063a2ebab043a24dd0801a71cb40b70",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    5.32,
+    5.32,
+    0.4945
+   ],
+   "tris": 160
+  },
+  {
+   "center": [
+    0.0,
+    2.9,
+    -0.0
+   ],
+   "color": "#b14dff",
+   "fbx": "assets/meshes/Tile_BlackHole__neonb14dff.fbx",
+   "group": "neonb14dff",
+   "hash": "4e660c62ae0d2a65b57d295c237b3544be650f33",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    7.4,
+    5.32,
+    10.0
+   ],
+   "tris": 616
+  },
+  {
+   "center": [
+    0.0,
+    3.8,
+    -0.0
+   ],
+   "color": "#ffffff",
+   "fbx": "assets/meshes/Tile_BlackHole__neonffffff.fbx",
+   "group": "neonffffff",
+   "hash": "bdfc13ef76da4f10b815aed30c70de2c9470436d",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    0.8944,
+    1.0,
+    0.8506
+   ],
+   "tris": 20
+  },
+  {
+   "center": [
+    0.0,
+    0.65,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Tile_BlackHole__tex.fbx",
+   "group": "tex",
+   "hash": "1ab290d1edeea703c8f53e501f144c953e738e03",
+   "kind": "tex",
+   "role": null,
+   "size": [
+    9.8,
+    1.3,
+    10.0
+   ],
+   "tris": 420
+  }
+ ],
  "Tile_BoostPad": [
   {
    "center": [
@@ -876,6 +954,67 @@
     10.0
    ],
    "tris": 492
+  }
+ ],
+ "Tile_Bridge": [
+  {
+   "center": [
+    0.0,
+    1.3,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Tile_Bridge__tex.fbx",
+   "group": "tex",
+   "hash": "521411c0bcdf561596d7c6d456744a33d257e18a",
+   "kind": "tex",
+   "role": null,
+   "size": [
+    9.8,
+    2.6,
+    10.0
+   ],
+   "tris": 828
+  }
+ ],
+ "Tile_CamelBack": [
+  {
+   "center": [
+    0.0,
+    2.0846,
+    -0.0
+   ],
+   "color": "#c46bff",
+   "fbx": "assets/meshes/Tile_CamelBack__neonc46bff.fbx",
+   "group": "neonc46bff",
+   "hash": "cfde678bf4ce2aa914d9d2ecf70fef6badd24558",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    7.4,
+    1.5693,
+    10.0
+   ],
+   "tris": 312
+  },
+  {
+   "center": [
+    0.0,
+    1.3746,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Tile_CamelBack__tex.fbx",
+   "group": "tex",
+   "hash": "b7ca8461fe53f85728b90567752d6b366c58866d",
+   "kind": "tex",
+   "role": null,
+   "size": [
+    9.8,
+    2.7493,
+    10.0
+   ],
+   "tris": 1296
   }
  ],
  "Tile_Chicane": [
@@ -998,6 +1137,46 @@
    "tris": 2728
   }
  ],
+ "Tile_HalfPipe": [
+  {
+   "center": [
+    0.0,
+    2.4524,
+    -0.0
+   ],
+   "color": "#c46bff",
+   "fbx": "assets/meshes/Tile_HalfPipe__neonc46bff.fbx",
+   "group": "neonc46bff",
+   "hash": "52972ef8eefe959d9acb002282a636a5d6b655fd",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    9.3367,
+    2.9046,
+    10.0
+   ],
+   "tris": 440
+  },
+  {
+   "center": [
+    0.0,
+    1.892,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Tile_HalfPipe__tex.fbx",
+   "group": "tex",
+   "hash": "c05c9f40ed482059794924edab3a0348c71cfdd9",
+   "kind": "tex",
+   "role": null,
+   "size": [
+    9.8,
+    3.784,
+    10.0
+   ],
+   "tris": 1048
+  }
+ ],
  "Tile_Hill": [
   {
    "center": [
@@ -1017,6 +1196,27 @@
     10.0
    ],
    "tris": 704
+  }
+ ],
+ "Tile_IceTurn": [
+  {
+   "center": [
+    0.05,
+    1.39,
+    0.05
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Tile_IceTurn__tex.fbx",
+   "group": "tex",
+   "hash": "7a9f546f76f57e150b39f5b8cb5cfc4ae0b63b52",
+   "kind": "tex",
+   "role": null,
+   "size": [
+    9.9,
+    2.78,
+    9.9
+   ],
+   "tris": 648
   }
  ],
  "Tile_Jump": [
@@ -1059,6 +1259,84 @@
    "tris": 868
   }
  ],
+ "Tile_LaunchPad": [
+  {
+   "center": [
+    0.0,
+    2.72,
+    1.6
+   ],
+   "color": "#ff4fd8",
+   "fbx": "assets/meshes/Tile_LaunchPad__neonff4fd8.fbx",
+   "group": "neonff4fd8",
+   "hash": "f779cbf6d9282fdcc69d61e388d8cc22615519eb",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    6.8,
+    0.14,
+    0.2
+   ],
+   "tris": 12
+  },
+  {
+   "center": [
+    0.0,
+    0.7952,
+    3.575
+   ],
+   "color": "#ff9f1a",
+   "fbx": "assets/meshes/Tile_LaunchPad__neonff9f1a.fbx",
+   "group": "neonff9f1a",
+   "hash": "0174bb805bd8fd6000a463506f71c36021d06106",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    1.8,
+    0.2904,
+    2.25
+   ],
+   "tris": 40
+  },
+  {
+   "center": [
+    0.0,
+    2.258,
+    -0.0
+   ],
+   "color": "#ffd23f",
+   "fbx": "assets/meshes/Tile_LaunchPad__neonffd23f.fbx",
+   "group": "neonffd23f",
+   "hash": "f4cf3a7f62c1ff6f7414a5ffa41a3c40e7100c53",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    7.4,
+    1.9161,
+    10.0
+   ],
+   "tris": 156
+  },
+  {
+   "center": [
+    0.0,
+    1.5703,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Tile_LaunchPad__tex.fbx",
+   "group": "tex",
+   "hash": "e0b812e9670e2b877a583c1a46e8992ba3080616",
+   "kind": "tex",
+   "role": null,
+   "size": [
+    9.8,
+    3.1406,
+    10.0
+   ],
+   "tris": 908
+  }
+ ],
  "Tile_Loop": [
   {
    "center": [
@@ -1097,6 +1375,259 @@
     10.0
    ],
    "tris": 2100
+  }
+ ],
+ "Tile_NeonTurn": [
+  {
+   "center": [
+    0.2081,
+    1.48,
+    0.2076
+   ],
+   "color": "#4fe0ff",
+   "fbx": "assets/meshes/Tile_NeonTurn__neon4fe0ff.fbx",
+   "group": "neon4fe0ff",
+   "hash": "734a4753f230fd49d64e9fe911cd1956471b1f39",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    9.3528,
+    1.8,
+    9.3257
+   ],
+   "tris": 100
+  },
+  {
+   "center": [
+    0.3658,
+    2.24,
+    0.3724
+   ],
+   "color": "#ff4fd8",
+   "fbx": "assets/meshes/Tile_NeonTurn__neonff4fd8.fbx",
+   "group": "neonff4fd8",
+   "hash": "ed1ce62eb38b41daf4524f94a9d81dbba2dc5b76",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    9.2683,
+    1.88,
+    9.2552
+   ],
+   "tris": 212
+  },
+  {
+   "center": [
+    0.05,
+    1.39,
+    0.05
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Tile_NeonTurn__tex.fbx",
+   "group": "tex",
+   "hash": "267e5fb0f2b6846b5c8b8b0be2558924576be66f",
+   "kind": "tex",
+   "role": null,
+   "size": [
+    9.9,
+    2.78,
+    9.9
+   ],
+   "tris": 624
+  }
+ ],
+ "Tile_RainbowRoad": [
+  {
+   "center": [
+    -0.3984,
+    1.4437,
+    -1.0474
+   ],
+   "color": "#3bd1ff",
+   "fbx": "assets/meshes/Tile_RainbowRoad__neon3bd1ff.fbx",
+   "group": "neon3bd1ff",
+   "hash": "0d8f6e736806f57c279073fda8f95884796fef64",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    8.1968,
+    1.31,
+    7.9051
+   ],
+   "tris": 108
+  },
+  {
+   "center": [
+    0.3984,
+    1.9766,
+    -0.7591
+   ],
+   "color": "#4bdc5a",
+   "fbx": "assets/meshes/Tile_RainbowRoad__neon4bdc5a.fbx",
+   "group": "neon4bdc5a",
+   "hash": "760a14d40908a2c0353edc512dbfe14b39a59574",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    8.1968,
+    1.0343,
+    5.4899
+   ],
+   "tris": 88
+  },
+  {
+   "center": [
+    4.3,
+    1.1749,
+    -2.0214
+   ],
+   "color": "#7b5cff",
+   "fbx": "assets/meshes/Tile_RainbowRoad__neon7b5cff.fbx",
+   "group": "neon7b5cff",
+   "hash": "739ad5b340ab3b353e035338d9dcc06d558df446",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    0.3935,
+    0.44,
+    0.3743
+   ],
+   "tris": 20
+  },
+  {
+   "center": [
+    0.3984,
+    1.3918,
+    2.9345
+   ],
+   "color": "#ff3b3b",
+   "fbx": "assets/meshes/Tile_RainbowRoad__neonff3b3b.fbx",
+   "group": "neonff3b3b",
+   "hash": "5ab98c55543200bed22c14f9d27a45422faac62d",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    8.1968,
+    1.4139,
+    4.1311
+   ],
+   "tris": 88
+  },
+  {
+   "center": [
+    0.0,
+    1.8886,
+    2.019
+   ],
+   "color": "#ff9f1a",
+   "fbx": "assets/meshes/Tile_RainbowRoad__neonff9f1a.fbx",
+   "group": "neonff9f1a",
+   "hash": "541c516fb76a523a9113f3bb6d479613ab2819d5",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    7.4,
+    0.806,
+    2.97
+   ],
+   "tris": 60
+  },
+  {
+   "center": [
+    -0.3984,
+    1.6329,
+    0.6673
+   ],
+   "color": "#ffe03b",
+   "fbx": "assets/meshes/Tile_RainbowRoad__neonffe03b.fbx",
+   "group": "neonffe03b",
+   "hash": "46027cef0c2664c7753289eb6a0f9f309070405c",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    8.1968,
+    0.6658,
+    3.378
+   ],
+   "tris": 80
+  },
+  {
+   "center": [
+    0.0,
+    1.0865,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Tile_RainbowRoad__tex.fbx",
+   "group": "tex",
+   "hash": "7b4c3aa4f4969d55f34d23dc24bcbd6c8600875e",
+   "kind": "tex",
+   "role": null,
+   "size": [
+    9.8,
+    2.1731,
+    10.0
+   ],
+   "tris": 696
+  }
+ ],
+ "Tile_RingOfFire": [
+  {
+   "center": [
+    0.0,
+    4.0,
+    -0.0
+   ],
+   "color": "#ff6a1a",
+   "fbx": "assets/meshes/Tile_RingOfFire__neonff6a1a.fbx",
+   "group": "neonff6a1a",
+   "hash": "2300616cec7ecdc1a49ef38f936cd144f12b6498",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    5.84,
+    5.84,
+    0.6087
+   ],
+   "tris": 160
+  },
+  {
+   "center": [
+    0.0,
+    3.845,
+    -0.0
+   ],
+   "color": "#ffd23f",
+   "fbx": "assets/meshes/Tile_RingOfFire__neonffd23f.fbx",
+   "group": "neonffd23f",
+   "hash": "d3c5c9f60b7d481c449624d85f2880e2f8dac2f6",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    7.4,
+    5.09,
+    10.0
+   ],
+   "tris": 316
+  },
+  {
+   "center": [
+    0.0,
+    1.9,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Tile_RingOfFire__tex.fbx",
+   "group": "tex",
+   "hash": "7bca65b1c40182f2ea600cae96c969f0d110b199",
+   "kind": "tex",
+   "role": null,
+   "size": [
+    9.8,
+    3.8,
+    10.0
+   ],
+   "tris": 956
   }
  ],
  "Tile_SkyLeap": [
@@ -1491,6 +2022,46 @@
    "tris": 536
   }
  ],
+ "Tile_Tunnel": [
+  {
+   "center": [
+    0.0,
+    4.42,
+    -0.0
+   ],
+   "color": "#ffd23f",
+   "fbx": "assets/meshes/Tile_Tunnel__neonffd23f.fbx",
+   "group": "neonffd23f",
+   "hash": "de30605d3d482aedb80e99737ee354267a0313f4",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    7.0,
+    0.14,
+    7.5
+   ],
+   "tris": 48
+  },
+  {
+   "center": [
+    0.0,
+    3.4,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Tile_Tunnel__tex.fbx",
+   "group": "tex",
+   "hash": "9a47532e1390550259afafb210e1c05623310bf6",
+   "kind": "tex",
+   "role": null,
+   "size": [
+    9.8,
+    6.8,
+    10.0
+   ],
+   "tris": 1240
+  }
+ ],
  "Tile_Turn": [
   {
    "center": [
@@ -1510,6 +2081,46 @@
     9.9
    ],
    "tris": 528
+  }
+ ],
+ "Tile_Twister": [
+  {
+   "center": [
+    0.0,
+    2.65,
+    -0.0
+   ],
+   "color": "#ff4f9a",
+   "fbx": "assets/meshes/Tile_Twister__neonff4f9a.fbx",
+   "group": "neonff4f9a",
+   "hash": "8dbb38c364b20f061b1e186e752eeaea756d6839",
+   "kind": "neon",
+   "role": null,
+   "size": [
+    9.0,
+    4.34,
+    10.0
+   ],
+   "tris": 624
+  },
+  {
+   "center": [
+    0.0,
+    2.5158,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Tile_Twister__tex.fbx",
+   "group": "tex",
+   "hash": "db3771904971a3b42fa9efb18bdd5e42270de763",
+   "kind": "tex",
+   "role": null,
+   "size": [
+    9.8,
+    5.3683,
+    10.0
+   ],
+   "tris": 1688
   }
  ],
  "Tile_WallRide": [

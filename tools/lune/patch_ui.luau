@@ -242,59 +242,104 @@ for _, card in styles.Body:GetChildren() do
 	end
 end
 
+-- ------------------------------------------------------------------ track pieces: build items + index cards
+local items = root.BuildPanel.Items
+local grid = windows.IndexWindow.Body.Grid
+for i, pc in data.Pieces do
+	local item = items:FindFirstChild("Item_" .. pc.id)
+	if not item then
+		item = items.Item_Straight:Clone()
+		item.Name = "Item_" .. pc.id
+		item.Parent = items
+	end
+	item.LayoutOrder = i
+	item:FindFirstChild("Name").Text = pc.name
+	local card = grid:FindFirstChild("Piece_" .. pc.id)
+	if not card then
+		card = grid.Piece_Straight:Clone()
+		card.Name = "Piece_" .. pc.id
+		card.Parent = grid
+	end
+	card.LayoutOrder = i
+	card:FindFirstChild("Name").Text = pc.name
+	local glow = card:FindFirstChild("Glow")
+	if glow then
+		glow.ImageColor3 = TIER[pc.tier] or TIER.Common
+	end
+	local stroke = card:FindFirstChildOfClass("UIStroke")
+	if stroke then
+		stroke.Color = TIER[pc.tier] or TIER.Common
+	end
+end
+for _, layout in { items:FindFirstChildOfClass("UIListLayout"), grid:FindFirstChildOfClass("UIGridLayout") } do
+	if layout then
+		layout.SortOrder = Enum.SortOrder.LayoutOrder
+	end
+end
+
 -- ------------------------------------------------------------------ settings (music / sfx / effects)
-local settings = hud:FindFirstChild("SettingsBar")
-if not settings then
-	settings = new("Frame", {
-		Name = "SettingsBar",
+-- chunky art buttons (tools/ui_art.mjs); the client swaps the on/off image
+local art = data.UIArt or {}
+local function artLabel(parent, image, size)
+	local img = parent:FindFirstChild("Art") or new("ImageLabel", { Name = "Art" }, parent)
+	img.BackgroundTransparency = 1
+	img.AnchorPoint = Vector2.new(0.5, 0.5)
+	img.Position = UDim2.fromScale(0.5, 0.5)
+	img.Size = size or UDim2.fromScale(1, 1)
+	img.ScaleType = Enum.ScaleType.Fit
+	img.Image = image or ""
+	img.ZIndex = parent.ZIndex + 1
+	img.Active = false
+	return img
+end
+local old = hud:FindFirstChild("SettingsBar")
+if old then
+	old:Destroy()
+end
+local settings = new("Frame", {
+	Name = "SettingsBar",
+	BackgroundTransparency = 1,
+	Position = UDim2.new(0, 348, 0, 150),
+	Size = UDim2.fromOffset(264, 84),
+}, hud)
+new("UIListLayout", {
+	FillDirection = Enum.FillDirection.Horizontal,
+	Padding = UDim.new(0, 6),
+	SortOrder = Enum.SortOrder.LayoutOrder,
+	VerticalAlignment = Enum.VerticalAlignment.Center,
+}, settings)
+for i, def in { { "MusicToggle", "music_on" }, { "SfxToggle", "sfx_on" }, { "VfxToggle", "vfx_on" } } do
+	local b = new("ImageButton", {
+		Name = def[1],
+		LayoutOrder = i,
+		Size = UDim2.fromOffset(84, 84),
 		BackgroundTransparency = 1,
-		Position = UDim2.new(0, 352, 0, 158),
-		Size = UDim2.fromOffset(222, 66),
-	}, hud)
-	new("UIListLayout", {
-		FillDirection = Enum.FillDirection.Horizontal,
-		Padding = UDim.new(0, 10),
-		SortOrder = Enum.SortOrder.LayoutOrder,
+		AutoButtonColor = false,
+		Image = "",
 	}, settings)
-	for i, def in { { "MusicToggle", "🎵" }, { "SfxToggle", "🔊" }, { "VfxToggle", "✨" } } do
-		local b = new("TextButton", {
-			Name = def[1],
-			LayoutOrder = i,
-			Size = UDim2.fromOffset(66, 66),
-			BackgroundColor3 = Color3.fromRGB(40, 46, 70),
-			BackgroundTransparency = 0.15,
-			AutoButtonColor = false,
-			Text = def[2],
-			TextScaled = true,
-			FontFace = FREDOKA,
-			TextColor3 = Color3.fromRGB(255, 255, 255),
-		}, settings)
-		new("UICorner", { CornerRadius = UDim.new(0, 18) }, b)
-		new("UIStroke", {
-			Name = "Stroke",
-			Thickness = 3,
-			Color = Color3.fromRGB(255, 255, 255),
-			Transparency = 0.2,
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		}, b)
-		new("UIPadding", {
-			PaddingTop = UDim.new(0, 12),
-			PaddingBottom = UDim.new(0, 12),
-			PaddingLeft = UDim.new(0, 12),
-			PaddingRight = UDim.new(0, 12),
-		}, b)
-		local off = new("Frame", {
-			Name = "Off",
-			BackgroundColor3 = Color3.fromRGB(255, 70, 90),
-			BorderSizePixel = 0,
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.new(1.25, 0, 0, 6),
-			Rotation = -40,
-			Visible = false,
-			ZIndex = b.ZIndex + 2,
-		}, b)
-		new("UICorner", { CornerRadius = UDim.new(1, 0) }, off)
+	artLabel(b, art[def[2]])
+end
+
+-- ------------------------------------------------------------------ roll reveal: AUTO / HIDE art
+for _, name in { "AutoButton", "HideButton" } do
+	local btn = root.RollReel:FindFirstChild(name)
+	if btn then
+		btn.BackgroundTransparency = 1
+		for _, c in btn:GetChildren() do
+			if c:IsA("UIStroke") then
+				c.Enabled = false
+			elseif c:IsA("TextLabel") then
+				c.TextTransparency = 1
+				for _, st in c:GetChildren() do
+					if st:IsA("UIStroke") then
+						st.Enabled = false
+					end
+				end
+			elseif c.Name == "ControlSprite" then
+				c.ImageTransparency = 1
+			end
+		end
+		artLabel(btn, art[name == "AutoButton" and "auto_off" or "hide"], UDim2.fromScale(1.05, 1.05))
 	end
 end
 

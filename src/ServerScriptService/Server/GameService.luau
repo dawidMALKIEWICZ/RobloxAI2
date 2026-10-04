@@ -601,7 +601,89 @@ function GameService.playerRemoving(player: Player)
 	refreshFriends()
 end
 
+-- ------------------------------------------------------------------ test commands
+-- Only in Studio or for the game's creator: /alltracks /cash [amount] /dice /potions
+local OWNER_IDS = { [2811698523] = true }
+local function canTest(player: Player): boolean
+	return RunService:IsStudio() or player.UserId == game.CreatorId or OWNER_IDS[player.UserId] == true
+end
+
+local lastCommand: { [Player]: { [string]: number } } = {}
+local function runCommand(player: Player, text: string)
+	if not canTest(player) then
+		return
+	end
+	local data = DataService.get(player)
+	if not data then
+		return
+	end
+	local cmd, arg = string.match(string.lower(text), "^/(%a+)%s*(%S*)")
+	if not cmd then
+		return
+	end
+	-- the same command can arrive through both chat systems; run it once
+	local seen = lastCommand[player] or {}
+	lastCommand[player] = seen
+	if seen[cmd] and os.clock() - seen[cmd] < 1 then
+		return
+	end
+	seen[cmd] = os.clock()
+	if cmd == "alltracks" then
+		local n = tonumber(arg) or 25
+		for _, pc in GameData.Pieces do
+			data.Inventory[pc.id] = (data.Inventory[pc.id] or 0) + n
+			data.Discovered[pc.id] = true
+		end
+		notify(player, "Test: +" .. n .. " of every track piece!", "#7dff6b")
+	elseif cmd == "cash" then
+		addCash(player, data, tonumber(arg) or 1e9)
+		notify(player, "Test: cash added!", "#7dff6b")
+	elseif cmd == "dice" then
+		for _, d in GameData.Dice do
+			data.Dice[d.id] = (data.Dice[d.id] or 0) + (tonumber(arg) or 5)
+		end
+		notify(player, "Test: dice added!", "#7dff6b")
+	elseif cmd == "potions" then
+		for _, pot in GameData.Potions do
+			data.Potions[pot.effect] = math.max(data.Potions[pot.effect] or 0, pot.duration)
+		end
+		notify(player, "Test: every potion is active!", "#7dff6b")
+	else
+		return
+	end
+	sendUpdate(player)
+end
+
+local function setupCommands()
+	local TextChatService = game:GetService("TextChatService")
+	for _, name in { "alltracks", "cash", "dice", "potions" } do
+		local c = Instance.new("TextChatCommand")
+		c.Name = "TrackRNG_" .. name
+		c.PrimaryAlias = "/" .. name
+		c.Parent = TextChatService
+		c.Triggered:Connect(function(source, text)
+			local player = Players:GetPlayerByUserId(source.UserId)
+			if player then
+				runCommand(player, text)
+			end
+		end)
+	end
+	local function hook(player: Player)
+		player.Chatted:Connect(function(msg)
+			runCommand(player, msg)
+		end)
+	end
+	for _, p in Players:GetPlayers() do
+		hook(p)
+	end
+	Players.PlayerAdded:Connect(hook)
+	Players.PlayerRemoving:Connect(function(p)
+		lastCommand[p] = nil
+	end)
+end
+
 function GameService.start()
+	setupCommands()
 	-- token bucket per player: bursts of 20 requests, refilled at 12 per second
 	local buckets: { [Player]: { tokens: number, t: number } } = {}
 	Players.PlayerRemoving:Connect(function(p)

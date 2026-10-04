@@ -77,6 +77,17 @@
    "order": 4
   },
   {
+   "id": "Tunnel",
+   "name": "Tunnel",
+   "tier": "Rare",
+   "odds": 25,
+   "value": 9,
+   "ports": "SN",
+   "desc": "A glowing rock tunnel.",
+   "icon": "🚇",
+   "order": 5
+  },
+  {
    "id": "BankedTurn",
    "name": "Banked Turn",
    "tier": "Rare",
@@ -85,7 +96,18 @@
    "ports": "SE",
    "desc": "A fast tilted corner.",
    "icon": "🔄",
-   "order": 5
+   "order": 6
+  },
+  {
+   "id": "Bridge",
+   "name": "River Bridge",
+   "tier": "Rare",
+   "odds": 50,
+   "value": 18,
+   "ports": "SN",
+   "desc": "Hop over a little river.",
+   "icon": "🌉",
+   "order": 7
   },
   {
    "id": "BoostPad",
@@ -96,7 +118,18 @@
    "ports": "SN",
    "desc": "Doubles your speed.",
    "icon": "⚡",
-   "order": 6
+   "order": 8
+  },
+  {
+   "id": "IceTurn",
+   "name": "Ice Turn",
+   "tier": "Rare",
+   "odds": 120,
+   "value": 35,
+   "ports": "SE",
+   "desc": "A slippery frozen corner.",
+   "icon": "🧊",
+   "order": 9
   },
   {
    "id": "Chicane",
@@ -107,7 +140,18 @@
    "ports": "SN",
    "desc": "Left-right wiggle.",
    "icon": "🐍",
-   "order": 7
+   "order": 10
+  },
+  {
+   "id": "CamelBack",
+   "name": "Camel Back",
+   "tier": "Epic",
+   "odds": 400,
+   "value": 100,
+   "ports": "SN",
+   "desc": "Two bumps, double fun.",
+   "icon": "🐫",
+   "order": 11
   },
   {
    "id": "Jump",
@@ -118,7 +162,18 @@
    "ports": "SN",
    "desc": "Fly over a gap.",
    "icon": "🦘",
-   "order": 8
+   "order": 12
+  },
+  {
+   "id": "HalfPipe",
+   "name": "Half Pipe",
+   "tier": "Epic",
+   "odds": 1200,
+   "value": 250,
+   "ports": "SN",
+   "desc": "Ride up both walls.",
+   "icon": "🛹",
+   "order": 13
   },
   {
    "id": "Corkscrew",
@@ -129,7 +184,18 @@
    "ports": "SN",
    "desc": "A full barrel roll.",
    "icon": "🌀",
-   "order": 9
+   "order": 14
+  },
+  {
+   "id": "NeonTurn",
+   "name": "Neon Turn",
+   "tier": "Epic",
+   "odds": 3500,
+   "value": 600,
+   "ports": "SE",
+   "desc": "A corner lit with neon.",
+   "icon": "💡",
+   "order": 15
   },
   {
    "id": "Loop",
@@ -140,7 +206,18 @@
    "ports": "SN",
    "desc": "A vertical loop.",
    "icon": "➰",
-   "order": 10
+   "order": 16
+  },
+  {
+   "id": "RingOfFire",
+   "name": "Ring of Fire",
+   "tier": "Legendary",
+   "odds": 12000,
+   "value": 2000,
+   "ports": "SN",
+   "desc": "Jump through the flames!",
+   "icon": "🔥",
+   "order": 17
   },
   {
    "id": "Spiral",
@@ -151,7 +228,18 @@
    "ports": "SN",
    "desc": "Spin up the pole, slide down.",
    "icon": "🗼",
-   "order": 11
+   "order": 18
+  },
+  {
+   "id": "LaunchPad",
+   "name": "Launch Pad",
+   "tier": "Legendary",
+   "odds": 35000,
+   "value": 5500,
+   "ports": "SN",
+   "desc": "Boost and fly high.",
+   "icon": "🚀",
+   "order": 19
   },
   {
    "id": "WaveRider",
@@ -162,7 +250,7 @@
    "ports": "SN",
    "desc": "Swoops and rolls.",
    "icon": "🌊",
-   "order": 12
+   "order": 20
   },
   {
    "id": "WallRide",
@@ -173,7 +261,18 @@
    "ports": "SN",
    "desc": "Drive on the wall!",
    "icon": "🧱",
-   "order": 13
+   "order": 21
+  },
+  {
+   "id": "Twister",
+   "name": "Twister",
+   "tier": "Mythical",
+   "odds": 500000,
+   "value": 60000,
+   "ports": "SN",
+   "desc": "Two barrel rolls.",
+   "icon": "🌪️",
+   "order": 22
   },
   {
    "id": "DoubleLoop",
@@ -184,7 +283,18 @@
    "ports": "SN",
    "desc": "Two loops in a row.",
    "icon": "➿",
-   "order": 14
+   "order": 23
+  },
+  {
+   "id": "RainbowRoad",
+   "name": "Rainbow Road",
+   "tier": "Mythical",
+   "odds": 2500000,
+   "value": 220000,
+   "ports": "SN",
+   "desc": "A glowing rainbow speedway.",
+   "icon": "🌈",
+   "order": 24
   },
   {
    "id": "TeleportGate",
@@ -195,7 +305,7 @@
    "ports": "SN",
    "desc": "Warp through a portal.",
    "icon": "🌌",
-   "order": 15
+   "order": 25
   },
   {
    "id": "SkyLeap",
@@ -206,7 +316,18 @@
    "ports": "SN",
    "desc": "Teleport, loop, leap!",
    "icon": "🌠",
-   "order": 16
+   "order": 26
+  },
+  {
+   "id": "BlackHole",
+   "name": "Black Hole",
+   "tier": "Secret",
+   "odds": 50000000,
+   "value": 3500000,
+   "ports": "SN",
+   "desc": "Swallowed and spat out!",
+   "icon": "🕳️",
+   "order": 27
   }
  ],
  "Cars": [
@@ -752,6 +873,18 @@
   "star": "rbxassetid://103688509203666",
   "streak": "rbxassetid://104886162183401",
   "water": "rbxassetid://89262382016614"
+ },
+ "UIArt": {
+  "auto_off": "rbxassetid://127949658107476",
+  "auto_on": "rbxassetid://131693216831903",
+  "hide": "rbxassetid://98846434485966",
+  "music_off": "rbxassetid://123213832846507",
+  "music_on": "rbxassetid://105400648507286",
+  "sfx_off": "rbxassetid://114639324520086",
+  "sfx_on": "rbxassetid://103756019507035",
+  "show": "rbxassetid://132037525683131",
+  "vfx_off": "rbxassetid://122395028653671",
+  "vfx_on": "rbxassetid://91917447896792"
  },
  "Upgrades": [
   {

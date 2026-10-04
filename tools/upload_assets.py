@@ -106,7 +106,9 @@ def media_ids():
     """Icons (assets/icons/*.png) and sounds (assets/audio/*.ogg) -> tools/media_ids.json"""
     out = {"icons": {}, "audio": {}}
     out["fx"] = {}
+    out["ui"] = {}
     for kind, folder, ext, atype in (("icons", "icons", ".png", "Image"), ("fx", "fx", ".png", "Image"),
+                                     ("ui", "ui", ".png", "Image"),
                                      ("audio", "audio", ".ogg", "Audio")):
         d = os.path.join(ROOT, "assets", folder)
         for f in sorted(os.listdir(d)):

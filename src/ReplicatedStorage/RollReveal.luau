@@ -64,6 +64,8 @@ function Reveal:SetCompact(compact)
  frame.AutoButton.Position=self.Compact and UDim2.new(.5,320,0,255) or UDim2.new(.28,0,1,-28)
  frame.HideButton.Position=self.Compact and UDim2.new(.5,320,0,365) or UDim2.new(.72,0,1,-28)
  frame.HideButton.Label.Text=self.Compact and "SHOW" or "HIDE"
+ local art=require(ReplicatedStorage.Shared.GameData).UIArt or {}
+ if frame.HideButton:FindFirstChild("Art") then frame.HideButton.Art.Image=art[self.Compact and "show" or "hide"] or "" end
  self:UpdateHUD()
  -- A compact result stays until the next roll; expanding an idle result resumes dismissal.
  if not self.Compact and not self.Animating and frame.Visible then
@@ -130,6 +132,8 @@ end
 -- A new manual roll keeps the player's chosen compact/full presentation.
 function Reveal:Resume() self:UpdateHUD() end
 function Reveal:SetAuto(enabled)
+ local art=require(ReplicatedStorage.Shared.GameData).UIArt or {}
+ if self.Frame.AutoButton:FindFirstChild("Art") then self.Frame.AutoButton.Art.Image=art[enabled and "auto_on" or "auto_off"] or "" end
  self.Frame.AutoButton.Status.Text=enabled and "ON" or "OFF"
  self.Frame.AutoButton.Label.Text=enabled and "AUTO ON" or "AUTO"
  self.Frame.AutoButton.Label.TextColor3=enabled and Color3.fromRGB(111,255,40) or Color3.new(1,1,1)

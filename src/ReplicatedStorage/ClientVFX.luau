@@ -130,9 +130,47 @@ function VFX:Flash(point,color,compact)
  local size=compact and 270 or 770 tween(p,.48,{Size=UDim2.fromOffset(size,size),ImageTransparency=1}) Debris:AddItem(p,.5)
 end
 function VFX:RollStart(compact)
+ if not compact then self:DieFlight() end
  self.Metrics.rollStarts+=1 self.Gui:SetAttribute("VFXRollStarts",self.Metrics.rollStarts) self:Sound("Whoosh",compact and 1.12 or 1,compact and .2 or .42)
  local f=self.Root.RollReel
  if f.Glow:FindFirstChild("Sunburst") then f.Glow.Sunburst.ImageTransparency=.95 end
+end
+function VFX:DieFlight()
+ local src=self.Root.HUD.RollArea.RollButton.Die:FindFirstChild("AtlasImage")
+ if not src or not self.Root.HUD.Visible then return end
+ local a=self:Point(src) local b=self:Point(self.Root.RollReel.Reveal.Viewport)
+ local d=src:Clone() d.Name="DieFlight" for _,c in d:GetChildren() do c:Destroy() end
+ d.AnchorPoint=Vector2.new(.5,.5) d.Size=UDim2.fromOffset(150,150) d.Position=UDim2.fromOffset(a.X,a.Y) d.ZIndex=130 d.Parent=self.Layer
+ local mid=UDim2.fromOffset((a.X+b.X)/2+120,math.min(a.Y,b.Y)-160)
+ tween(d,.22,{Position=mid,Rotation=360,Size=UDim2.fromOffset(190,190)},Enum.EasingStyle.Quad)
+ task.delay(.22,function()
+  if not d.Parent then return end
+  tween(d,.2,{Position=UDim2.fromOffset(b.X,b.Y),Rotation=720,Size=UDim2.fromOffset(60,60),ImageTransparency=.6},Enum.EasingStyle.Quad,Enum.EasingDirection.In)
+  task.delay(.2,function() d:Destroy() self:UIBurst(b,Color3.fromRGB(255,214,64),self:Q(12),160) self:Shockwave(b,Color3.fromRGB(255,240,200),1) end)
+ end)
+end
+-- sparks orbiting the result while it is held on screen (Epic and rarer)
+function VFX:Orbit(point,color,rank,dur)
+ if self.Quality=="Low" then return end
+ local n=4+rank*2 local t0=os.clock()
+ local sparks={}
+ for i=1,n do
+  local s=image(self.Layer,"OrbitSpark",IMG.Glow,UDim2.fromOffset(16+rank*2,16+rank*2),UDim2.fromOffset(point.X,point.Y),4)
+  s.ImageColor3=rank>=6 and Color3.fromHSV(i/n,.6,1) or (i%3==0 and Color3.new(1,1,1) or color) sparks[i]=s
+ end
+ task.spawn(function()
+  while os.clock()-t0<dur and not self.Destroyed do
+   local t=os.clock()-t0
+   for i,s in sparks do
+    local a=t*(1.6+rank*.15)+i/n*math.pi*2
+    local r=230+math.sin(t*3+i)*25
+    s.Position=UDim2.fromOffset(point.X+math.cos(a)*r,point.Y+math.sin(a)*r*.55)
+    s.ImageTransparency=math.clamp((t-dur+.4)/.4,0,1)
+   end
+   task.wait()
+  end
+  for _,s in sparks do s:Destroy() end
+ end)
 end
 function VFX:RollTick(progress,compact)
  if not self.Root.RollReel.Reveal.Visible then return end
@@ -166,6 +204,7 @@ function VFX:RollResult(piece,isNew,compact,auto)
   local banner=self:Banner(string.upper(piece.tier)..(rank>=5 and "!!" or "!"),color,rank>=5 and 1.35 or 1.1,UDim2.new(.5,0,.5,-360),1.5+rank*.15,rank>=6)
   if rank>=5 then self:Chromatic(banner,1.2+rank*.15) end
   self:CameraPunch(4+rank*2,.6)
+  self:Orbit(point,color,rank,1.4+rank*.3)
   self:Tint(color,.8,rank>=5 and .6 or .4)
   self.ShakeUntil=os.clock()+.2+rank*.06 self.ShakeStrength=.03+rank*.016
  end
@@ -173,6 +212,7 @@ function VFX:RollResult(piece,isNew,compact,auto)
   self:ScreenFlash(rank>=6 and Color3.new(1,1,1) or color,rank>=5 and .15 or .35)
   self:StarRain(color,self:Q(10+rank*6),rank>=6)
   self:LightPillar(color,rank)
+  if self.World and self.World.Hologram then self.World:Hologram(piece,color,rank) end
  end
  if rank>=5 then task.delay(.45,function() if not self.Destroyed then self:Shockwave(point,Color3.new(1,1,1),2) self:Confetti(point,color,self:Q(30),false) end end) end
  if rank>=5 and self.World then
@@ -188,7 +228,7 @@ end
 function VFX:Buildup(rank,color,duration)
  if self.Destroyed then return end
  local dim=Instance.new("Frame") dim.Name="BuildupDim" dim.BackgroundColor3=Color3.new(0,0,0) dim.BackgroundTransparency=1 dim.BorderSizePixel=0
- dim.Size=UDim2.fromScale(1,1) dim.ZIndex=55 dim.Active=false dim.Parent=self.Root
+ dim.Size=UDim2.fromScale(1,1) dim.ZIndex=1 dim.Active=false dim.Parent=self.Screen
  tween(dim,duration*.8,{BackgroundTransparency=rank>=6 and .25 or .5})
  self:SpeedLines(duration,color)
  local cam=self:CamFX()
@@ -253,14 +293,14 @@ end
 function VFX:EdgeGlow(color,rank,dur)
  if self.Quality=="Low" and not dur then return end
  dur=dur or (.6+rank*.15)
- for _,side in {{UDim2.new(0,0,0,0),UDim2.new(1,0,0,170),90},{UDim2.new(0,0,1,-170),UDim2.new(1,0,0,170),-90},{UDim2.new(0,0,0,0),UDim2.new(0,220,1,0),0},{UDim2.new(1,-220,0,0),UDim2.new(0,220,1,0),180}} do
-  local f=Instance.new("Frame") f.Name="EdgeGlow" f.BorderSizePixel=0 f.BackgroundColor3=color f.Position=side[1] f.Size=side[2] f.BackgroundTransparency=1 f.ZIndex=57 f.Active=false f.Parent=self.Root
+ for _,side in {{UDim2.new(0,0,0,0),UDim2.new(1,0,.16,0),90},{UDim2.new(0,0,.84,0),UDim2.new(1,0,.16,0),-90},{UDim2.new(0,0,0,0),UDim2.new(.12,0,1,0),0},{UDim2.new(.88,0,0,0),UDim2.new(.12,0,1,0),180}} do
+  local f=Instance.new("Frame") f.Name="EdgeGlow" f.BorderSizePixel=0 f.BackgroundColor3=color f.Position=side[1] f.Size=side[2] f.BackgroundTransparency=1 f.ZIndex=3 f.Active=false f.Parent=self.Screen
   local g=Instance.new("UIGradient") g.Rotation=side[3] g.Transparency=NumberSequence.new(0,1) g.Parent=f
   tween(f,dur*.3,{BackgroundTransparency=.35}) task.delay(dur*.3,function() if f.Parent then tween(f,dur*.7,{BackgroundTransparency=1}) end end) Debris:AddItem(f,dur+.05)
  end
 end
 function VFX:ScreenFlash(color,strength)
- local f=Instance.new("Frame") f.Name="ScreenFlash" f.BorderSizePixel=0 f.BackgroundColor3=color f.Size=UDim2.fromScale(1,1) f.BackgroundTransparency=strength or .3 f.ZIndex=58 f.Active=false f.Parent=self.Root
+ local f=Instance.new("Frame") f.Name="ScreenFlash" f.BorderSizePixel=0 f.BackgroundColor3=color f.Size=UDim2.fromScale(1,1) f.BackgroundTransparency=strength or .3 f.ZIndex=4 f.Active=false f.Parent=self.Screen
  tween(f,.45,{BackgroundTransparency=1}) Debris:AddItem(f,.5)
 end
 function VFX:StarRain(color,count,rainbow)
@@ -346,8 +386,8 @@ end
 -- anime speed lines rushing towards the centre of the screen
 function VFX:SpeedLines(dur,color)
  if self.Quality=="Low" then return end
- local holder=Instance.new("Frame") holder.Name="SpeedLines" holder.BackgroundTransparency=1 holder.Size=UDim2.fromScale(1,1) holder.ZIndex=54 holder.Active=false holder.Parent=self.Root
- local size=self.Root.AbsoluteSize/self.Root.Scale.Scale local c=Vector2.new(size.X/2,size.Y*.46)
+ local holder=Instance.new("Frame") holder.Name="SpeedLines" holder.BackgroundTransparency=1 holder.Size=UDim2.fromScale(1,1) holder.ZIndex=2 holder.Active=false holder.Parent=self.Screen
+ local size=self.Screen.AbsoluteSize local c=Vector2.new(size.X/2,size.Y*.46)
  local t0=os.clock()
  task.spawn(function()
   while os.clock()-t0<dur and holder.Parent and not self.Destroyed do
@@ -355,7 +395,7 @@ function VFX:SpeedLines(dur,color)
     local a=math.random()*math.pi*2 local r=math.max(size.X,size.Y)*.62
     local len=math.random(160,320)
     local l=Instance.new("Frame") l.BorderSizePixel=0 l.AnchorPoint=Vector2.new(.5,.5) l.BackgroundColor3=math.random()<.25 and color or Color3.new(1,1,1)
-    l.BackgroundTransparency=.25 l.Size=UDim2.fromOffset(len,math.random(3,7)) l.Rotation=math.deg(a) l.ZIndex=54
+    l.BackgroundTransparency=.25 l.Size=UDim2.fromOffset(len*size.Y/1080,math.random(2,5)) l.Rotation=math.deg(a) l.ZIndex=2
     l.Position=UDim2.fromOffset(c.X+math.cos(a)*r,c.Y+math.sin(a)*r) l.Parent=holder
     local g=Instance.new("UIGradient") g.Transparency=NumberSequence.new(0,1) g.Rotation=180 g.Parent=l
     tween(l,.32,{Position=UDim2.fromOffset(c.X+math.cos(a)*r*.38,c.Y+math.sin(a)*r*.38),BackgroundTransparency=1},Enum.EasingStyle.Quad)
@@ -459,6 +499,16 @@ function VFX:Place(pos,model)
  local stats=require(game:GetService("ReplicatedStorage").Shared.Stats)
  local piece=id and stats.Pieces[id]
  local rank=piece and RANK[piece.tier] or 1
+ -- a glowing scan plane sweeps up through the new tile, like a hologram being printed
+ local hit=model:FindFirstChild("Hitbox")
+ if hit then
+  local scan=Instance.new("Part") scan.Name="BuildScan" scan.Anchored=true scan.CanCollide=false scan.CanQuery=false scan.CanTouch=false scan.CastShadow=false
+  scan.Material=Enum.Material.Neon scan.Color=piece and COLORS[piece.tier] or Color3.fromRGB(99,255,170) scan.Transparency=.35
+  scan.Size=Vector3.new(10.2,.12,10.2) scan.CFrame=hit.CFrame*CFrame.new(0,.1,0) scan.Parent=self.World
+  local top=math.max(4,model:GetExtentsSize().Y+1)
+  tween(scan,.55,{CFrame=hit.CFrame*CFrame.new(0,top,0),Transparency=1,Size=Vector3.new(10.6,.05,10.6)},Enum.EasingStyle.Quad)
+  Debris:AddItem(scan,.6)
+ end
  if rank>=3 then
   local c=COLORS[piece.tier]
   task.delay(.25,function() self:WorldBurst(pos,c,self:Q(16+rank*4),"Rare") if rank>=4 then self:Sound("Unlock",1.15,.3) end end)
@@ -620,6 +670,10 @@ function VFX.new(gui)
  VFX.Active=self
  -- A Folder cannot obscure GUI hit-testing the way a full-screen effects Frame can.
  local layer=Instance.new("Folder") layer.Name="VFXOverlay" layer.Parent=self.Root self.Layer=layer
+ -- full-screen effects live in their own ScreenGui so they always cover the whole screen
+ local screen=Instance.new("ScreenGui") screen.Name="TrackRNGScreenFX" screen.IgnoreGuiInset=true screen.ResetOnSpawn=false
+ screen.DisplayOrder=(gui.DisplayOrder or 0)+5 screen.ZIndexBehavior=Enum.ZIndexBehavior.Sibling screen.Parent=gui.Parent
+ self.Screen=screen
  local world=Instance.new("Folder") world.Name="LocalPresentationVFX" world.Parent=workspace self.World=world
  local group=Instance.new("SoundGroup") group.Name="TrackRNGSFX" group.Volume=.8 group.Parent=SoundService self.SoundGroup=group
  local mgroup=Instance.new("SoundGroup") mgroup.Name="TrackRNGMusic" mgroup.Volume=0 mgroup.Parent=SoundService self.MusicGroup=mgroup
@@ -649,16 +703,20 @@ function VFX.new(gui)
  local die=self.Root.HUD.RollArea.RollButton.Die:FindFirstChild("AtlasImage")
  local dieScale=die and scaleFor(die,"IdlePulse")
  local badge=self.Root.HUD.RollArea.SkillsButton.Badge local badgeScale=scaleFor(badge,"NotificationPulse")
- local roll=self.Root.HUD.RollArea.RollButton
+ -- a white copy of the die art with a moving transparent band = a glint that follows the die shape
  local shine=Instance.new("UIGradient") shine.Name="IdleShine"
- shine.Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,0),NumberSequenceKeypoint.new(.42,0),NumberSequenceKeypoint.new(.5,.6),NumberSequenceKeypoint.new(.58,0),NumberSequenceKeypoint.new(1,0)})
+ shine.Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,1),NumberSequenceKeypoint.new(.44,1),NumberSequenceKeypoint.new(.5,.25),NumberSequenceKeypoint.new(.56,1),NumberSequenceKeypoint.new(1,1)})
  shine.Rotation=25 shine.Offset=Vector2.new(-1,0)
- if not roll:FindFirstChildOfClass("UIGradient") then shine.Parent=roll end
+ if die then
+  local glint=die:Clone() glint.Name="Glint" for _,c in glint:GetChildren() do c:Destroy() end
+  glint.ImageColor3=Color3.new(1,1,1) glint.ZIndex=die.ZIndex+1 glint.Size=UDim2.fromScale(1,1) glint.Position=UDim2.fromScale(.5,.5) glint.Parent=die
+  shine.Parent=glint
+ end
  local menuScales={}
  for i,b in self.Root.HUD.LeftMenu:GetChildren() do if b:IsA("GuiButton") then menuScales[#menuScales+1]={scaleFor(b,"IdleBob"),i} end end
  self:Connect(RunService.RenderStepped,function()
   if self.Destroyed then return end local now=os.clock()
-  if shine.Parent then shine.Offset=Vector2.new(((now*.45)%2.2)-1.1,0) end
+  if shine.Parent then local k=(now*.55)%3 shine.Offset=Vector2.new(k<1.6 and k*1.4-1.1 or 1.2,0) end
   for _,m in menuScales do m[1].Scale=1+math.sin(now*2+m[2]*.9)*.018 end
   if die and self.Root.HUD.Visible then die.Rotation=math.sin(now*1.5)*1.8 dieScale.Scale=1+math.sin(now*2.2)*.012 end
   badgeScale.Scale=(tonumber(badge.Text.Text) or 0)>0 and 1+math.sin(now*4)*.045 or 1
@@ -712,7 +770,7 @@ function VFX:Destroy()
  for _,pool in self.Pools do for _,snd in pool do if typeof(snd)=="Instance" then snd:Destroy() end end end
  if self.Music then self.Music:Destroy() end
  self.MusicGroup:Destroy()
- self.SoundGroup:Destroy() self.Layer:Destroy() self.World:Destroy()
+ self.SoundGroup:Destroy() self.Layer:Destroy() self.World:Destroy() self.Screen:Destroy()
 end
 return VFX
 

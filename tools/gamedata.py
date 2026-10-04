@@ -20,7 +20,9 @@ PIECE_ICONS = {
     "Straight": "⬆️", "Turn": "↪️", "SpeedBump": "〰️", "Hill": "⛰️", "BankedTurn": "🔄",
     "BoostPad": "⚡", "Chicane": "🐍", "Jump": "🦘", "Corkscrew": "🌀", "Loop": "➰",
     "Spiral": "🗼", "WaveRider": "🌊", "WallRide": "🧱", "DoubleLoop": "➿",
-    "TeleportGate": "🌌", "SkyLeap": "🌠",
+    "TeleportGate": "🌌", "SkyLeap": "🌠", "Tunnel": "🚇", "Bridge": "🌉", "IceTurn": "🧊",
+    "CamelBack": "🐫", "HalfPipe": "🛹", "NeonTurn": "💡", "RingOfFire": "🔥", "LaunchPad": "🚀",
+    "Twister": "🌪️", "RainbowRoad": "🌈", "BlackHole": "🕳️",
 }
 
 # Every potion has its own timer key ("effect") and multiplies one or more stats while it
@@ -280,6 +282,10 @@ def audio():
     return {k: f"rbxassetid://{v}" for k, v in media()["audio"].items()}
 
 
+def ui_art():
+    return {k: f"rbxassetid://{v}" for k, v in media().get("ui", {}).items()}
+
+
 def fx():
     return {k: f"rbxassetid://{v}" for k, v in media().get("fx", {}).items()}
 
@@ -288,7 +294,7 @@ def data():
     return {
         "Tiers": TIERS, "Pieces": piece_list(), "Cars": car_list(), "Styles": style_list(),
         "Potions": with_icons(POTIONS, "Potion_"), "Dice": with_icons(DICE, "Dice_"),
-        "Audio": audio(), "FX": fx(), "Upgrades": UPGRADES, "Daily": DAILY,
+        "Audio": audio(), "FX": fx(), "UIArt": ui_art(), "Upgrades": UPGRADES, "Daily": DAILY,
         "Pass": PASS, "Crate": CRATE, "Products": PRODUCTS, "StarterPack": STARTER_PACK,
         "Config": CONFIG,
     }

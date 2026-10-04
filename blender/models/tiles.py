@@ -37,6 +37,21 @@ TIER = {
                    kerb=("#ffffff", "#15152a"), side="#2b2b48", rail="#2b2b48",
                    neon="rainbow", accent="#ffe03b"),
 }
+# tiles with their own look on top of the tier colours
+THEME = {
+    "IceTurn": dict(base="#e8f7ff", border="#a8dcff", road="#6b8fae", dash="#e6f8ff",
+                    kerb=("#9fdcff", "#ffffff"), side="#8fc3e6", rail="#bfeaff", neon=None),
+    "NeonTurn": dict(base="#2a2140", border="#4a3a70", road="#1d1830", dash="#c46bff",
+                     neon="#ff4fd8"),
+    "RainbowRoad": dict(base="#1c1c33", border="#33335a", road="rainbow", dash="#ffffff",
+                        kerb=("#ffffff", "#ff4fd8"), side="#2b2b48", rail="#2b2b48",
+                        neon="rainbow"),
+    "BlackHole": dict(base="#120d1f", border="#2b1b45", road="#1a1428", dash="#c46bff",
+                      kerb=("#7b2fd1", "#000000"), side="#1f1633", rail="#2b1b45",
+                      neon="#b14dff"),
+    "Tunnel": dict(base="#d9e6f2"),
+    "Bridge": dict(base="#cfeaff"),
+}
 RAINBOW = ["#ff3b3b", "#ff9f1a", "#ffe03b", "#4bdc5a", "#3bd1ff", "#7b5cff"]
 UNDER = "#5b6273"
 KERB_W = 0.45
@@ -186,7 +201,11 @@ def sweep(samples, st, name, prof_fn, grp=None, colour=None):
 
 
 def _colour(key, band, st):
+    if key == "road" and st["road"] == "rainbow":
+        return ["#c0392b", "#d35400", "#c9a227", "#27ae60", "#2980b9", "#6c3fb5"][band % 6]
     if key == "dash":
+        if st["road"] == "rainbow":
+            return st["dash"]
         return st["dash"] if band % 2 == 0 else st["road"]
     if key == "kerb":
         return st["kerb"][band % 2]
@@ -434,11 +453,117 @@ def d_start(path, st):
         neon(L.sphere(0.18, (x, -0.42, 6.75), "#ffe03b", subdiv=1))
 
 
+def d_tunnel(path, st):
+    rock, rock_d = "#8d8f9e", "#6f7181"
+    for z in (-3.6, -1.2, 1.2, 3.6):
+        for x in (-4.3, 4.3):
+            L.box((1.1, 2.4, 4.6), (x, -z, 0.38 + 2.3), rock if (z > 0) == (x > 0) else rock_d,
+                  bevel=0.25)
+        L.box((9.6, 2.4, 1.2), (0, -z, 5.1), rock if z > 0 else rock_d, bevel=0.25)
+        neon(L.box((7.0, 0.3, 0.14), (0, -z, 4.42), "#ffd23f"))
+    for z in (-4.6, 4.6):   # portal frames
+        L.box((0.6, 0.5, 4.8), (-4.0, -z, 0.38 + 2.4), "#ffb31a", bevel=0.06)
+        L.box((0.6, 0.5, 4.8), (4.0, -z, 0.38 + 2.4), "#ffb31a", bevel=0.06)
+        L.box((8.6, 0.5, 0.6), (0, -z, 5.0), "#ffb31a", bevel=0.06)
+    L.box((3.0, 1.6, 1.2), (2.2, 0, 6.2), "#5fc048", bevel=0.4)
+    L.box((2.2, 1.2, 1.0), (-2.6, -2.0, 6.0), "#4cc23a", bevel=0.4)
+
+
+def d_bridge(path, st):
+    L.box((8.6, 3.0, 0.06), (0, 0, 0.42), "#4fc3ff")            # river
+    for x in (-3.0, -0.6, 1.8, 3.6):
+        L.box((0.8, 0.3, 0.05), (x, 0.4 * (x % 2), 0.47), "#d6f4ff")
+    for x in (-4.2, 4.2):
+        for z in (-1.6, 1.6):
+            L.box((0.7, 0.7, 1.2), (x, -z, 0.95), "#c9c2b3", bevel=0.1)
+    L.cyl(0.35, 0.9, (-3.2, 3.6, 0.85), "#5fc048", verts=6)
+    L.box((1.4, 1.1, 0.8), (3.6, -3.7, 0.75), "#5fc048", bevel=0.25)
+
+
+def d_ice(path, st):
+    for x, z, h in ((-3.9, -3.9, 2.4), (-2.6, -4.1, 1.5), (-4.1, -2.4, 1.2), (3.9, 4.0, 1.0)):
+        L.cyl(0.42, h, (x, -z, 0.38 + h / 2), "#bfeaff", r2=0.0, verts=5, rough=0.05)
+    for x, z in ((-3.4, 3.6), (3.2, -3.3)):
+        L.box((1.6, 1.2, 0.4), (x, -z, 0.55), "#ffffff", bevel=0.2)
+
+
+def d_camel(path, st):
+    for z in (2.5, -2.5):
+        pillar(-2.5, z, T.ROAD_Y + 1.6 - DECK, st["rail"], 0.4)
+        pillar(2.5, z, T.ROAD_Y + 1.6 - DECK, st["rail"], 0.4)
+    cone(-4.3, 0, 0.9)
+    cone(4.3, 0, 0.9)
+
+
+def d_halfpipe(path, st):
+    supports(path, st, every=1.8, min_h=0.6)
+    for x, z in ((-4.4, 4.3), (4.4, -4.3), (-4.4, -4.3), (4.4, 4.3)):
+        lamp(x, z, st["rail"], st["neon"], 2.0)
+
+
+def d_neonturn(path, st):
+    lamp(-4.0, -4.0, st["rail"], st["neon"], 2.4)
+    lamp(-4.2, 4.2, st["rail"], "#4fe0ff", 1.6)
+    lamp(4.2, -4.2, st["rail"], "#4fe0ff", 1.6)
+    for a in (0.2, 0.5, 0.8):
+        ang = a * math.pi / 2
+        neon(L.sphere(0.32, (5 - 1.3 * math.cos(ang), -(5 - 1.3 * math.sin(ang)), 0.9),
+                      "#4fe0ff", subdiv=1))
+
+
+def d_fire_ring(path, st):
+    d_jump(path, st)
+    ring_torus((0, T.ROAD_Y + 3.4, 0.0), 2.6, 0.32, "#ff6a1a")
+    ring_torus((0, T.ROAD_Y + 3.4, 0.0), 2.25, 0.14, "#ffd23f")
+    for x in (-2.9, 2.9):
+        L.box((0.45, 0.45, 3.4), (x, 0, 0.38 + 1.7), "#3a2b2b", bevel=0.05)
+
+
+def d_launchpad(path, st):
+    for z in (4.0, 2.8):
+        chevron(0, z, T.ROAD_Y + 0.02 + (5 - z) ** 2 * 0.06, "#ff9f1a", s=1.0, glow=True)
+    for x in (-3.4, 3.4):
+        pillar(x, 1.8, T.ROAD_Y + 2.1 - DECK, st["rail"], 0.45)
+        pillar(x, -2.4, T.ROAD_Y + 1.2 - DECK, st["rail"], 0.45)
+    neon(L.box((6.8, 0.2, 0.14), (0, -1.6, T.ROAD_Y + 2.12), "#ff4fd8"))
+
+
+def d_twister(path, st):
+    d_corkscrew(path, st)
+    for x in (-4.4, 4.4):
+        neon(L.box((0.2, 7.6, 0.14), (x, 0, 0.55), st["neon"]))
+
+
+def d_rainbow(path, st):
+    rng = __import__("random").Random(3)
+    for _ in range(9):
+        x, z = rng.choice((-4.3, 4.3)), rng.uniform(-4.2, 4.2)
+        neon(L.sphere(0.22, (x, -z, rng.uniform(0.8, 2.4)), rng.choice(RAINBOW), subdiv=1))
+
+
+def d_blackhole(path, st):
+    # swirling dark disc between the two openings
+    L.cyl(3.6, 0.12, (0, 0, 0.45), "#05030a", verts=24)
+    for k in range(3):
+        a0 = k * 2 * math.pi / 3
+        for i in range(10):
+            a = a0 + i * 0.32
+            r = 0.5 + i * 0.3
+            neon(L.box((0.5, 0.18, 0.06), (math.cos(a) * r, math.sin(a) * r, 0.53), "#b14dff",
+                       rot=(0, 0, a + math.pi / 2)))
+    for z, col in ((T.BH_IN, "#b14dff"), (T.BH_OUT, "#4fe0ff")):
+        ring_torus((0, T.ROAD_Y + 2.3, z), 2.4, 0.26, col)
+    neon(L.sphere(0.5, (0, 0, 3.8), "#ffffff", subdiv=1))
+
+
 DECOR = {"SpeedBump": d_bump, "Hill": d_hill, "BankedTurn": d_banked, "BoostPad": d_boost,
          "Chicane": d_chicane, "Jump": d_jump, "Corkscrew": d_corkscrew, "Loop": d_loop,
          "Spiral": d_spiral, "WaveRider": d_wave, "WallRide": d_wallride,
          "DoubleLoop": lambda p, s: d_loop(p, s, True), "TeleportGate": d_teleport,
-         "SkyLeap": d_skyleap, "Start": d_start}
+         "SkyLeap": d_skyleap, "Start": d_start, "Tunnel": d_tunnel, "Bridge": d_bridge,
+         "IceTurn": d_ice, "CamelBack": d_camel, "HalfPipe": d_halfpipe, "NeonTurn": d_neonturn,
+         "RingOfFire": d_fire_ring, "LaunchPad": d_launchpad, "Twister": d_twister,
+         "RainbowRoad": d_rainbow, "BlackHole": d_blackhole}
 
 
 # ------------------------------------------------------------------ checks + output
@@ -464,11 +589,11 @@ def check_bounds(tid):
 def build(tile):
     tid, _display, tier, _odds, _value, fn, _ports, _desc = tile
     L.reset()
-    st = TIER[tier]
+    st = dict(TIER[tier], **THEME.get(tid, {}))
     path = T.make_path(fn)
     base(st, start=tid == "Start")
     road(path, st)
-    if tid not in ("WaveRider", "WallRide", "Hill"):
+    if tid not in ("WaveRider", "WallRide", "Hill", "HalfPipe"):
         supports(path, st)
     if tid in DECOR:
         DECOR[tid](path, st)

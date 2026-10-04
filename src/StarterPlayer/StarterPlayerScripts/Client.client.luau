@@ -753,9 +753,10 @@ local function applySettings()
 	vfx:SetSfx(settings.Sfx)
 	vfx:SetQuality(settings.Vfx)
 	if settingsBar then
-		settingsBar.MusicToggle.Off.Visible = not settings.Music
-		settingsBar.SfxToggle.Off.Visible = not settings.Sfx
-		settingsBar.VfxToggle.Off.Visible = settings.Vfx == "Low"
+		local art = GameData.UIArt or {}
+		settingsBar.MusicToggle.Art.Image = art[if settings.Music then "music_on" else "music_off"] or ""
+		settingsBar.SfxToggle.Art.Image = art[if settings.Sfx then "sfx_on" else "sfx_off"] or ""
+		settingsBar.VfxToggle.Art.Image = art[if settings.Vfx == "Low" then "vfx_off" else "vfx_on"] or ""
 	end
 end
 local function changeSetting(key: string, value: any)
