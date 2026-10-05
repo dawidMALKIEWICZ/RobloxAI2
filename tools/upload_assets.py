@@ -107,10 +107,14 @@ def media_ids():
     out = {"icons": {}, "audio": {}}
     out["fx"] = {}
     out["ui"] = {}
+    out["mutations"] = {}
     for kind, folder, ext, atype in (("icons", "icons", ".png", "Image"), ("fx", "fx", ".png", "Image"),
                                      ("ui", "ui", ".png", "Image"),
+                                     ("mutations", "mutations", ".png", "Image"),
                                      ("audio", "audio", ".ogg", "Audio")):
         d = os.path.join(ROOT, "assets", folder)
+        if not os.path.isdir(d):
+            continue
         for f in sorted(os.listdir(d)):
             if f.endswith(ext):
                 out[kind][f[:-len(ext)]] = upload(os.path.join(d, f), atype, "TrackRNG " + f[:-4])

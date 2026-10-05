@@ -37,6 +37,54 @@ end
 for _, t in GameData.Tiers do
 	Stats.Tiers[t.id] = t
 end
+Stats.Mutations = {}
+Stats.MutationList = GameData.Mutations or {}
+for _, m in Stats.MutationList do
+	Stats.Mutations[m.id] = m
+end
+Stats.FLOOR_H = GameData.Config.FloorHeight or 9
+
+-- ------------------------------------------------------------------ mutations
+-- Inventory keys are "PieceId" for plain pieces and "PieceId@Mutation" for mutated ones.
+function Stats.splitKey(key: string): (string, string?)
+	local id, mut = string.match(key, "^([^@]+)@(.+)$")
+	if id then
+		return id, mut
+	end
+	return key, nil
+end
+
+function Stats.invKey(id: string, mut: string?): string
+	return if mut then id .. "@" .. mut else id
+end
+
+function Stats.mutMult(mut: string?): number
+	local m = mut and Stats.Mutations[mut]
+	return if m then m.mult else 1
+end
+
+-- picks a mutation for a fresh roll (nil = plain); rand() returns 0..1
+function Stats.rollMutation(luck: number, rand: () -> number): string?
+	local k = math.max(1, luck) ^ (GameData.Config.MutationLuckPower or 0.35)
+	local list = Stats.MutationList
+	for i = #list, 1, -1 do
+		if rand() < k / list[i].chance then
+			return list[i].id
+		end
+	end
+	return nil
+end
+
+-- total count of a piece in the inventory over every mutation
+function Stats.ownedCount(data, id: string): number
+	local n = 0
+	for key, count in data.Inventory do
+		if Stats.splitKey(key) == id then
+			n += count
+		end
+	end
+	return n
+end
 
 -- ------------------------------------------------------------------ multipliers
 function Stats.upgradeTotal(data, stat: string): number
@@ -81,11 +129,12 @@ function Stats.carMult(data): number
 	return car.mult
 end
 
-function Stats.moneyMult(data, friends: number?): number
+-- base = true leaves out potions and the friend boost (used for offline earnings)
+function Stats.moneyMult(data, friends: number?, base: boolean?): number
 	local style = Stats.Styles[data.EquippedStyle]
 	local additive = 1 + Stats.upgradeTotal(data, "Money") + (style and style.bonus or 0)
-		+ Stats.friendBoost(friends or 0)
-	local m = additive * Stats.carMult(data) * Stats.potionMult(data, "Money")
+		+ (if base then 0 else Stats.friendBoost(friends or 0))
+	local m = additive * Stats.carMult(data) * (if base then 1 else Stats.potionMult(data, "Money"))
 	if data.Passes.X2Money then
 		m *= 2
 	end
@@ -102,9 +151,10 @@ function Stats.luck(data): number
 end
 
 -- car speed in studs per second (the mini track is small, so cars are slower than real ones)
-function Stats.carSpeed(data): number
+function Stats.carSpeed(data, base: boolean?): number
 	local car = Stats.Cars[data.EquippedCar] or Stats.Cars.Buggy
-	return car.speed * 0.4 * (1 + Stats.upgradeTotal(data, "Speed")) * Stats.potionMult(data, "Speed")
+	return car.speed * 0.4 * (1 + Stats.upgradeTotal(data, "Speed"))
+		* (if base then 1 else Stats.potionMult(data, "Speed"))
 end
 
 function Stats.rollTime(data): number
@@ -175,54 +225,119 @@ function Stats.ports(pieceId: string, r: number): (number, number)
 	return (ports[1] + r) % 4, (ports[2] + r) % 4
 end
 
-function Stats.cellKey(x: number, z: number): string
-	return x .. "," .. z
+function Stats.cellKey(x: number, z: number, f: number?): string
+	return x .. "," .. z .. "," .. (f or 0)
+end
+
+function Stats.floors(data): number
+	return data.Floors or 1
 end
 
 function Stats.placedMap(data)
 	local map = {}
-	for i, t in data.Placed do
-		map[Stats.cellKey(t.x, t.z)] = t
+	for _, t in data.Placed do
+		map[Stats.cellKey(t.x, t.z, t.f)] = t
 	end
 	return map
 end
 
--- Follows the road from the start tile. Returns a list of { x, z, id, r, forward } steps and
--- whether the track closes back into the start line.
+-- whether piece `id` may go on cell (x, z) of floor f (0 = ground, 1 = second floor);
+-- the inventory is checked separately. Returns false + a message for the player.
+function Stats.canPlace(data, x: number, z: number, f: number, id: string, map: any?): (boolean, string?)
+	local piece = Stats.Pieces[id]
+	if not piece or (f ~= 0 and f ~= 1) then
+		return false, "Invalid piece"
+	end
+	if f == 1 and Stats.floors(data) < 2 then
+		return false, "Unlock the 2nd floor first!"
+	end
+	if not Stats.inUnlocked(data, x, z) then
+		return false, "Expand your plot in Skills to build there!"
+	end
+	local cells = map or Stats.placedMap(data)
+	if (f == 0 and Stats.isStart(x, z)) or cells[Stats.cellKey(x, z, f)] then
+		return false, "That spot is taken!"
+	end
+	local tall = Stats.FLOOR_H - 0.3
+	if piece.lift then
+		if Stats.floors(data) < 2 then
+			return false, "Unlock the 2nd floor in Build to use Sky Ramps!"
+		end
+		if f ~= 0 then
+			return false, "Sky Ramps start on the 1st floor!"
+		end
+	end
+	if f == 0 and cells[Stats.cellKey(x, z, 1)] and (piece.height or 0) > tall then
+		return false, "Too tall to fit under the 2nd floor!"
+	end
+	if f == 1 then
+		local below = cells[Stats.cellKey(x, z, 0)]
+		local bp = below and Stats.Pieces[below.id]
+		if bp and (bp.height or 0) > tall then
+			return false, "Something tall is in the way below!"
+		end
+	end
+	if #data.Placed >= Stats.maxElements(data) then
+		return false, "Element limit reached! Upgrade it in Skills."
+	end
+	return true
+end
+
+-- Follows the road from the start tile. Returns a list of { x, z, f, id, r, m, forward } steps
+-- and whether the track closes back into the start line. Sky Ramps (lift pieces) lead from
+-- their A port on floor f to their B port on floor f + 1.
 function Stats.tracePath(data)
 	local map = Stats.placedMap(data)
 	local c = Stats.center()
-	local steps = { { x = c, z = c, id = "Start", r = 0, forward = true } }
-	local visited = { [Stats.cellKey(c, c)] = true }
-	local x, z, out = c, c, 0 -- start tile drives S -> N
+	local steps = { { x = c, z = c, f = 0, id = "Start", r = 0, forward = true } }
+	local visited = { [Stats.cellKey(c, c, 0)] = true }
+	local x, z, f, out = c, c, 0, 0 -- start tile drives S -> N
 	local closed = false
-	for _ = 1, 400 do
+	for _ = 1, 600 do
 		local d = Stats.SIDE_DIR[out]
 		local nx, nz = x + d[1], z + d[2]
 		local inSide = (out + 2) % 4
-		if Stats.isStart(nx, nz) then
+		if f == 0 and Stats.isStart(nx, nz) then
 			closed = inSide == 2 -- re-entering the start line from behind
 			break
 		end
-		local key = Stats.cellKey(nx, nz)
+		local key = Stats.cellKey(nx, nz, f)
 		local t = map[key]
-		if not t or visited[key] then
-			break
-		end
-		local a, b = Stats.ports(t.id, t.r)
-		local forward
-		if inSide == a then
-			forward = true
-			out = b
-		elseif inSide == b then
-			forward = false
-			out = a
+		local tileF = f
+		local forward, nextOut, nextF
+		if t then
+			local piece = Stats.Pieces[t.id]
+			local lift = piece ~= nil and piece.lift == true
+			local a, b = Stats.ports(t.id, t.r)
+			if inSide == a then
+				forward, nextOut, nextF = true, b, if lift then f + 1 else f
+			elseif inSide == b and not lift then
+				forward, nextOut, nextF = false, a, f
+			else
+				break
+			end
+		elseif f > 0 then
+			-- driving down: a Sky Ramp on the floor below whose top end faces us
+			key = Stats.cellKey(nx, nz, f - 1)
+			t = map[key]
+			local piece = t and Stats.Pieces[t.id]
+			if not piece or not piece.lift then
+				break
+			end
+			local a, b = Stats.ports(t.id, t.r)
+			if inSide ~= b then
+				break
+			end
+			forward, nextOut, nextF, tileF = false, a, f - 1, f - 1
 		else
 			break
 		end
+		if visited[key] then
+			break
+		end
 		visited[key] = true
-		table.insert(steps, { x = nx, z = nz, id = t.id, r = t.r, forward = forward })
-		x, z = nx, nz
+		table.insert(steps, { x = nx, z = nz, f = tileF, id = t.id, r = t.r, m = t.m, forward = forward })
+		x, z, f, out = nx, nz, nextF, nextOut
 	end
 	return steps, closed
 end

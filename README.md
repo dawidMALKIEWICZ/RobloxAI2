@@ -63,6 +63,7 @@ wgrane na Robloxa, a ich ID są w `tools/mesh_ids.json` i `tools/media_ids.json`
 Pełne przebudowanie po zmianach:
 ```
 blender-python blender/models/tiles.py      # (i cars.py / world.py / item_icons.py)
+python3 tools/mutation_palettes.py          # tekstury mutacji (po każdym wypieku z nowymi kolorami)
 python3 tools/upload_assets.py meshes && python3 tools/upload_assets.py media
 cd tools && python3 gamedata.py && python3 build_map.py && python3 build_tiles.py \
   && python3 build_assets.py && cd ..
@@ -78,3 +79,24 @@ rojo build -o TrackRNG.rbxl
 - Auto startuje z linii startu na środku działki i jedzie, dopóki droga się łączy. Gdy tor wraca do startu od tyłu, jeździ w kółko.
 
 Podglądy (rendery z Blendera) są w folderze `renders/`.
+
+## Nowe systemy
+
+| System | Jak działa |
+|---|---|
+| **Mutacje torów** | Każde losowanie może dać zmutowany kafelek: Golden x1.5, Frozen x2, Diamond x3, Neon x4, Rainbow x6, Void x10 (do zarobku z tego kafelka). Szansa rośnie lekko ze szczęściem. Kilka sztuk tego samego toru może mieć różne mutacje: w Build każda ma osobną kartę z odznaką. Zmutowany kafelek ma inną teksturę, świecenie i iskry. |
+| **Fuzja kostek** | 3 takie same kostki dają 1 kostkę następnego poziomu, a w 10% przypadków „JACKPOT” przeskakuje o dwa poziomy. Przycisk **FUSE** jest na karcie kostki w sklepie i jako 🔮 na pasku kostek nad Roll. |
+| **Zarabianie offline** | Po powrocie gra wypłaca 25% dochodu z czasu nieobecności (maks. 8 h) i pokazuje okno „Welcome back”. Do stawki offline nie liczą się mikstury ani bonus za znajomych. |
+| **Drugie piętro** | Przycisk **🔒 2nd Floor** w menu Build (100K, drugi klik potwierdza). Zakup buduje się na oczach gracza: rosną wieże i dźwigary. W pakiecie są 2 kafelki **Sky Ramp** (spiralny wjazd). `F` lub przycisk przełącza piętro 1/2. Pod każdym kafelkiem na 2. piętrze wyrastają filary. Tor wjeżdża rampą na górę, jeździ po piętrze i zjeżdża drugą rampą. Bardzo wysokie kafelki (Sky Leap) nie zmieszczą się pod piętrem. |
+
+### Komendy testowe (Studio lub właściciel gry)
+
+| Komenda | Co robi |
+|---|---|
+| `/alltracks [n]` | +n (domyślnie 25) każdego kafelka |
+| `/mutations [n]` | +n (domyślnie 2) każdego kafelka w każdej mutacji |
+| `/cash [n]` | dodaje pieniądze (domyślnie 1 mld) |
+| `/dice [n]` | +n każdej kostki (do testu fuzji) |
+| `/potions` | włącza wszystkie mikstury |
+| `/floor` | od razu odblokowuje 2. piętro (z animacją budowy) |
+| `/offline [h]` | symuluje powrót po h godzinach (okno „Welcome back”) |

@@ -38,7 +38,11 @@ local function notify(player: Player, text: string, color: string?)
 	Remotes.Notify:FireClient(player, text, color or "#ffffff")
 end
 
-local function income(player: Player, data): number
+-- money per second; base = without potions and friends (what offline earnings use)
+local function income(player: Player, data, base: boolean?): number
+	if base then
+		return TrackService.income(player, true) * Stats.moneyMult(data, nil, true)
+	end
 	return TrackService.income(player) * Stats.moneyMult(data, friends[player])
 end
 
@@ -58,6 +62,7 @@ local function snapshot(player: Player)
 		GridSize = Stats.gridSize(data),
 		Friends = f,
 		Income = income(player, data),
+		BaseIncome = income(player, data, true),
 		Closed = closed,
 		ServerTime = os.time(),
 	}
@@ -127,17 +132,39 @@ local function crateRoll()
 	return Stats.Pieces[GameData.Crate.drops[1].piece]
 end
 
--- adds a rolled piece to the inventory (it is placed later in build mode)
-local function giveRoll(player: Player, data, piece, source: string)
+-- server-wide shout-outs are throttled so late-game auto rolls cannot flood every client
+local lastShout: { [Player]: number } = {}
+local function shout(player: Player, pieceId: string, mut: string?, score: number)
+	local now = os.clock()
+	local gap = if score >= 1e6 then 1.5 else 6
+	if lastShout[player] and now - lastShout[player] < gap then
+		return
+	end
+	lastShout[player] = now
+	Remotes.RareRoll:FireAllClients(player.DisplayName, pieceId, mut)
+end
+
+-- adds a rolled piece to the inventory (it is placed later in build mode); every roll can
+-- come out mutated (Golden, Frozen, ... see GameData.Mutations)
+local function giveRoll(player: Player, data, piece, source: string, luck: number?)
 	local isNew = not data.Discovered[piece.id]
-	data.Inventory[piece.id] = (data.Inventory[piece.id] or 0) + 1
+	local mut = Stats.rollMutation(luck or 1, function()
+		return rng:NextNumber()
+	end)
+	local key = Stats.invKey(piece.id, mut)
+	data.Inventory[key] = (data.Inventory[key] or 0) + 1
 	data.Discovered[piece.id] = true
+	if mut then
+		data.MutDiscovered = data.MutDiscovered or {}
+		data.MutDiscovered[key] = true
+	end
 	data.Rolls += 1
 	addXP(player, data, GameData.Config.XPPerRoll)
-	if piece.odds >= 1000 then
-		Remotes.RareRoll:FireAllClients(player.DisplayName, piece.id)
+	local score = piece.odds * (if mut then Stats.Mutations[mut].chance else 1)
+	if piece.odds >= 1000 or score >= 50000 then
+		shout(player, piece.id, mut, score)
 	end
-	return { piece = piece.id, new = isNew, source = source }
+	return { piece = piece.id, mutation = mut, new = isNew, source = source }
 end
 
 -- ------------------------------------------------------------------ rewards
@@ -150,8 +177,9 @@ local function grantReward(player: Player, data, rw)
 		local pot = Stats.Potions[rw.id]
 		local count = rw.count or 1
 		local dur = rw.duration or pot.duration
-		data.Potions[pot.effect] = (data.Potions[pot.effect] or 0) + dur * count
-		notify(player, pot.name .. " activated!", pot.color)
+		data.Potions[pot.effect] = math.min((data.Potions[pot.effect] or 0) + dur * count, MAX_POTION_TIME)
+		TrackService.refreshPath(player, data)
+		notify(player, pot.name .. " activated!", if pot.color == "rainbow" then "#ffffff" else pot.color)
 	elseif t == "Dice" then
 		data.Dice[rw.id] = (data.Dice[rw.id] or 0) + 1
 		notify(player, "Got a " .. Stats.Dice[rw.id].name .. "!", "#ffe14d")
@@ -218,7 +246,8 @@ function Actions.GetData(player)
 end
 
 local function doRoll(player: Player, data, luckMult: number, source: string)
-	local result = giveRoll(player, data, roll(Stats.luck(data) * luckMult), source)
+	local luck = Stats.luck(data) * luckMult
+	local result = giveRoll(player, data, roll(luck), source, luck)
 	sendUpdate(player)
 	return true, nil, result
 end
@@ -252,28 +281,39 @@ function Actions.Place(player, data, args)
 	if type(args) ~= "table" then
 		return false
 	end
-	local x, z, r, id = tonumber(args.x), tonumber(args.z), tonumber(args.r), args.id
-	if not x or not z or not r or type(id) ~= "string" or not Stats.Pieces[id] then
+	local x, z, r, f, key = tonumber(args.x), tonumber(args.z), tonumber(args.r), tonumber(args.f or 0), args.id
+	if not x or not z or not r or not f or type(key) ~= "string" or #key > 40 then
 		return false, "Invalid piece"
 	end
-	x, z, r = math.floor(x), math.floor(z), math.floor(r) % 4
-	if not Stats.inUnlocked(data, x, z) then
-		return false, "Expand your plot in Skills to build there!"
+	for _, v in { x, z, r, f } do
+		if v ~= v or math.abs(v) == math.huge then
+			return false, "Invalid piece"
+		end
 	end
-	if Stats.isStart(x, z) or Stats.placedMap(data)[Stats.cellKey(x, z)] then
-		return false, "That spot is taken!"
+	local id, mut = Stats.splitKey(key)
+	if not Stats.Pieces[id] or (mut and not Stats.Mutations[mut]) then
+		return false, "Invalid piece"
 	end
-	if (data.Inventory[id] or 0) <= 0 then
+	x, z, r, f = math.floor(x), math.floor(z), math.floor(r) % 4, math.floor(f)
+	local ok, msg = Stats.canPlace(data, x, z, f, id)
+	if not ok then
+		return false, msg
+	end
+	if (data.Inventory[key] or 0) <= 0 then
 		return false, "You have no " .. Stats.Pieces[id].name .. " left!"
 	end
-	if #data.Placed >= Stats.maxElements(data) then
-		return false, "Element limit reached! Upgrade it in Skills."
+	data.Inventory[key] -= 1
+	if data.Inventory[key] <= 0 and mut then
+		data.Inventory[key] = nil
 	end
-	data.Inventory[id] -= 1
-	table.insert(data.Placed, { x = x, z = z, r = r, id = id })
+	table.insert(data.Placed, { x = x, z = z, r = r, id = id, f = if f ~= 0 then f else nil, m = mut })
 	local plot = PlotService.get(player)
 	if plot then
-		TrackService.spawnTile(plot, x, z, r, id)
+		local born = workspace:GetServerTimeNow()
+		if f == 1 then
+			PlotService.syncPillars(plot, data.Placed, born)
+		end
+		TrackService.spawnTile(plot, x, z, r, id, f, mut, born)
 	end
 	TrackService.refreshPath(player, data)
 	sendUpdate(player)
@@ -284,17 +324,21 @@ function Actions.Remove(player, data, args)
 	if type(args) ~= "table" then
 		return false
 	end
-	local x, z = tonumber(args.x), tonumber(args.z)
+	local x, z, f = tonumber(args.x), tonumber(args.z), tonumber(args.f or 0) or 0
 	if not x or not z then
 		return false
 	end
 	for i, t in data.Placed do
-		if t.x == x and t.z == z then
+		if t.x == x and t.z == z and (t.f or 0) == f then
 			table.remove(data.Placed, i)
-			data.Inventory[t.id] = (data.Inventory[t.id] or 0) + 1
+			local key = Stats.invKey(t.id, t.m)
+			data.Inventory[key] = (data.Inventory[key] or 0) + 1
 			local plot = PlotService.get(player)
 			if plot then
-				TrackService.removeTile(plot, x, z)
+				TrackService.removeTile(plot, x, z, f)
+				if f == 1 then
+					PlotService.syncPillars(plot, data.Placed)
+				end
 			end
 			TrackService.refreshPath(player, data)
 			sendUpdate(player)
@@ -302,6 +346,56 @@ function Actions.Remove(player, data, args)
 		end
 	end
 	return false, "Nothing to remove there"
+end
+
+-- the second track floor: towers, girders and free Sky Ramps
+function Actions.BuyFloor(player, data)
+	if Stats.floors(data) >= 2 then
+		return false, "You already own the 2nd floor!"
+	end
+	local price = GameData.Config.SecondFloorPrice
+	if data.Cash < price then
+		return false, "You need " .. Format.money(price) .. " for the 2nd floor!"
+	end
+	addCash(player, data, -price)
+	data.Floors = 2
+	local lifts = GameData.Config.SecondFloorLifts or 2
+	data.Inventory.Lift = (data.Inventory.Lift or 0) + lifts
+	data.Discovered.Lift = true
+	local plot = PlotService.get(player)
+	if plot then
+		PlotService.buildFloorFrame(plot, true, workspace:GetServerTimeNow())
+	end
+	sendUpdate(player)
+	return true, "2nd floor unlocked! +" .. lifts .. " Sky Ramps"
+end
+
+-- Dice fusion: FuseCount dice of one kind -> one die of the next kind (sometimes two kinds up)
+function Actions.FuseDice(player, data, id)
+	local need = GameData.Config.FuseCount or 3
+	local index = nil
+	for i, d in GameData.Dice do
+		if d.id == id then
+			index = i
+		end
+	end
+	if not index then
+		return false, "Unknown dice"
+	end
+	if index >= #GameData.Dice then
+		return false, "This is already the best dice!"
+	end
+	if (data.Dice[id] or 0) < need then
+		return false, "You need " .. need .. " " .. GameData.Dice[index].name .. " to fuse!"
+	end
+	data.Dice[id] -= need
+	local jackpot = index + 2 <= #GameData.Dice and rng:NextNumber() < (GameData.Config.FuseJackpot or 0.1)
+	local out = GameData.Dice[index + (if jackpot then 2 else 1)]
+	data.Dice[out.id] = (data.Dice[out.id] or 0) + 1
+	data.Fusions = (data.Fusions or 0) + 1
+	addXP(player, data, GameData.Config.XPPerRoll * 5)
+	sendUpdate(player)
+	return true, nil, { from = id, to = out.id, jackpot = jackpot }
 end
 
 function Actions.BuyCar(player, data, id)
@@ -497,7 +591,7 @@ end
 local function countFriends(player: Player)
 	local n = 0
 	for _, other in Players:GetPlayers() do
-		if other ~= player then
+		if other ~= player and other.Parent then
 			local ok, isFriend = pcall(function()
 				return player:IsFriendsWithAsync(other.UserId)
 			end)
@@ -506,7 +600,9 @@ local function countFriends(player: Player)
 			end
 		end
 	end
-	friends[player] = n
+	if player.Parent then
+		friends[player] = n
+	end
 end
 
 local function refreshFriends()
@@ -518,22 +614,24 @@ local function refreshFriends()
 	end
 end
 
-function GameService.onEarn(player: Player, pieceId: string, pos: Vector3)
+function GameService.onEarn(player: Player, pieceId: string, pos: Vector3, mult: number?)
 	local data = DataService.get(player)
 	local piece = Stats.Pieces[pieceId]
 	if not data or not piece then
 		return
 	end
-	local amount = math.max(1, math.floor(piece.value * Stats.moneyMult(data, friends[player])))
+	local amount = math.max(1, math.floor(piece.value * (mult or 1) * Stats.moneyMult(data, friends[player])))
 	addCash(player, data, amount)
 	Remotes.Earned:FireClient(player, amount, pos)
 end
 
 function GameService.playerAdded(player: Player)
 	local data = DataService.load(player)
-	if not player.Parent then
+	if not player.Parent or DataService.get(player) ~= data then
 		return
 	end
+	-- read before anything can touch them (the income loop rewrites LastIncome every second)
+	local lastOnline, lastIncome = data.LastOnline, data.LastIncome
 	local ls = Instance.new("Folder")
 	ls.Name = "leaderstats"
 	local cash = Instance.new("StringValue")
@@ -562,15 +660,20 @@ function GameService.playerAdded(player: Player)
 		notify(player, "Server is full - no free plot!", "#ff3b6b")
 	end
 
-	-- offline earnings
-	if data.LastOnline > 0 and data.LastIncome > 0 then
+	-- offline earnings (base income: potions and friends do not count while away)
+	if lastOnline > 0 and lastIncome > 0 then
 		local cfg = GameData.Config
-		local secs = math.min(os.time() - data.LastOnline, cfg.OfflineMaxHours * 3600)
-		local earned = math.floor(data.LastIncome * secs * cfg.OfflineRate)
-		if earned > 0 then
+		local away = math.max(0, os.time() - lastOnline)
+		local secs = math.min(away, cfg.OfflineMaxHours * 3600)
+		local earned = math.floor(lastIncome * secs * cfg.OfflineRate)
+		if earned > 0 and away >= 60 then
 			addCash(player, data, earned)
-			task.delay(3, notify, player, "Welcome back! Offline earnings: +" .. Format.money(earned),
-				"#7dff4f")
+			task.delay(2.5, function()
+				if player.Parent then
+					Remotes.Offline:FireClient(player, { amount = earned, away = away, paid = secs,
+						cap = cfg.OfflineMaxHours * 3600, rate = cfg.OfflineRate })
+				end
+			end)
 		end
 	end
 
@@ -590,15 +693,17 @@ end
 function GameService.playerRemoving(player: Player)
 	local data = DataService.get(player)
 	if data then
-		data.LastIncome = income(player, data)
+		data.LastIncome = income(player, data, true)
 		data.LastOnline = os.time()
 	end
 	TrackService.clear(player)
 	PlotService.release(player)
 	DataService.release(player)
 	lastRoll[player] = nil
+	lastShout[player] = nil
 	friends[player] = nil
-	refreshFriends()
+	-- wait until the player is really gone so they no longer count as anyone's friend
+	task.defer(refreshFriends)
 end
 
 -- ------------------------------------------------------------------ test commands
@@ -647,27 +752,54 @@ local function runCommand(player: Player, text: string)
 		for _, pot in GameData.Potions do
 			data.Potions[pot.effect] = math.max(data.Potions[pot.effect] or 0, pot.duration)
 		end
+		TrackService.refreshPath(player, data)
 		notify(player, "Test: every potion is active!", "#7dff6b")
+	elseif cmd == "mutations" then
+		local n = tonumber(arg) or 2
+		for _, pc in GameData.Pieces do
+			for _, m in Stats.MutationList do
+				local key = Stats.invKey(pc.id, m.id)
+				data.Inventory[key] = (data.Inventory[key] or 0) + n
+			end
+			data.Discovered[pc.id] = true
+		end
+		notify(player, "Test: +" .. n .. " of every piece in every mutation!", "#7dff6b")
+	elseif cmd == "floor" then
+		if Stats.floors(data) < 2 then
+			data.Cash += GameData.Config.SecondFloorPrice
+			Actions.BuyFloor(player, data)
+		end
+		notify(player, "Test: 2nd floor unlocked!", "#7dff6b")
+	elseif cmd == "offline" then
+		local hours = math.clamp(tonumber(arg) or 2, 0.02, 24)
+		local cfg = GameData.Config
+		local base = math.max(income(player, data, true), 1)
+		local away = math.floor(hours * 3600)
+		local secs = math.min(away, cfg.OfflineMaxHours * 3600)
+		local earned = math.floor(base * secs * cfg.OfflineRate)
+		addCash(player, data, earned)
+		Remotes.Offline:FireClient(player, { amount = earned, away = away, paid = secs,
+			cap = cfg.OfflineMaxHours * 3600, rate = cfg.OfflineRate })
 	else
 		return
 	end
 	sendUpdate(player)
 end
 
-local function setupCommands()
-	local TextChatService = game:GetService("TextChatService")
-	for _, name in { "alltracks", "cash", "dice", "potions" } do
-		local c = Instance.new("TextChatCommand")
-		c.Name = "TrackRNG_" .. name
-		c.PrimaryAlias = "/" .. name
-		c.Parent = TextChatService
-		c.Triggered:Connect(function(source, text)
-			local player = Players:GetPlayerByUserId(source.UserId)
-			if player then
-				runCommand(player, text)
-			end
-		end)
+function Actions.DevCommand(player, _data, text)
+	if type(text) ~= "string" or #text > 40 then
+		return false
 	end
+	if not canTest(player) then
+		return false, "Test commands only work in Studio or for the game owner."
+	end
+	runCommand(player, text)
+	return true
+end
+
+local function setupCommands()
+	-- chat commands are created by the client (Actions.DevCommand); Chatted is a fallback for
+	-- legacy chat. runCommand ignores a second copy of the same command within a second.
 	local function hook(player: Player)
 		player.Chatted:Connect(function(msg)
 			runCommand(player, msg)
@@ -724,8 +856,10 @@ function GameService.start()
 			task.wait(1)
 			for _, player in Players:GetPlayers() do
 				local data = DataService.get(player)
+				if data and TrackService.income(player) > 0 then
+					data.LastIncome = income(player, data, true)
+				end
 				if data then
-					data.LastIncome = income(player, data)
 					local expired = false
 					for effect, left in data.Potions do
 						if left > 0 then
@@ -737,6 +871,7 @@ function GameService.start()
 					end
 					if expired then
 						notify(player, "A potion ran out.", "#cfd8ff")
+						TrackService.refreshPath(player, data)
 						sendUpdate(player)
 					end
 				end

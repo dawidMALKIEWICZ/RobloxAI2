@@ -246,10 +246,17 @@ function WorldFX:Setup(map: Instance)
 			end))
 			local pad = plot:FindFirstChild("Pad")
 			if pad then
+				-- buildPad adds ~30 parts at once: rebuild the border once per batch
+				local queued = false
 				local function border()
-					if plot:GetAttribute("OwnerId") == Players.LocalPlayer.UserId then
-						task.defer(self.PadBorder, self, plot)
+					if queued or plot:GetAttribute("OwnerId") ~= Players.LocalPlayer.UserId then
+						return
 					end
+					queued = true
+					task.delay(0.1, function()
+						queued = false
+						self:PadBorder(plot)
+					end)
 				end
 				table.insert(self.Connections, pad.ChildAdded:Connect(border))
 				table.insert(self.Connections, plot:GetAttributeChangedSignal("OwnerId"):Connect(border))
@@ -649,7 +656,7 @@ function WorldFX:ShowRoute(plot: Instance?, data, on: boolean)
 	local cell = Stats.Config.Cell
 	local points = {}
 	for _, step in Stats.tracePath(data) do
-		local cf = origin.CFrame * CFrame.new((step.x - c) * cell, 0.3, (step.z - c) * cell)
+		local cf = origin.CFrame * CFrame.new((step.x - c) * cell, 0.3 + (step.f or 0) * Stats.FLOOR_H, (step.z - c) * cell)
 			* CFrame.Angles(0, -step.r * math.pi / 2, 0)
 		local tile = tiles:FindFirstChild(step.id)
 		local path = tile and tile:FindFirstChild("Path")
@@ -950,6 +957,20 @@ function WorldFX:Tile(m: Instance)
 				ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 100, 255)) }),
 			Transparency = seq(0.1, 1),
 		})
+	elseif id == "Lift" then
+		-- energy rising up the Sky Ramp column and a soft glow at the top
+		aura(base * CFrame.new(0, Stats.FLOOR_H / 2 + 0.5, 0), Vector3.new(1.6, Stats.FLOOR_H, 1.6), {
+			Texture = TEX.Star, Rate = 10, Lifetime = NumberRange.new(1, 1.6), Speed = NumberRange.new(3, 5),
+			EmissionDirection = Enum.NormalId.Top, Size = seq(0.45, 0), LightEmission = 1,
+			Shape = Enum.ParticleEmitterShape.Cylinder, ShapeStyle = Enum.ParticleEmitterShapeStyle.Surface,
+			Color = ColorSequence.new(Color3.fromRGB(95, 211, 255), Color3.fromRGB(255, 255, 255)),
+			Transparency = seq(0.1, 1),
+		})
+		aura(base * CFrame.new(0, Stats.FLOOR_H + 1.9, 0), Vector3.new(1, 1, 1), {
+			Texture = TEX.Star, Rate = 4, Lifetime = NumberRange.new(0.8, 1.2), Speed = NumberRange.new(0, 0.3),
+			Size = seq(2.4, 0), LightEmission = 1, RotSpeed = NumberRange.new(-90, 90),
+			Color = ColorSequence.new(Color3.fromRGB(150, 230, 255)), Transparency = seq(0.3, 1),
+		})
 	elseif id == "IceTurn" then
 		aura(base * CFrame.new(-2, 1, 2), Vector3.new(6, 0.2, 6), {
 			Texture = TEX.Smoke, Rate = 3, Lifetime = NumberRange.new(1.5, 2.2), Speed = NumberRange.new(0.3, 0.8),
@@ -1035,9 +1056,32 @@ function WorldFX:Car(car: Instance)
 		SpreadAngle = Vector2.new(80, 10), EmissionDirection = Enum.NormalId.Top, Size = seq(0.6, 1.6),
 		Color = ColorSequence.new(Color3.fromRGB(230, 225, 215)), Transparency = seq(0.4, 1), Drag = 3,
 	})
+	-- spinning wheels: the server moves the car as one piece, so each wheel is drawn by a local
+	-- copy that follows the server wheel and turns with the distance driven
+	state.wheels = {}
+	state.spin = 0
+	for _, w in car:GetDescendants() do
+		if w:IsA("BasePart") and (w:GetAttribute("Wheel") == true or string.match(w.Name, "^Wheel")) then
+			local copy = w:Clone()
+			copy.Name = "LocalWheel"
+			copy.Anchored = true
+			copy.CanCollide = false
+			copy.CanQuery = false
+			copy.CanTouch = false
+			copy.Parent = self.Folder
+			w.LocalTransparencyModifier = 1
+			-- rotating about the wheel's own X axis; the sign makes the top roll forwards
+			local sign = if w.CFrame.RightVector:Dot(root.CFrame.RightVector) > 0 then -1 else 1
+			table.insert(state.wheels, { part = w, copy = copy, sign = sign,
+				radius = math.max(0.2, math.max(w.Size.Y, w.Size.Z) / 2) })
+		end
+	end
 	self.Cars[car] = state
 	car.Destroying:Connect(function()
 		self.Cars[car] = nil
+		for _, wh in state.wheels do
+			wh.copy:Destroy()
+		end
 	end)
 end
 
@@ -1183,6 +1227,9 @@ function WorldFX:Step(dt: number)
 	for car, s in self.Cars do
 		if not s.root.Parent then
 			self.Cars[car] = nil
+			for _, wh in s.wheels do
+				wh.copy:Destroy()
+			end
 			continue
 		end
 		local cf = s.root.CFrame
@@ -1197,6 +1244,15 @@ function WorldFX:Step(dt: number)
 		end
 		for _, e in s.emitters do
 			e.Enabled = near and speed > 1 and not low or (near and speed > 1 and e.Rate > 20)
+		end
+		if #s.wheels > 0 then
+			if not teleported then
+				s.spin += moved:Dot(cf.LookVector)
+			end
+			for _, wh in s.wheels do
+				local angle = if near then wh.sign * s.spin / wh.radius else 0
+				wh.copy.CFrame = wh.part.CFrame * CFrame.Angles(angle, 0, 0)
+			end
 		end
 		if near and not teleported and speed > 2 then
 			local turn = s.last.LookVector:Cross(cf.LookVector).Magnitude / math.max(dt, 1e-3)

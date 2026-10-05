@@ -22,7 +22,7 @@ const ICONS = {
   sparkle: `<path d="M44 8 Q50 40 82 46 Q50 52 44 88 Q38 52 6 46 Q38 40 44 8 Z"/>
             <path d="M78 6 Q81 18 92 20 Q81 23 78 34 Q75 23 64 20 Q75 18 78 6 Z"/>
             <path d="M80 66 Q82 74 90 76 Q82 78 80 86 Q78 78 70 76 Q78 74 80 66 Z"/>`,
-  auto: `<g transform="scale(4.1667)"><path stroke-width="1.4" d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></g>`,
+  auto: `<g transform="scale(4.1667)"><path style="stroke-width:1.5px" d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></g>`,
   eye: `<path d="M6 50 Q50 6 94 50 Q50 94 6 50 Z"/>
         <circle cx="50" cy="50" r="17" fill="#2a2140"/><circle cx="56" cy="44" r="6" fill="#fff"/>`,
   eyeoff: `<path d="M6 50 Q50 6 94 50 Q50 94 6 50 Z"/>
@@ -99,6 +99,14 @@ const ART = [
   { name: "show", top: "#ffd27a", bottom: "#ff7a2a", icon: "eye", label: "SHOW" },
 ];
 
+// plain white icons with a dark outline (used on native game buttons)
+function iconOnly(icon, size = 256) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="-8 -8 116 116">
+  <g fill="#fff" stroke="${INK}" stroke-width="9" stroke-linejoin="round" paint-order="stroke">${ICONS[icon]
+    .replace(/stroke-width="(\d+(?:\.\d+)?)"/g, (m, v) => `stroke-width="${v}" stroke="#fff"`)}</g></svg>`;
+}
+const ICON_ONLY = [["icon_auto", "auto"], ["icon_eye", "eye"], ["icon_eyeoff", "eyeoff"]];
+
 const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium-1194/chrome-linux/chrome" }).catch(
   () => chromium.launch());
 const page = await browser.newPage({ deviceScaleFactor: 2 });
@@ -112,6 +120,14 @@ for (const a of ART) {
   await el.screenshot({ path: path.join(OUT, a.name + ".png"), omitBackground: true });
   sheet.push(svg);
   console.log("wrote", a.name);
+}
+for (const [name, icon] of ICON_ONLY) {
+  const svg = iconOnly(icon);
+  fs.writeFileSync(path.join(OUT, "svg", name + ".svg"), svg);
+  await page.setContent(`<html><body style="margin:0;background:transparent">${svg}</body></html>`);
+  const el = await page.$("svg");
+  await el.screenshot({ path: path.join(OUT, name + ".png"), omitBackground: true });
+  console.log("wrote", name);
 }
 // contact sheet on a game-like background for review
 await page.setViewportSize({ width: 1400, height: 330 });

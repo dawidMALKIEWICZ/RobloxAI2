@@ -22,7 +22,7 @@ PIECE_ICONS = {
     "Spiral": "🗼", "WaveRider": "🌊", "WallRide": "🧱", "DoubleLoop": "➿",
     "TeleportGate": "🌌", "SkyLeap": "🌠", "Tunnel": "🚇", "Bridge": "🌉", "IceTurn": "🧊",
     "CamelBack": "🐫", "HalfPipe": "🛹", "NeonTurn": "💡", "RingOfFire": "🔥", "LaunchPad": "🚀",
-    "Twister": "🌪️", "RainbowRoad": "🌈", "BlackHole": "🕳️",
+    "Twister": "🌪️", "RainbowRoad": "🌈", "BlackHole": "🕳️", "Lift": "🛗",
 }
 
 # Every potion has its own timer key ("effect") and multiplies one or more stats while it
@@ -98,6 +98,24 @@ DICE = [
      "color": "#ffd23f", "color2": "#ffffff", "tier": "Secret", "vfx": 5},
     {"id": "Singularity", "name": "Singularity Dice", "price": 500_000_000, "luck": 60_000,
      "color": "#0a0a12", "color2": "#ffb31a", "tier": "Secret", "vfx": 5},
+]
+
+# Track mutations: every rolled piece may come out mutated. A mutated copy earns `mult` times
+# more and gets its own look (a recoloured palette texture + effects). `chance` = 1 in N at
+# luck 1; luck raises it gently (see Stats.rollMutation). Ordered common -> rare.
+MUTATIONS = [
+    {"id": "Golden", "name": "Golden", "mult": 1.5, "chance": 12, "color": "#ffcc33",
+     "color2": "#fff3b0", "glow": "#ffd23f"},
+    {"id": "Frozen", "name": "Frozen", "mult": 2, "chance": 30, "color": "#7fd8ff",
+     "color2": "#eefbff", "glow": "#9fe8ff"},
+    {"id": "Diamond", "name": "Diamond", "mult": 3, "chance": 80, "color": "#b9f6ff",
+     "color2": "#ffffff", "glow": "#d9fbff"},
+    {"id": "Neon", "name": "Neon", "mult": 4, "chance": 200, "color": "#ff3bd4",
+     "color2": "#3bf6ff", "glow": "#ff3bd4"},
+    {"id": "Rainbow", "name": "Rainbow", "mult": 6, "chance": 600, "color": "rainbow",
+     "color2": "#ffffff", "glow": "#ffffff"},
+    {"id": "Void", "name": "Void", "mult": 10, "chance": 2000, "color": "#8a3bff",
+     "color2": "#1a0833", "glow": "#b46bff"},
 ]
 
 # skill tree: col/row are grid coordinates in the Skills window
@@ -236,14 +254,46 @@ CONFIG = {
     "OfflineRate": 0.25,
     "OfflineMaxHours": 8,
     "StartInventory": {"Straight": 8, "Turn": 4},
+    "FloorHeight": 9,
+    "SecondFloorPrice": 100_000,
+    "SecondFloorLifts": 2,      # free Sky Ramps when the 2nd floor is bought
+    "FuseCount": 3,             # dice of one kind fused into one die of the next kind
+    "FuseJackpot": 0.1,         # chance the fusion skips a tier
+    "MutationLuckPower": 0.35,  # luck^power multiplies mutation chances
 }
 
 
+def tile_heights():
+    """Top of every baked tile above the pad (studs), from the mesh manifest."""
+    p = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets",
+                     "meshes", "manifest.json")
+    man = json.load(open(p)) if os.path.exists(p) else {}
+    out = {}
+    for k, v in man.items():
+        if k.startswith("Tile_") and v:
+            out[k[5:]] = round(max(e["center"][1] + e["size"][1] / 2 for e in v), 2)
+    return out
+
+
 def piece_list():
+    heights = tile_heights()
     out = []
     for i, (pid, display, tier, odds, value, _f, _d, ports, desc) in enumerate(TILES):
         out.append({"id": pid, "name": display, "tier": tier, "odds": odds, "value": value,
-                    "ports": ports, "desc": desc, "icon": PIECE_ICONS[pid], "order": i + 1})
+                    "ports": ports, "desc": desc, "icon": PIECE_ICONS[pid], "order": i + 1,
+                    "height": heights.get(pid, 10.4 if pid == "Lift" else 3.0),
+                    "lift": pid == "Lift"})
+    return out
+
+
+def mutation_list():
+    tex = media().get("mutations", {})
+    out = []
+    for i, m in enumerate(MUTATIONS):
+        m = dict(m, order=i + 1)
+        if tex.get(m["id"]):
+            m["texture"] = f"rbxassetid://{tex[m['id']]}"
+        out.append(m)
     return out
 
 
@@ -296,7 +346,7 @@ def data():
         "Potions": with_icons(POTIONS, "Potion_"), "Dice": with_icons(DICE, "Dice_"),
         "Audio": audio(), "FX": fx(), "UIArt": ui_art(), "Upgrades": UPGRADES, "Daily": DAILY,
         "Pass": PASS, "Crate": CRATE, "Products": PRODUCTS, "StarterPack": STARTER_PACK,
-        "Config": CONFIG,
+        "Config": CONFIG, "Mutations": mutation_list(),
     }
 
 

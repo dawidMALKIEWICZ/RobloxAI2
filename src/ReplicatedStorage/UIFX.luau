@@ -246,15 +246,6 @@ function UIFX:WireWindows()
 		if icon and icon:IsA("GuiObject") then
 			table.insert(self.Spinners, { obj = icon, kind = "wobble", phase = math.random() * 6 })
 		end
-		local close = header and header:FindFirstChild("Close")
-		if close and close:IsA("GuiButton") then
-			self:Connect(close.MouseEnter, function()
-				tween(close, 0.3, { Rotation = 90 }, Enum.EasingStyle.Back)
-			end)
-			self:Connect(close.MouseLeave, function()
-				tween(close, 0.3, { Rotation = 0 }, Enum.EasingStyle.Back)
-			end)
-		end
 	end
 end
 
@@ -276,26 +267,7 @@ function UIFX:WireRoll()
 		die.Rotation = -25
 		tween(die, 0.5, { Rotation = 0 }, Enum.EasingStyle.Elastic)
 	end)
-	-- ring that spins around the button while Auto Roll is on
-	local ring = Instance.new("ImageLabel")
-	ring.Name = "AutoRing"
-	ring.BackgroundTransparency = 1
-	ring.Image = "rbxassetid://134711977820804"
-	ring.ImageColor3 = Color3.fromRGB(111, 255, 40)
-	ring.ImageTransparency = 0.25
-	ring.AnchorPoint = Vector2.new(0.5, 0.5)
-	ring.Position = UDim2.fromScale(0.5, 0.5)
-	ring.Size = UDim2.fromScale(1.15, 1.15)
-	ring.ZIndex = roll.ZIndex
-	ring.Visible = false
-	ring.Active = false
-	ring.Parent = roll
-	local dash = ring:Clone()
-	dash.Name = "AutoRing2"
-	dash.Size = UDim2.fromScale(1.3, 1.3)
-	dash.ImageTransparency = 0.6
-	dash.Parent = roll
-	self.AutoRings = { ring, dash }
+	self.AutoRings = {}
 end
 
 function UIFX:SetAuto(on: boolean)

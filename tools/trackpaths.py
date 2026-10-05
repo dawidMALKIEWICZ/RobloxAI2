@@ -308,6 +308,60 @@ def t_blackhole(p):
 
 
 # id, display, tier, odds, value, path fn, ports, desc
+FLOOR_H = 9.0      # height of the second track floor above the first
+LIFT_R = 2.9
+
+
+def t_lift(p):
+    """Spiral ramp: climbs one full turn round a central column from floor 1 (port A) to
+    floor 2 (port B). The rise is spread over the whole road with eased ends, and the way up
+    always passes at least 5 studs above or below itself."""
+    lw = 1.25
+    pts = []
+
+    def add_seg(fn, n):
+        for i in range(1, n + 1):
+            pts.append(fn(i / n))
+    pts.append((0.0, HALF))
+    add_seg(lambda u: (0.0, HALF - u), 4)                                      # straight in
+    add_seg(lambda u: (-LIFT_R * smooth(u), HALF - 1 - (HALF - 1) * u), 14)    # drift left
+    add_seg(lambda u: (-LIFT_R * math.cos(math.tau * u), -LIFT_R * math.sin(math.tau * u)), 48)
+    add_seg(lambda u: (-LIFT_R * (1 - smooth(u)), -(HALF - 1) * u), 14)        # drift back
+    add_seg(lambda u: (0.0, -(HALF - 1) - u), 4)                               # straight out
+    acc = [0.0]
+    for a, b in zip(pts, pts[1:]):
+        acc.append(acc[-1] + math.dist(a, b))
+    total = acc[-1]
+    ramp = 3.0  # studs over which the slope eases in and out
+    slope = FLOOR_H / (total - ramp)
+
+    def height(s):
+        if s < ramp:
+            return slope * s * s / (2 * ramp)
+        if s > total - ramp:
+            r = total - s
+            return FLOOR_H - slope * r * r / (2 * ramp)
+        return slope * (s - ramp / 2)
+
+    def at(t):
+        s = t * total
+        i = max(1, min(len(acc) - 1, next((k for k in range(1, len(acc)) if acc[k] >= s),
+                                          len(acc) - 1)))
+        k = (s - acc[i - 1]) / max(acc[i] - acc[i - 1], 1e-9)
+        x = lerp(pts[i - 1][0], pts[i][0], k)
+        z = lerp(pts[i - 1][1], pts[i][1], k)
+        return (x, ROAD_Y + height(s), z), (0, 1, 0)
+
+    def width(t):
+        s = t * total
+        if s < 1.0:
+            return lerp(HALF_W, lw, smooth(s))
+        if s > total - 1.0:
+            return lerp(lw, HALF_W, smooth(s - (total - 1.0)))
+        return lw
+    p.curve(at, 120, width=width)
+
+
 TILES = [
     ("Straight", "Straight", "Common", 2, 1, t_straight, "SN", "A plain piece of road."),
     ("Turn", "Turn", "Common", 3, 2, t_turn, "SE", "A 90° corner."),
@@ -315,6 +369,8 @@ TILES = [
     ("Hill", "Hill", "Rare", 15, 6, t_hill, "SN", "Up and over!"),
     ("BankedTurn", "Banked Turn", "Rare", 35, 12, t_banked, "SE", "A fast tilted corner."),
     ("BoostPad", "Boost Pad", "Rare", 80, 25, t_boost, "SN", "Doubles your speed."),
+    ("Lift", "Sky Ramp", "Rare", 45, 15, t_lift, "SN",
+     "Spirals up to the 2nd floor (unlock it in Build)."),
     ("Chicane", "Chicane", "Epic", 250, 60, t_chicane, "SN", "Left-right wiggle."),
     ("Jump", "Jump", "Epic", 700, 150, t_jump, "SN", "Fly over a gap."),
     ("Corkscrew", "Corkscrew", "Epic", 2000, 400, t_corkscrew, "SN", "A full barrel roll."),

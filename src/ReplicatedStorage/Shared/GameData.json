@@ -41,7 +41,9 @@
    "ports": "SN",
    "desc": "A plain piece of road.",
    "icon": "⬆️",
-   "order": 1
+   "order": 1,
+   "height": 0.74,
+   "lift": false
   },
   {
    "id": "Turn",
@@ -52,7 +54,9 @@
    "ports": "SE",
    "desc": "A 90° corner.",
    "icon": "↪️",
-   "order": 2
+   "order": 2,
+   "height": 0.74,
+   "lift": false
   },
   {
    "id": "SpeedBump",
@@ -63,7 +67,9 @@
    "ports": "SN",
    "desc": "A little bump.",
    "icon": "〰️",
-   "order": 3
+   "order": 3,
+   "height": 1.54,
+   "lift": false
   },
   {
    "id": "Hill",
@@ -74,7 +80,9 @@
    "ports": "SN",
    "desc": "Up and over!",
    "icon": "⛰️",
-   "order": 4
+   "order": 4,
+   "height": 3.7,
+   "lift": false
   },
   {
    "id": "Tunnel",
@@ -85,7 +93,9 @@
    "ports": "SN",
    "desc": "A glowing rock tunnel.",
    "icon": "🚇",
-   "order": 5
+   "order": 5,
+   "height": 6.8,
+   "lift": false
   },
   {
    "id": "BankedTurn",
@@ -96,7 +106,22 @@
    "ports": "SE",
    "desc": "A fast tilted corner.",
    "icon": "🔄",
-   "order": 6
+   "order": 6,
+   "height": 4.19,
+   "lift": false
+  },
+  {
+   "id": "Lift",
+   "name": "Sky Ramp",
+   "tier": "Rare",
+   "odds": 45,
+   "value": 15,
+   "ports": "SN",
+   "desc": "Spirals up to the 2nd floor (unlock it in Build).",
+   "icon": "🛗",
+   "order": 7,
+   "height": 10.4,
+   "lift": true
   },
   {
    "id": "Bridge",
@@ -107,7 +132,9 @@
    "ports": "SN",
    "desc": "Hop over a little river.",
    "icon": "🌉",
-   "order": 7
+   "order": 8,
+   "height": 2.6,
+   "lift": false
   },
   {
    "id": "BoostPad",
@@ -118,7 +145,9 @@
    "ports": "SN",
    "desc": "Doubles your speed.",
    "icon": "⚡",
-   "order": 8
+   "order": 9,
+   "height": 4.8,
+   "lift": false
   },
   {
    "id": "IceTurn",
@@ -129,7 +158,9 @@
    "ports": "SE",
    "desc": "A slippery frozen corner.",
    "icon": "🧊",
-   "order": 9
+   "order": 10,
+   "height": 2.78,
+   "lift": false
   },
   {
    "id": "Chicane",
@@ -140,7 +171,9 @@
    "ports": "SN",
    "desc": "Left-right wiggle.",
    "icon": "🐍",
-   "order": 10
+   "order": 11,
+   "height": 1.8,
+   "lift": false
   },
   {
    "id": "CamelBack",
@@ -151,7 +184,9 @@
    "ports": "SN",
    "desc": "Two bumps, double fun.",
    "icon": "🐫",
-   "order": 11
+   "order": 12,
+   "height": 2.87,
+   "lift": false
   },
   {
    "id": "Jump",
@@ -162,7 +197,9 @@
    "ports": "SN",
    "desc": "Fly over a gap.",
    "icon": "🦘",
-   "order": 12
+   "order": 13,
+   "height": 3.8,
+   "lift": false
   },
   {
    "id": "HalfPipe",
@@ -173,7 +210,9 @@
    "ports": "SN",
    "desc": "Ride up both walls.",
    "icon": "🛹",
-   "order": 13
+   "order": 14,
+   "height": 3.9,
+   "lift": false
   },
   {
    "id": "Corkscrew",
@@ -184,7 +223,9 @@
    "ports": "SN",
    "desc": "A full barrel roll.",
    "icon": "🌀",
-   "order": 14
+   "order": 15,
+   "height": 5.2,
+   "lift": false
   },
   {
    "id": "NeonTurn",
@@ -195,7 +236,9 @@
    "ports": "SE",
    "desc": "A corner lit with neon.",
    "icon": "💡",
-   "order": 15
+   "order": 16,
+   "height": 3.18,
+   "lift": false
   },
   {
    "id": "Loop",
@@ -206,7 +249,9 @@
    "ports": "SN",
    "desc": "A vertical loop.",
    "icon": "➰",
-   "order": 16
+   "order": 17,
+   "height": 7.07,
+   "lift": false
   },
   {
    "id": "RingOfFire",
@@ -217,7 +262,9 @@
    "ports": "SN",
    "desc": "Jump through the flames!",
    "icon": "🔥",
-   "order": 17
+   "order": 18,
+   "height": 6.92,
+   "lift": false
   },
   {
    "id": "Spiral",
@@ -228,7 +275,9 @@
    "ports": "SN",
    "desc": "Spin up the pole, slide down.",
    "icon": "🗼",
-   "order": 18
+   "order": 19,
+   "height": 8.35,
+   "lift": false
   },
   {
    "id": "LaunchPad",
@@ -239,7 +288,9 @@
    "ports": "SN",
    "desc": "Boost and fly high.",
    "icon": "🚀",
-   "order": 19
+   "order": 20,
+   "height": 3.22,
+   "lift": false
   },
   {
    "id": "WaveRider",
@@ -250,7 +301,9 @@
    "ports": "SN",
    "desc": "Swoops and rolls.",
    "icon": "🌊",
-   "order": 20
+   "order": 21,
+   "height": 3.95,
+   "lift": false
   },
   {
    "id": "WallRide",
@@ -261,7 +314,9 @@
    "ports": "SN",
    "desc": "Drive on the wall!",
    "icon": "🧱",
-   "order": 21
+   "order": 22,
+   "height": 6.37,
+   "lift": false
   },
   {
    "id": "Twister",
@@ -272,7 +327,9 @@
    "ports": "SN",
    "desc": "Two barrel rolls.",
    "icon": "🌪️",
-   "order": 22
+   "order": 23,
+   "height": 5.2,
+   "lift": false
   },
   {
    "id": "DoubleLoop",
@@ -283,7 +340,9 @@
    "ports": "SN",
    "desc": "Two loops in a row.",
    "icon": "➿",
-   "order": 23
+   "order": 24,
+   "height": 7.06,
+   "lift": false
   },
   {
    "id": "RainbowRoad",
@@ -294,7 +353,9 @@
    "ports": "SN",
    "desc": "A glowing rainbow speedway.",
    "icon": "🌈",
-   "order": 24
+   "order": 25,
+   "height": 2.49,
+   "lift": false
   },
   {
    "id": "TeleportGate",
@@ -305,7 +366,9 @@
    "ports": "SN",
    "desc": "Warp through a portal.",
    "icon": "🌌",
-   "order": 25
+   "order": 26,
+   "height": 5.9,
+   "lift": false
   },
   {
    "id": "SkyLeap",
@@ -316,7 +379,9 @@
    "ports": "SN",
    "desc": "Teleport, loop, leap!",
    "icon": "🌠",
-   "order": 26
+   "order": 27,
+   "height": 19.7,
+   "lift": false
   },
   {
    "id": "BlackHole",
@@ -327,7 +392,9 @@
    "ports": "SN",
    "desc": "Swallowed and spat out!",
    "icon": "🕳️",
-   "order": 27
+   "order": 28,
+   "height": 5.56,
+   "lift": false
   }
  ],
  "Cars": [
@@ -875,9 +942,12 @@
   "water": "rbxassetid://89262382016614"
  },
  "UIArt": {
-  "auto_off": "rbxassetid://127949658107476",
-  "auto_on": "rbxassetid://131693216831903",
+  "auto_off": "rbxassetid://102637347337027",
+  "auto_on": "rbxassetid://78065601209028",
   "hide": "rbxassetid://98846434485966",
+  "icon_auto": "rbxassetid://103854106799462",
+  "icon_eye": "rbxassetid://81695880624536",
+  "icon_eyeoff": "rbxassetid://108542336250148",
   "music_off": "rbxassetid://123213832846507",
   "music_on": "rbxassetid://105400648507286",
   "sfx_off": "rbxassetid://114639324520086",
@@ -1735,6 +1805,74 @@
   "StartInventory": {
    "Straight": 8,
    "Turn": 4
+  },
+  "FloorHeight": 9,
+  "SecondFloorPrice": 100000,
+  "SecondFloorLifts": 2,
+  "FuseCount": 3,
+  "FuseJackpot": 0.1,
+  "MutationLuckPower": 0.35
+ },
+ "Mutations": [
+  {
+   "id": "Golden",
+   "name": "Golden",
+   "mult": 1.5,
+   "chance": 12,
+   "color": "#ffcc33",
+   "color2": "#fff3b0",
+   "glow": "#ffd23f",
+   "order": 1
+  },
+  {
+   "id": "Frozen",
+   "name": "Frozen",
+   "mult": 2,
+   "chance": 30,
+   "color": "#7fd8ff",
+   "color2": "#eefbff",
+   "glow": "#9fe8ff",
+   "order": 2
+  },
+  {
+   "id": "Diamond",
+   "name": "Diamond",
+   "mult": 3,
+   "chance": 80,
+   "color": "#b9f6ff",
+   "color2": "#ffffff",
+   "glow": "#d9fbff",
+   "order": 3
+  },
+  {
+   "id": "Neon",
+   "name": "Neon",
+   "mult": 4,
+   "chance": 200,
+   "color": "#ff3bd4",
+   "color2": "#3bf6ff",
+   "glow": "#ff3bd4",
+   "order": 4
+  },
+  {
+   "id": "Rainbow",
+   "name": "Rainbow",
+   "mult": 6,
+   "chance": 600,
+   "color": "rainbow",
+   "color2": "#ffffff",
+   "glow": "#ffffff",
+   "order": 5
+  },
+  {
+   "id": "Void",
+   "name": "Void",
+   "mult": 10,
+   "chance": 2000,
+   "color": "#8a3bff",
+   "color2": "#1a0833",
+   "glow": "#b46bff",
+   "order": 6
   }
- }
+ ]
 }

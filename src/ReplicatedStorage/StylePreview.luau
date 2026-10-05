@@ -57,7 +57,10 @@ end
 RunService.RenderStepped:Connect(function(dt)
 	angle += dt * 0.35
 	for cam, vp in cameras do
-		if vp.Visible and vp:IsDescendantOf(game) then
+		-- only while the viewport is really on screen (its window can be closed)
+		local gui = vp:FindFirstAncestorWhichIsA("LayerCollector")
+		local window = vp:FindFirstAncestor("StyleShopWindow")
+		if vp.Visible and gui and gui.Enabled and (not window or (window :: GuiObject).Visible) then
 			local k = angle + (vp:GetAttribute("Phase") or 0)
 			cam.CFrame = CFrame.lookAt(Vector3.new(math.sin(k) * 27, 16, math.cos(k) * 27), Vector3.new(0, -1, 0))
 		end

@@ -212,12 +212,12 @@ function VFX:RollResult(piece,isNew,compact,auto)
   self:ScreenFlash(rank>=6 and Color3.new(1,1,1) or color,rank>=5 and .15 or .35)
   self:StarRain(color,self:Q(10+rank*6),rank>=6)
   self:LightPillar(color,rank)
-  if self.World and self.World.Hologram then self.World:Hologram(piece,color,rank) end
+  if self.WorldFX and self.WorldFX.Hologram then self.WorldFX:Hologram(piece,color,rank) end
  end
  if rank>=5 then task.delay(.45,function() if not self.Destroyed then self:Shockwave(point,Color3.new(1,1,1),2) self:Confetti(point,color,self:Q(30),false) end end) end
- if rank>=5 and self.World then
+ if rank>=5 and self.WorldFX then
   local char=Players.LocalPlayer.Character local rp=char and char:FindFirstChild("HumanoidRootPart")
-  if rp then self.World:Fireworks(rp.Position+Vector3.new(0,2,0),{color,Color3.new(1,1,1),Color3.fromRGB(255,214,64)},rank>=6 and 12 or 7) end
+  if rp then self.WorldFX:Fireworks(rp.Position+Vector3.new(0,2,0),{color,Color3.new(1,1,1),Color3.fromRGB(255,214,64)},rank>=6 and 12 or 7) end
  end
  if rank>=6 then
   self:Glitch(1.2)
@@ -657,7 +657,17 @@ function VFX:Ambient()
     task.delay(.06,function()
      if not model.Parent or not model:IsA("Model") then return end
      self:DecorateTrack(model)
-     if os.clock()-self.Started>1.5 and plot:GetAttribute("OwnerId")==Players.LocalPlayer.UserId and model:GetAttribute("PieceId")~="Start" then local cf=model:GetBoundingBox() self:Place(cf.Position,model) end
+     if os.clock()-self.Started>1.5 and plot:GetAttribute("OwnerId")==Players.LocalPlayer.UserId and model:GetAttribute("PieceId")~="Start" then
+      -- on the 2nd floor the pillars grow first, then the tile drops onto them
+      if model:GetAttribute("Floor")==1 then
+       local hidden={}
+       for _,p in model:GetDescendants() do if p:IsA("BasePart") then hidden[#hidden+1]=p p.LocalTransparencyModifier=1 end end
+       task.wait(.5)
+       for _,p in hidden do if p.Parent then p.LocalTransparencyModifier=0 end end
+       if not model.Parent then return end
+      end
+      local cf=model:GetBoundingBox() self:Place(cf.Position,model)
+     end
     end)
    end)
   end

@@ -33,8 +33,10 @@ local UIVisuals = require(ReplicatedStorage:WaitForChild("UIVisuals"))
 UIVisuals.Bind(gui)
 local vfx = require(ReplicatedStorage:WaitForChild("ClientVFX")).new(gui)
 local worldFX = require(ReplicatedStorage:WaitForChild("WorldFX")).new(gui)
-vfx.World = worldFX
+vfx.WorldFX = worldFX
 local uiFX = require(ReplicatedStorage:WaitForChild("UIFX")).new(gui, GameData)
+local Mutations = require(ReplicatedStorage:WaitForChild("Mutations"))
+task.spawn(Mutations.startWorld, Workspace:WaitForChild("Map"))
 
 local snap = nil
 local snapTime = 0
@@ -56,6 +58,7 @@ local PRESET = {
 	gray = seq("#eeeeee", "#a9a9b3", "#6d6d78"),
 	blue = seq("#a6e9ff", "#33aaff", "#1563c9"),
 	yellow = seq("#fff59a", "#ffc61a", "#e58a00"),
+	purple = seq("#e6b8ff", "#a64dff", "#6a1fc9"),
 }
 
 local function setPreset(button: Instance, preset: string)
@@ -104,7 +107,9 @@ local function request(action: string, arg: any?)
 	if action == "Remove" and type(arg) == "table" then
 		for _, plot in Workspace.Map.Plots:GetChildren() do
 			if plot:GetAttribute("OwnerId") == player.UserId then
-				local tile = plot.Track:FindFirstChild("T_" .. tostring(arg.x) .. "_" .. tostring(arg.z))
+				local f = tonumber(arg.f) or 0
+				local name = "T_" .. tostring(arg.x) .. "_" .. tostring(arg.z) .. (if f ~= 0 then "_" .. f else "")
+				local tile = plot.Track:FindFirstChild(name)
 				if tile then
 					removed = tile:Clone()
 				end
@@ -129,13 +134,14 @@ local function request(action: string, arg: any?)
 			for _,plot in Workspace.Map.Plots:GetChildren() do
 				if plot:GetAttribute("OwnerId") == player.UserId then
 					local center=Stats.center()
-					local pos=(plot.GridOrigin.CFrame*CFrame.new((arg.x-center)*Stats.Config.Cell,.3,(arg.z-center)*Stats.Config.Cell)).Position
+					local y=.3+(tonumber(arg.f) or 0)*Stats.FLOOR_H
+					local pos=(plot.GridOrigin.CFrame*CFrame.new((arg.x-center)*Stats.Config.Cell,y,(arg.z-center)*Stats.Config.Cell)).Position
 					vfx:Remove(pos)
 					break
 				end
 			end
 		end
-	elseif a == false and action ~= "GetData" then vfx:Error(vfx.LastButton) end
+	elseif a == false and action ~= "GetData" and not (action == "Roll" and arg == "auto") then vfx:Error(vfx.LastButton) end
 	return a, b, c
 end
 
@@ -250,6 +256,15 @@ for _, w in windows:GetChildren() do
 	onClick(header and header:FindFirstChild("Close"), closeWindows)
 end
 
+-- dice fusion, offline popup and the second floor (see ReplicatedStorage.Systems)
+local systems = require(ReplicatedStorage:WaitForChild("Systems")).new({
+	gui = gui, vfx = vfx, worldFX = worldFX, uiFX = uiFX, request = request, toast = toast,
+	setPreset = setPreset, setText = setText, open = open, closeWindows = closeWindows,
+})
+Remotes:WaitForChild("Offline").OnClientEvent:Connect(function(info)
+	systems:ShowOffline(info)
+end)
+
 -- ------------------------------------------------------------------ centered roll reveal
 local rollReveal = require(ReplicatedStorage:WaitForChild("RollReveal")).new(gui)
 rollReveal.VFX = vfx
@@ -270,7 +285,7 @@ local function doRoll(auto: boolean?)
 	if auto ~= true then rollReveal:Resume() end
 	busy = true
 	lastRollClock = os.clock()
-	local ok, msg, res = request("Roll")
+	local ok, msg, res = request("Roll", if auto then "auto" else nil)
 	busy = false
 	if ok and res then
 		task.spawn(playReel, res, auto == true)
@@ -308,11 +323,12 @@ Remotes.Rolled.OnClientEvent:Connect(function(res)
 end)
 
 -- ------------------------------------------------------------------ build mode
-local selected: string? = nil
+local selected: string? = nil -- inventory key: "PieceId" or "PieceId@Mutation"
 local rotation = 0
 local deleteMode = false
 local ghost: Model? = nil
 local ghostHighlight: Highlight? = nil
+local placedCache = {} -- Stats.placedMap of the latest snapshot (not rebuilt every frame)
 
 -- the blueprint breathes so it reads clearly against the pad
 RunService.RenderStepped:Connect(function()
@@ -332,11 +348,16 @@ local function myPlot(): Model?
 	return nil
 end
 
-local function cellCFrame(plot: Model, x: number, z: number, r: number): CFrame
+local function buildFloor(): number
+	return systems.buildFloor
+end
+
+local function cellCFrame(plot: Model, x: number, z: number, r: number, f: number?): CFrame
 	local origin = (plot:FindFirstChild("GridOrigin") :: BasePart).CFrame
 	local c = Stats.center()
 	local cell = Stats.Config.Cell
-	return origin * CFrame.new((x - c) * cell, 0.3, (z - c) * cell) * CFrame.Angles(0, -r * math.pi / 2, 0)
+	return origin * CFrame.new((x - c) * cell, 0.3 + (f or 0) * Stats.FLOOR_H, (z - c) * cell)
+		* CFrame.Angles(0, -r * math.pi / 2, 0)
 end
 
 local function clearGhost()
@@ -347,8 +368,9 @@ local function clearGhost()
 	ghostHighlight = nil
 end
 
-local function makeGhost(id: string)
+local function makeGhost(key: string)
 	clearGhost()
+	local id, mut = Stats.splitKey(key)
 	local template = Tiles:FindFirstChild(id)
 	if not template then
 		return
@@ -358,6 +380,7 @@ local function makeGhost(id: string)
 	if path then
 		path:Destroy()
 	end
+	Mutations.apply(g, mut)
 	for _, p in g:GetDescendants() do
 		if p:IsA("BasePart") then
 			p.Anchored = true
@@ -371,6 +394,8 @@ local function makeGhost(id: string)
 	h.FillTransparency = 0.6
 	h.OutlineTransparency = 0
 	h.Parent = g
+	-- templates sit at the tile origin; pivot there so the blueprint lines up with the cell
+	g.WorldPivot = CFrame.new()
 	g.Name = "Blueprint"
 	g.Parent = Workspace
 	ghost = g
@@ -395,11 +420,15 @@ local function makeDeleteGhost()
 	ghost = g
 end
 
-local function setSelected(id: string?)
-	selected = id
+local function setSelected(key: string?)
+	selected = key
 	deleteMode = false
-	if id then
-		makeGhost(id)
+	if key then
+		makeGhost(key)
+		local piece = Stats.Pieces[(Stats.splitKey(key))]
+		if piece and piece.lift and buildFloor() ~= 0 then
+			systems:SetBuildFloor(0) -- Sky Ramps always start on the ground floor
+		end
 	else
 		clearGhost()
 	end
@@ -407,8 +436,10 @@ local function setSelected(id: string?)
 		if item:IsA("GuiButton") then
 			local stroke = item:FindFirstChild("Stroke") :: UIStroke
 			local pid = string.sub(item.Name, 6)
-			stroke.Thickness = if pid == id then 4 else 3
-			stroke.Color = if pid == id then Color3.fromRGB(40, 225, 255) else Color3.fromRGB(9, 14, 25)
+			local _, mut = Stats.splitKey(pid)
+			stroke.Thickness = if pid == key then 4 else 3
+			stroke.Color = if pid == key then Color3.fromRGB(40, 225, 255)
+				elseif mut then Mutations.color(mut) else Color3.fromRGB(9, 14, 25)
 		end
 	end
 	setPreset(buildPanel.DeleteButton, "red")
@@ -420,6 +451,7 @@ function closeBuild()
 	worldFX:ShowRoute(nil, nil, false)
 	setSelected(nil)
 	deleteMode = false
+	systems:SetBuildOpen(false)
 end
 
 local function openBuild()
@@ -427,7 +459,14 @@ local function openBuild()
 	rollReveal:Cancel()
 	-- Build only opens the menu; it never moves the character.
 	buildPanel.Visible = true
+	systems:SetBuildOpen(true)
 	worldFX:ShowRoute(myPlot(), snap and snap.Data, true)
+end
+
+systems.OnFloorChanged = function()
+	if deleteMode then
+		makeDeleteGhost()
+	end
 end
 
 onClick(rollArea:FindFirstChild("BuildButton"), function()
@@ -452,28 +491,77 @@ onClick(buildPanel:FindFirstChild("DeleteButton"), function()
 		setText(buildPanel.DeleteButton, "Deleting")
 	end
 end)
+
+local function wireItem(item: GuiButton, key: string)
+	onClick(item, function()
+		if not snap or (snap.Data.Inventory[key] or 0) <= 0 then
+			local piece = Stats.Pieces[(Stats.splitKey(key))]
+			toast("Roll the dice to get more " .. (if piece then piece.name else key) .. "!", "#ff8a96")
+			return
+		end
+		setSelected(if selected == key then nil else key)
+	end)
+end
 for _, pc in GameData.Pieces do
 	local item = buildPanel.Items:FindFirstChild("Item_" .. pc.id)
 	if item then
+		item.LayoutOrder = pc.order * 10
 		local tile = Tiles:FindFirstChild(pc.id)
 		if tile then
 			showInViewport(item:FindFirstChild("Viewport") :: ViewportFrame, tile, 15)
 		end
-		onClick(item, function()
-			if not snap or (snap.Data.Inventory[pc.id] or 0) <= 0 then
-				toast("Roll the dice to get more " .. pc.name .. "!", "#ff8a96")
-				return
-			end
-			setSelected(if selected == pc.id then nil else pc.id)
-		end)
+		wireItem(item, pc.id)
 	end
+end
+
+-- cards for mutated copies ("Golden Loop", ...) are cloned from the plain card on demand
+local function variantCard(key: string): GuiButton?
+	local card = buildPanel.Items:FindFirstChild("Item_" .. key)
+	if card then
+		return card
+	end
+	local id, mut = Stats.splitKey(key)
+	local base = buildPanel.Items:FindFirstChild("Item_" .. id)
+	local m = mut and Stats.Mutations[mut]
+	if not base or not m then
+		return nil
+	end
+	card = systems.freshClone(base)
+	card.Name = "Item_" .. key
+	card.LayoutOrder = base.LayoutOrder + m.order
+	local tile = Tiles:FindFirstChild(id)
+	local vp = card:FindFirstChild("Viewport")
+	if tile and vp then
+		local model = tile:Clone()
+		Mutations.apply(model, mut)
+		showInViewport(vp :: ViewportFrame, model, 15)
+		model:Destroy()
+	end
+	Mutations.badge(card, mut)
+	local name = card:FindFirstChild("Name")
+	if name and name:IsA("TextLabel") then
+		name.Text = m.name .. " " .. (Stats.Pieces[id] and Stats.Pieces[id].name or id)
+	end
+	local tier = card:FindFirstChild("Tier")
+	if tier and tier:IsA("TextLabel") then
+		tier.Text = "x" .. m.mult .. " money"
+		tier.TextColor3 = Mutations.color(mut)
+	end
+	local stroke = card:FindFirstChild("Stroke")
+	if stroke and stroke:IsA("UIStroke") then
+		stroke.Color = Mutations.color(mut)
+	end
+	card.Parent = buildPanel.Items
+	vfx:BindButton(card :: GuiButton)
+	wireItem(card :: GuiButton, key)
+	return card :: GuiButton
 end
 
 local function pointerCell(plot: Model, screenPos: Vector2)
 	local cam = Workspace.CurrentCamera
 	local ray = cam:ViewportPointToRay(screenPos.X, screenPos.Y)
 	local origin = (plot:FindFirstChild("GridOrigin") :: BasePart).CFrame
-	local planeY = origin.Position.Y + 0.3
+	local planeY = origin.Position.Y + 0.3 + buildFloor() * Stats.FLOOR_H
 	if math.abs(ray.Direction.Y) < 1e-4 then
 		return nil
 	end
@@ -494,13 +582,12 @@ local function pointerCell(plot: Model, screenPos: Vector2)
 end
 
 local function cellValid(x: number, z: number): boolean
-	if not snap then
+	if not snap or not selected then
 		return false
 	end
 	local data = snap.Data
-	return Stats.inUnlocked(data, x, z) and not Stats.isStart(x, z)
-		and not Stats.placedMap(data)[Stats.cellKey(x, z)]
-		and #data.Placed < snap.MaxElements
+	local id = Stats.splitKey(selected)
+	return (data.Inventory[selected] or 0) > 0 and (Stats.canPlace(data, x, z, buildFloor(), id, placedCache))
 end
 
 RunService.RenderStepped:Connect(function(dt)
@@ -517,10 +604,10 @@ RunService.RenderStepped:Connect(function(dt)
 		return
 	end
 	if deleteMode then
-		ghost:PivotTo(cellCFrame(plot, cell.x, cell.z, 0) * CFrame.new(0, 1.5, 0))
+		ghost:PivotTo(cellCFrame(plot, cell.x, cell.z, 0, buildFloor()) * CFrame.new(0, 1.5, 0))
 		return
 	end
-	local target = cellCFrame(plot, cell.x, cell.z, rotation)
+	local target = cellCFrame(plot, cell.x, cell.z, rotation, buildFloor())
 	if (ghost:GetPivot().Position-target.Position).Magnitude>45 then ghost:PivotTo(target)
 	else ghost:PivotTo(ghost:GetPivot():Lerp(target,1-math.exp(-dt*26))) end
 	if ghostHighlight then
@@ -540,28 +627,35 @@ local function tryBuildAt(screenPos: Vector2)
 	if not cell then
 		return
 	end
+	local f = buildFloor()
 	if deleteMode then
-		local ok, msg = request("Remove", { x = cell.x, z = cell.z })
+		local ok, msg = request("Remove", { x = cell.x, z = cell.z, f = f })
 		if not ok and msg then
 			toast(msg, "#ff8a96")
 		end
 		return
 	end
 	if selected then
-		local id = selected
-		local ok, msg = request("Place", { x = cell.x, z = cell.z, r = rotation, id = id })
+		local key = selected
+		local ok, msg = request("Place", { x = cell.x, z = cell.z, r = rotation, id = key, f = f })
 		if not ok and msg then
 			toast(msg, "#ff8a96")
-		elseif ok and snap and (snap.Data.Inventory[id] or 0) <= 0 then
+		elseif ok and snap and (snap.Data.Inventory[key] or 0) <= 0 then
 			setSelected(nil)
 		end
 	end
 end
 
+-- touch: only a quick tap builds (dragging or pinching the camera never places or deletes)
+local touchStart: { [InputObject]: { pos: Vector2, t: number } } = {}
 UserInputService.InputBegan:Connect(function(input, processed)
 	if input.KeyCode == Enum.KeyCode.R and not processed then
 		rotation = (rotation + 1) % 4
 		if ghost then vfx:Sound("Click",1.15,.28) end
+	elseif input.KeyCode == Enum.KeyCode.F and not processed and buildPanel.Visible then
+		if snap and Stats.floors(snap.Data) >= 2 then
+			systems:FloorClicked()
+		end
 	elseif (input.KeyCode == Enum.KeyCode.Q or input.UserInputType == Enum.UserInputType.MouseButton2)
 		and ghost then
 		setSelected(nil)
@@ -570,7 +664,21 @@ UserInputService.InputBegan:Connect(function(input, processed)
 	elseif input.UserInputType == Enum.UserInputType.MouseButton1 then
 		tryBuildAt(UserInputService:GetMouseLocation())
 	elseif input.UserInputType == Enum.UserInputType.Touch then
-		tryBuildAt(Vector2.new(input.Position.X, input.Position.Y))
+		touchStart[input] = { pos = Vector2.new(input.Position.X, input.Position.Y), t = os.clock() }
+	end
+end)
+UserInputService.InputEnded:Connect(function(input, processed)
+	if input.UserInputType ~= Enum.UserInputType.Touch then
+		return
+	end
+	local start = touchStart[input]
+	touchStart[input] = nil
+	if not start or processed then
+		return
+	end
+	local pos = Vector2.new(input.Position.X, input.Position.Y)
+	if (pos - start.pos).Magnitude < 14 and os.clock() - start.t < 0.4 then
+		tryBuildAt(pos)
 	end
 end)
 
@@ -708,11 +816,78 @@ for _, p in GameData.Potions do
 		result(request("BuyPotion", p.id))
 	end)
 end
-for _, d in GameData.Dice do
+local FUSE_NEED = GameData.Config.FuseCount or 3
+for i, d in GameData.Dice do
 	local card = windows.DiceShopWindow.Body:FindFirstChild("Dice_" .. d.id, true)
 	onClick(card and card:FindFirstChild("BuyButton"), function()
 		result(request("BuyDice", d.id))
 	end)
+	-- small FUSE button on the card once you own enough of this die
+	local buy = card and card:FindFirstChild("BuyButton")
+	if buy and i < #GameData.Dice then
+		local fuse = systems.freshClone(buy)
+		fuse.Name = "FuseButton"
+		fuse.AnchorPoint = Vector2.new(1, 0)
+		fuse.Position = UDim2.new(1, -8, 0, 36)
+		fuse.Size = UDim2.fromOffset(84, 40)
+		fuse.ZIndex = buy.ZIndex + 2
+		fuse.Visible = false
+		fuse.Parent = card
+		setPreset(fuse, "purple")
+		setText(fuse, "FUSE")
+		vfx:BindButton(fuse)
+		onClick(fuse, function()
+			systems:Open(d.id)
+		end)
+	end
+end
+-- a fusion chip at the end of the dice bar above the Roll button
+local fuseChip = nil
+do
+	local first = rollArea.DiceBar:FindFirstChild("Dice_" .. GameData.Dice[1].id)
+	if first then
+		fuseChip = systems.freshClone(first)
+		fuseChip.Name = "FuseChip"
+		fuseChip.LayoutOrder = 999
+		fuseChip.Visible = false
+		for _, c in fuseChip:GetChildren() do
+			if c:IsA("ImageLabel") then
+				c:Destroy()
+			end
+		end
+		fuseChip.Count.Text = "🔮"
+		fuseChip.Count.TextScaled = true
+		fuseChip.BackgroundColor3 = Color3.fromHex("#7a3be0")
+		fuseChip.BackgroundTransparency = 0
+		local tag = fuseChip.Count:Clone()
+		tag.Name = "Tag"
+		tag.Text = "FUSE"
+		tag.Size = UDim2.new(1, 0, 0, 22)
+		tag.Position = UDim2.new(0, 0, 1, -20)
+		tag.Parent = fuseChip
+		fuseChip.Parent = rollArea.DiceBar
+		vfx:BindButton(fuseChip)
+		onClick(fuseChip, function()
+			systems:Open(nil)
+		end)
+	end
+end
+local function refreshFuse()
+	local data = snap.Data
+	local any = false
+	for i, d in GameData.Dice do
+		local n = data.Dice[d.id] or 0
+		local can = n >= FUSE_NEED and i < #GameData.Dice
+		any = any or can
+		local card = windows.DiceShopWindow.Body:FindFirstChild("Dice_" .. d.id, true)
+		local fuse = card and card:FindFirstChild("FuseButton")
+		if fuse then
+			fuse.Visible = can
+		end
+	end
+	if fuseChip then
+		fuseChip.Visible = any
+	end
 end
 
 local SHOP_WINDOWS = {
@@ -728,6 +903,25 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt)
 		open(SHOP_WINDOWS[shop])
 	end
 end)
+
+-- ------------------------------------------------------------------ test commands
+-- /alltracks [n]  /cash [n]  /dice [n]  /potions  /mutations [n]  /floor  /offline [hours]
+-- Created on the client so they work with any chat setup; the server checks who may use them.
+do
+	local TextChatService = game:GetService("TextChatService")
+	for _, name in { "alltracks", "cash", "dice", "potions", "mutations", "floor", "offline" } do
+		local cmd = Instance.new("TextChatCommand")
+		cmd.Name = "TrackRNGClient_" .. name
+		cmd.PrimaryAlias = "/" .. name
+		cmd.Parent = TextChatService
+		cmd.Triggered:Connect(function(_source, text)
+			local ok, msg = request("DevCommand", text)
+			if not ok and msg then
+				toast(msg, "#ff8a96")
+			end
+		end)
+	end
+end
 
 -- ------------------------------------------------------------------ island style previews
 local StylePreview = require(ReplicatedStorage:WaitForChild("StylePreview"))
@@ -752,6 +946,7 @@ local function applySettings()
 	vfx:SetMusic(settings.Music)
 	vfx:SetSfx(settings.Sfx)
 	vfx:SetQuality(settings.Vfx)
+	Mutations.SetQuality(settings.Vfx)
 	if settingsBar then
 		local art = GameData.UIArt or {}
 		settingsBar.MusicToggle.Art.Image = art[if settings.Music then "music_on" else "music_off"] or ""
@@ -781,21 +976,26 @@ local settingsLoaded = false
 -- ------------------------------------------------------------------ rare roll feed
 local feed = hud:WaitForChild("RareFeed")
 local feedRows = {}
-Remotes.RareRoll.OnClientEvent:Connect(function(name: string, pieceId: string)
+local lastFireworks = 0
+Remotes.RareRoll.OnClientEvent:Connect(function(name: string, pieceId: string, mut: string?)
 	local piece = Stats.Pieces[pieceId]
 	if not piece then
 		return
 	end
+	local m = mut and Stats.Mutations[mut]
 	-- fireworks over the hub for everybody's big pulls
 	local tc = Color3.fromHex(Stats.Tiers[piece.tier].color)
-	worldFX:Fireworks(Vector3.new(0, 104, 0), { tc, Color3.new(1, 1, 1), Color3.fromRGB(255, 214, 64) },
-		if piece.tier == "Secret" then 14 elseif piece.tier == "Mythical" then 10 else 6)
+	if os.clock() - lastFireworks > 2.5 then
+		lastFireworks = os.clock()
+		worldFX:Fireworks(Vector3.new(0, 104, 0), { tc, Color3.new(1, 1, 1), Color3.fromRGB(255, 214, 64) },
+			vfx:Q(if piece.tier == "Secret" then 14 elseif piece.tier == "Mythical" then 10 else 6))
+	end
 	task.defer(function()
 		if uiFX.FeedIn then
 			uiFX.FeedIn()
 		end
 	end)
-	table.insert(feedRows, 1, { name = name, piece = piece })
+	table.insert(feedRows, 1, { name = name, piece = piece, mut = m })
 	while #feedRows > 5 do
 		table.remove(feedRows)
 	end
@@ -803,12 +1003,14 @@ Remotes.RareRoll.OnClientEvent:Connect(function(name: string, pieceId: string)
 		local row = feed:FindFirstChild("Row" .. i)
 		local e = feedRows[i]
 		row.Player.Text = if e then e.name else ""
-		row.Piece.Text = if e then e.piece.name else ""
-		row.Piece.TextColor3 = if e then tierColor(e.piece.tier) else Color3.new(1, 1, 1)
-		row.Odds.Text = if e then "1 in " .. Format.short(e.piece.odds) else ""
+		row.Piece.Text = if e then (if e.mut then e.mut.name .. " " else "") .. e.piece.name else ""
+		row.Piece.TextColor3 = if e and e.mut then Mutations.color(e.mut.id)
+			elseif e then tierColor(e.piece.tier) else Color3.new(1, 1, 1)
+		row.Odds.Text = if e then "1 in " .. Format.short(e.piece.odds * (if e.mut then e.mut.chance else 1)) else ""
 	end
 	if name ~= player.DisplayName then
-		toast(name .. " rolled " .. piece.name .. "!", Stats.Tiers[piece.tier].color)
+		toast(name .. " rolled " .. (if m then m.name .. " " else "") .. piece.name .. "!",
+			if m and m.color ~= "rainbow" then m.color else Stats.Tiers[piece.tier].color)
 	end
 end)
 
@@ -868,7 +1070,7 @@ local function refreshHUD()
 	st.FriendBoost.Text = "👥 +" .. math.floor(Stats.friendBoost(snap.Friends) * 100) .. "%"
 	local er = hud.Earnings
 	er.ElementsText.Text = "🧱 Elements " .. #data.Placed .. "/" .. snap.MaxElements
-	er.OfflineAmount.Text = Format.money(snap.Income * 3600 * GameData.Config.OfflineRate)
+	er.OfflineAmount.Text = Format.money((snap.BaseIncome or snap.Income) * 3600 * GameData.Config.OfflineRate)
 	local auto = rollArea.AutoButton
 	setPreset(auto, if data.AutoRoll then "green" else "gray")
 	auto.Sub.Text = if data.AutoRoll then "ON" else "OFF"
@@ -913,6 +1115,23 @@ local function refreshBuild()
 			item.Count.Text = "x" .. n
 			item.Visible = n > 0 or data.Discovered[pc.id] == true
 			item.BackgroundTransparency = if n > 0 then 0 else 0.5
+		end
+	end
+	-- mutated copies get their own cards; empty ones disappear
+	for key, n in data.Inventory do
+		if n > 0 and string.find(key, "@", 1, true) then
+			local card = variantCard(key)
+			if card then
+				(card :: any).Count.Text = "x" .. n
+			end
+		end
+	end
+	for _, item in buildPanel.Items:GetChildren() do
+		if item:IsA("GuiButton") and string.find(item.Name, "@", 1, true) then
+			local key = string.sub(item.Name, 6)
+			if (data.Inventory[key] or 0) <= 0 then
+				item:Destroy()
+			end
 		end
 	end
 	if selected and (data.Inventory[selected] or 0) <= 0 then
@@ -979,7 +1198,55 @@ local function refreshIndex()
 					placed += 1
 				end
 			end
-			card.Known.Count.Text = "x" .. ((data.Inventory[p.id] or 0) + placed)
+			card.Known.Count.Text = "x" .. (Stats.ownedCount(data, p.id) + placed)
+			-- mutation collection: one dot per mutation, lit once you have rolled it
+			local dots = card.Known:FindFirstChild("Mutations")
+			if not dots then
+				dots = Instance.new("Frame")
+				dots.Name = "Mutations"
+				dots.BackgroundTransparency = 1
+				dots.AnchorPoint = Vector2.new(0.5, 0)
+				dots.Position = UDim2.new(0.5, 0, 1, -62)
+				dots.Size = UDim2.fromOffset(6 * 22, 16)
+				local layout = Instance.new("UIListLayout")
+				layout.FillDirection = Enum.FillDirection.Horizontal
+				layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+				layout.Padding = UDim.new(0, 6)
+				layout.SortOrder = Enum.SortOrder.LayoutOrder
+				layout.Parent = dots
+				for _, m in Stats.MutationList do
+					local dot = Instance.new("Frame")
+					dot.Name = m.id
+					dot.LayoutOrder = m.order
+					dot.Size = UDim2.fromOffset(14, 14)
+					local cr = Instance.new("UICorner")
+					cr.CornerRadius = UDim.new(1, 0)
+					cr.Parent = dot
+					local st = Instance.new("UIStroke")
+					st.Thickness = 2
+					st.Color = Color3.fromHex("#15131f")
+					st.Parent = dot
+					local g = Instance.new("UIGradient")
+					g.Color = Mutations.sequence(m.id)
+					g.Rotation = 45
+					g.Parent = dot
+					dot.Parent = dots
+				end
+				dots.Parent = card.Known
+			end
+			local seen = data.MutDiscovered or {}
+			for _, m in Stats.MutationList do
+				local dot = dots:FindFirstChild(m.id) :: Frame?
+				if dot then
+					local got = seen[Stats.invKey(p.id, m.id)] == true
+					dot.BackgroundColor3 = if got then Color3.new(1, 1, 1) else Color3.fromHex("#3a3f52")
+					dot.BackgroundTransparency = if got then 0 else 0.35
+					local g = dot:FindFirstChildOfClass("UIGradient")
+					if g then
+						g.Enabled = got
+					end
+				end
+			end
 		end
 	end
 	windows.IndexWindow.Counter.Text = found .. "/" .. #GameData.Pieces .. " Found"
@@ -1148,11 +1415,14 @@ function refreshAll()
 	refreshPass()
 	refreshSkills()
 	refreshShops()
+	refreshFuse()
 end
 
 Remotes.DataUpdate.OnClientEvent:Connect(function(s)
 	snap = s
 	snapTime = os.clock()
+	placedCache = Stats.placedMap(s.Data)
+	systems:SetSnap(s)
 	if buildPanel.Visible then
 		worldFX:ShowRoute(myPlot(), s.Data, true)
 	end
@@ -1176,8 +1446,18 @@ Remotes.Notify.OnClientEvent:Connect(function(text, color)
 	toast(text, color)
 end)
 
--- floating "+$" text where the car finished a tile
+-- floating "+$" text where the car finished a tile; fast cars finish many tiles a second, so
+-- popups are merged (at most ~7 per second, the amounts add up)
+local earnPending = 0
+local lastEarnPopup = 0
 Remotes.Earned.OnClientEvent:Connect(function(amount: number, pos: Vector3)
+	earnPending += amount
+	if os.clock() - lastEarnPopup < 0.14 then
+		return
+	end
+	lastEarnPopup = os.clock()
+	amount = earnPending
+	earnPending = 0
 	vfx:Earn(amount, pos)
 	uiFX:CashGleam()
 	local cam = Workspace.CurrentCamera
@@ -1240,6 +1520,8 @@ task.spawn(function()
 		if ok and s then
 			snap = s
 			snapTime = os.clock()
+			placedCache = Stats.placedMap(s.Data)
+			systems:SetSnap(s)
 			refreshAll()
 			return
 		end

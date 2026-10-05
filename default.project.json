@@ -49,6 +49,11 @@
       "$properties": {
         "CharacterAutoLoads": true
       }
+    },
+    "TextChatService": {
+      "$properties": {
+        "ChatVersion": "TextChatService"
+      }
     }
   }
 }

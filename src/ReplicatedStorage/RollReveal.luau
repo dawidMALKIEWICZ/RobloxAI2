@@ -5,9 +5,23 @@ local RunService=game:GetService("RunService")
 local Stats=require(ReplicatedStorage.Shared.Stats)
 local Format=require(ReplicatedStorage.Shared.Format)
 local Tiles=ReplicatedStorage.Assets.Tiles
+local Mutations=require(ReplicatedStorage:WaitForChild("Mutations"))
 local Reveal={}
 Reveal.__index=Reveal
 local COLORS={Common=Color3.fromRGB(111,255,40),Rare=Color3.fromRGB(66,197,255),Epic=Color3.fromRGB(198,83,255),Legendary=Color3.fromRGB(255,204,44),Mythical=Color3.fromRGB(255,60,126),Secret=Color3.fromRGB(220,244,255)}
+
+-- gradient colours for the AUTO / HIDE buttons (same 4-stop look as the other game buttons)
+local PALETTE={
+ green={Color3.fromRGB(201,255,122),Color3.fromRGB(98,224,38),Color3.fromRGB(44,156,16)},
+ blue={Color3.fromRGB(150,220,255),Color3.fromRGB(60,140,255),Color3.fromRGB(30,80,200)},
+ purple={Color3.fromRGB(220,170,255),Color3.fromRGB(160,80,255),Color3.fromRGB(100,40,190)},
+ orange={Color3.fromRGB(255,220,140),Color3.fromRGB(255,150,40),Color3.fromRGB(210,90,20)},
+}
+local function paint(button,name)
+ local g=button:FindFirstChild("Gradient") local c=PALETTE[name]
+ if g and c then g.Color=ColorSequence.new({ColorSequenceKeypoint.new(0,c[1]),ColorSequenceKeypoint.new(.42,c[2]),ColorSequenceKeypoint.new(.58,c[2]),ColorSequenceKeypoint.new(1,c[3])}) end
+end
+Reveal.Paint=paint
 
 function Reveal:UpdateHUD()
  self.Gui.Root.HUD.Visible=(self.Compact or not self.Frame.Visible) and not self.Gui.Root.Windows.SkillsWindow.Visible local covered=false
@@ -46,14 +60,14 @@ function Reveal:SetCompact(compact)
  for _,button in {frame.AutoButton,frame.HideButton} do
   button.Size=UDim2.fromOffset(self.Compact and 130 or 220,self.Compact and 110 or 220)
   button.AnchorPoint=Vector2.new(.5,self.Compact and .5 or 1)
-  button.ControlSprite.Size=UDim2.fromOffset(self.Compact and 66 or 176,self.Compact and 66 or 176)
-  button.ControlSprite.Position=UDim2.fromScale(.5,.4)
+  button.ControlSprite.Size=UDim2.fromOffset(self.Compact and 56 or 120,self.Compact and 56 or 120)
+  button.ControlSprite.Position=UDim2.fromScale(.5,.38)
   button.Label.Size=UDim2.fromOffset(self.Compact and 146 or 220,self.Compact and 34 or 50)
   button.Label.TextScaled=false
-  button.Label.Font=Enum.Font.GothamBold
+  button.Label.FontFace=Font.new("rbxasset://fonts/families/FredokaOne.json")
   button.Label.TextSize=self.Compact and 26 or 43
   button.Label.Position=UDim2.new(.5,0,1,self.Compact and -17 or -25)
-  button.Label:FindFirstChildOfClass("UIStroke").Thickness=self.Compact and 1.1 or 2
+  button.Label:FindFirstChildOfClass("UIStroke").Thickness=self.Compact and 2 or 3
  end
  local sides=area:FindFirstChild("SideTriangles")
  if sides then
@@ -61,11 +75,12 @@ function Reveal:SetCompact(compact)
    if arrow:IsA("ImageLabel") then arrow.Size=UDim2.fromOffset(160*k,32*k) end
   end
  end
- frame.AutoButton.Position=self.Compact and UDim2.new(.5,320,0,255) or UDim2.new(.28,0,1,-28)
- frame.HideButton.Position=self.Compact and UDim2.new(.5,320,0,365) or UDim2.new(.72,0,1,-28)
+ frame.AutoButton.Position=self.Compact and UDim2.new(.5,320,0,240) or UDim2.new(.28,0,1,-28)
+ frame.HideButton.Position=self.Compact and UDim2.new(.5,320,0,372) or UDim2.new(.72,0,1,-28)
  frame.HideButton.Label.Text=self.Compact and "SHOW" or "HIDE"
  local art=require(ReplicatedStorage.Shared.GameData).UIArt or {}
- if frame.HideButton:FindFirstChild("Art") then frame.HideButton.Art.Image=art[self.Compact and "show" or "hide"] or "" end
+ frame.HideButton.ControlSprite.Image=art[self.Compact and "icon_eye" or "icon_eyeoff"] or frame.HideButton.ControlSprite.Image
+ paint(frame.HideButton,self.Compact and "orange" or "purple")
  self:UpdateHUD()
  -- A compact result stays until the next roll; expanding an idle result resumes dismissal.
  if not self.Compact and not self.Animating and frame.Visible then
@@ -132,13 +147,12 @@ end
 -- A new manual roll keeps the player's chosen compact/full presentation.
 function Reveal:Resume() self:UpdateHUD() end
 function Reveal:SetAuto(enabled)
- local art=require(ReplicatedStorage.Shared.GameData).UIArt or {}
- if self.Frame.AutoButton:FindFirstChild("Art") then self.Frame.AutoButton.Art.Image=art[enabled and "auto_on" or "auto_off"] or "" end
+ paint(self.Frame.AutoButton,enabled and "green" or "blue")
  self.Frame.AutoButton.Status.Text=enabled and "ON" or "OFF"
  self.Frame.AutoButton.Label.Text=enabled and "AUTO ON" or "AUTO"
- self.Frame.AutoButton.Label.TextColor3=enabled and Color3.fromRGB(111,255,40) or Color3.new(1,1,1)
- self.Frame.AutoButton.Stroke.Color=enabled and Color3.fromRGB(111,255,40) or Color3.new(0,0,0)
- self.Frame.AutoButton.Stroke.Transparency=enabled and .65 or .94
+ self.Frame.AutoButton.Label.TextColor3=Color3.new(1,1,1)
+ self.Frame.AutoButton.Stroke.Color=Color3.new(0,0,0)
+ self.Frame.AutoButton.Stroke.Transparency=0
 end
 -- glowing orbs circling the rolled tile inside the viewport (Epic and rarer)
 function Reveal:AddOrbs(piece)
@@ -158,13 +172,15 @@ function Reveal:AddOrbs(piece)
  ring.Size=Vector3.new(.15,15,15) ring.Color=color ring.Transparency=.55 ring.CFrame=CFrame.new(self.Center-Vector3.new(0,1.2,0))*CFrame.Angles(0,0,math.pi/2)
  ring.Parent=world
 end
-function Reveal:ShowPiece(piece)
+function Reveal:ShowPiece(piece,mut)
  self.Orbs={}
  local area=self.Frame.Reveal
- area.PieceName.Text=piece.name
- area.Odds.Text="1 in "..Format.short(piece.odds)
+ local m=mut and Stats.Mutations[mut]
+ area.PieceName.Text=(m and m.name.." " or "")..piece.name
+ area.Odds.Text="1 in "..Format.short(piece.odds*(m and m.chance or 1))
  local color=COLORS[piece.tier] or COLORS.Common
- area.Odds.TextColor3=color
+ area.Odds.TextColor3=m and Mutations.color(mut) or color
+ Mutations.badge(area,mut,{Position=UDim2.new(.5,-70,0,4),Size=UDim2.fromOffset(140,34)})
  local vp=area.Viewport
  vp:ClearAllChildren()
  local template=Tiles:FindFirstChild(piece.id)
@@ -172,6 +188,7 @@ function Reveal:ShowPiece(piece)
  local world=Instance.new("WorldModel") world.Parent=vp
  local model=template:Clone()
  local path=model:FindFirstChild("Path") if path then path:Destroy() end
+ Mutations.apply(model,mut)
  for _,p in model:GetDescendants() do if p:IsA("BasePart") then p.Anchored=true p.CanCollide=false end end
  model.Parent=world
  local cf,size=model:GetBoundingBox()
@@ -220,9 +237,24 @@ function Reveal:Play(result,fast,rollTime)
   task.wait(wait)
   if token~=self.Token or not frame.Visible then return end
  end
- self:ShowPiece(piece)
+ self:ShowPiece(piece,result.mutation)
  self:AddOrbs(piece)
  if self.VFX then self.VFX:RollResult(piece,result.new==true,self.Compact,fast) end
+ -- a mutated pull gets its own shout on top of the rarity effects
+ local mut=result.mutation and Stats.Mutations[result.mutation]
+ if mut and self.VFX then
+  local mc=Mutations.color(result.mutation)
+  local v=self.VFX
+  task.delay(fast and .05 or .35,function()
+   if token~=self.Token then return end
+   if not fast and not self.Compact then
+    v:Banner(string.upper(mut.name).."!  x"..mut.mult,mc,.7,UDim2.fromScale(.5,.2),1.3,mut.color=="rainbow")
+    v:EdgeGlow(mc,3,.9)
+   end
+   v:UIBurst(v:Point(area.Viewport),mc,v:Q(mut.mult>=4 and 40 or 22),220)
+   v:Sound(mut.mult>=6 and "Legendary" or mut.mult>=3 and "Epic" or "Unlock",1.1,.45)
+  end)
+ end
  area.New.Visible=result.new==true
  area.Pop.Scale=.84
  TweenService:Create(area.Pop,TweenInfo.new(.28,Enum.EasingStyle.Back,Enum.EasingDirection.Out),{Scale=1}):Play()
@@ -231,6 +263,7 @@ function Reveal:Play(result,fast,rollTime)
  frame:SetAttribute("ResultPiece",piece.id)
  -- Compact results persist until the next roll replaces them; full results dismiss normally.
  local hold=({Common=.85,Rare=1.05,Epic=1.6,Legendary=2.4,Mythical=2.9,Secret=3.6})[piece.tier] or .85
+ if mut then hold=math.max(hold,1.5) end
  task.delay(fast and .4 or hold,function()
   if token==self.Token and not self.Compact then self:Cancel() end
  end)

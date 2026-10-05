@@ -50,6 +50,7 @@ THEME = {
                       kerb=("#7b2fd1", "#000000"), side="#1f1633", rail="#2b1b45",
                       neon="#b14dff"),
     "Tunnel": dict(base="#d9e6f2"),
+    "Lift": dict(base="#dff1ff", border="#86bdf0", rail="#2f8bff", neon="#5fd3ff"),
     "Bridge": dict(base="#cfeaff"),
 }
 RAINBOW = ["#ff3b3b", "#ff9f1a", "#ffe03b", "#4bdc5a", "#3bd1ff", "#7b5cff"]
@@ -556,6 +557,40 @@ def d_blackhole(path, st):
     neon(L.sphere(0.5, (0, 0, 3.8), "#ffffff", subdiv=1))
 
 
+def d_lift(path, st):
+    """Sky Ramp: a steel column in the middle of the spiral with arms under the road, glowing
+    rings that climb the column and up-arrows at the entry."""
+    top = T.ROAD_Y + T.FLOOR_H
+    L.cyl(0.62, top + 0.9, (0, 0, (top + 0.9) / 2 + 0.2), "#d9dee8", verts=12, bevel=0.04)
+    L.cyl(1.05, 0.35, (0, 0, 0.55), st["rail"], verts=12)
+    for k in range(5):
+        neon(L.cyl(0.7, 0.16, (0, 0, 1.6 + k * 1.75), st["neon"], verts=12))
+    neon(L.sphere(0.65, (0, 0, top + 1.6), st["neon"], subdiv=2))
+    L.cyl(0.85, 0.25, (0, 0, top + 1.0), st["rail"], verts=12)
+    # arms from the column to the underside of the road: along the spiral and the high exit
+    s = path.s
+    dist, nxt = 0.0, 1.0
+    for i in range(1, len(s)):
+        dist += math.dist(s[i - 1][0], s[i][0])
+        p = s[i][0]
+        r = math.hypot(p[0], p[2])
+        on_spiral = abs(r - T.LIFT_R) < 0.25 and p[1] > 1.6
+        on_exit = p[1] > top - 1.4 and p[2] < -0.5 and r < 4.6
+        if dist < nxt or not (on_spiral or on_exit):
+            continue
+        nxt = dist + (2.2 if on_spiral else 1.5)
+        a = math.atan2(-p[2], p[0])  # Blender angle of the arm (Roblox z -> Blender -y)
+        reach = r - 0.55
+        mid = reach / 2 + 0.55
+        L.box((reach, 0.32, 0.32), (math.cos(a) * mid, math.sin(a) * mid, p[1] - DECK - 0.18),
+              st["side"], rot=(0, 0, a), bevel=0.04)
+    # up arrows on the entry, a lamp on two corners
+    for k in range(2):
+        chevron(0, 4.2 - k * 1.1, T.ROAD_Y + 0.06, st["neon"], rot_z=0, s=0.55, glow=True)
+    lamp(4.3, 4.3, st["rail"], st["neon"], 2.2)
+    lamp(-4.3, -4.3, st["rail"], st["neon"], 2.2)
+
+
 DECOR = {"SpeedBump": d_bump, "Hill": d_hill, "BankedTurn": d_banked, "BoostPad": d_boost,
          "Chicane": d_chicane, "Jump": d_jump, "Corkscrew": d_corkscrew, "Loop": d_loop,
          "Spiral": d_spiral, "WaveRider": d_wave, "WallRide": d_wallride,
@@ -563,7 +598,7 @@ DECOR = {"SpeedBump": d_bump, "Hill": d_hill, "BankedTurn": d_banked, "BoostPad"
          "SkyLeap": d_skyleap, "Start": d_start, "Tunnel": d_tunnel, "Bridge": d_bridge,
          "IceTurn": d_ice, "CamelBack": d_camel, "HalfPipe": d_halfpipe, "NeonTurn": d_neonturn,
          "RingOfFire": d_fire_ring, "LaunchPad": d_launchpad, "Twister": d_twister,
-         "RainbowRoad": d_rainbow, "BlackHole": d_blackhole}
+         "RainbowRoad": d_rainbow, "BlackHole": d_blackhole, "Lift": d_lift}
 
 
 # ------------------------------------------------------------------ checks + output
@@ -593,7 +628,7 @@ def build(tile):
     path = T.make_path(fn)
     base(st, start=tid == "Start")
     road(path, st)
-    if tid not in ("WaveRider", "WallRide", "Hill", "HalfPipe"):
+    if tid not in ("WaveRider", "WallRide", "Hill", "HalfPipe", "Lift"):
         supports(path, st)
     if tid in DECOR:
         DECOR[tid](path, st)

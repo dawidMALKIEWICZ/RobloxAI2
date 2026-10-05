@@ -48,6 +48,8 @@ local function defaults()
 		StarterPack = false,
 		AutoRoll = false,
 		Settings = { Music = true, Sfx = true, Vfx = "High" },
+		Floors = 1, -- 2 once the second track floor is bought
+		Fusions = 0,
 		LastOnline = 0,
 		LastIncome = 0, -- money per second, used for offline earnings
 	}
@@ -71,6 +73,7 @@ end
 
 function DataService.load(player: Player)
 	local data = nil
+	local loadOk = store == nil
 	if store then
 		for attempt = 1, 3 do
 			local ok, result = pcall(function()
@@ -78,6 +81,7 @@ function DataService.load(player: Player)
 			end)
 			if ok then
 				data = result
+				loadOk = true
 				break
 			end
 			warn("[DataService] load failed (attempt " .. attempt .. "):", result)
@@ -85,8 +89,17 @@ function DataService.load(player: Player)
 		end
 	end
 	data = reconcile(data or {}, defaults())
+	if not player.Parent then
+		return data -- left while loading: keep nothing around
+	end
 	profiles[player] = data
-	loaded[player] = true
+	-- a profile that failed to load is never saved, so it cannot overwrite the real save
+	loaded[player] = loadOk
+	if not loadOk then
+		task.defer(function()
+			player:Kick("Could not load your save (Roblox data servers are busy). Please rejoin!")
+		end)
+	end
 	return data
 end
 

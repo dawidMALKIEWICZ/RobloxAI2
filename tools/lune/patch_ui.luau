@@ -221,10 +221,7 @@ for _, card in styles.Body:GetChildren() do
 		local i = order[id] - 1
 		card.Size = UDim2.fromOffset(270, 344)
 		card.Position = UDim2.fromOffset(22 + (i % 4) * 296, 28 + (i // 4) * 366)
-		local swatch = card.Swatch
-		swatch.Size = UDim2.new(1, -20, 0, 34)
-		swatch.Position = UDim2.new(0.5, 0, 0, 176)
-		swatch.AnchorPoint = Vector2.new(0.5, 0)
+		card.Swatch.Visible = false   -- the 3D preview shows the colours already
 		local vp = card:FindFirstChild("Preview")
 		if not vp then
 			vp = new("ViewportFrame", { Name = "Preview" }, card)
@@ -232,13 +229,13 @@ for _, card in styles.Body:GetChildren() do
 		vp.BackgroundTransparency = 1
 		vp.Position = UDim2.new(0.5, 0, 0, 8)
 		vp.AnchorPoint = Vector2.new(0.5, 0)
-		vp.Size = UDim2.new(1, -16, 0, 166)
+		vp.Size = UDim2.new(1, -16, 0, 196)
 		vp.Ambient = Color3.fromRGB(190, 200, 215)
 		vp.LightColor = Color3.fromRGB(255, 250, 240)
 		vp.LightDirection = roblox.Vector3.new(-1, -1.4, -0.6)
 		vp.ZIndex = card.ZIndex + 1
-		card.NameText.Position = UDim2.new(0, 4, 0, 214)
-		card.BonusText.Position = UDim2.new(0, 4, 0, 250)
+		card.NameText.Position = UDim2.new(0, 4, 0, 206)
+		card.BonusText.Position = UDim2.new(0, 4, 0, 244)
 	end
 end
 
@@ -320,26 +317,56 @@ for i, def in { { "MusicToggle", "music_on" }, { "SfxToggle", "sfx_on" }, { "Vfx
 	artLabel(b, art[def[2]])
 end
 
--- ------------------------------------------------------------------ roll reveal: AUTO / HIDE art
+-- ------------------------------------------------------------------ roll reveal: AUTO / HIDE buttons
+-- Same look as the game's other buttons (gradient, studs, outline) with a white icon and label;
+-- RollReveal recolours them for on/off and hide/show.
+local priceButton = windows.StyleShopWindow.Body.Style_Desert.PriceButton
 for _, name in { "AutoButton", "HideButton" } do
 	local btn = root.RollReel:FindFirstChild(name)
 	if btn then
-		btn.BackgroundTransparency = 1
+		local oldArt = btn:FindFirstChild("Art")
+		if oldArt then
+			oldArt:Destroy()
+		end
+		btn.BackgroundTransparency = 0
+		btn.BackgroundColor3 = Color3.new(1, 1, 1)
 		for _, c in btn:GetChildren() do
-			if c:IsA("UIStroke") then
-				c.Enabled = false
-			elseif c:IsA("TextLabel") then
-				c.TextTransparency = 1
-				for _, st in c:GetChildren() do
-					if st:IsA("UIStroke") then
-						st.Enabled = false
-					end
-				end
-			elseif c.Name == "ControlSprite" then
-				c.ImageTransparency = 1
+			if c:IsA("UIGradient") or c.Name == "StudTexture" then
+				c:Destroy()
 			end
 		end
-		artLabel(btn, art[name == "AutoButton" and "auto_off" or "hide"], UDim2.fromScale(1.05, 1.05))
+		priceButton.Gradient:Clone().Parent = btn
+		local studs = priceButton.StudTexture:Clone()
+		studs.ZIndex = btn.ZIndex
+		studs.Parent = btn
+		local corner = btn:FindFirstChildOfClass("UICorner") or new("UICorner", {}, btn)
+		corner.CornerRadius = UDim.new(0.18, 0)
+		local stroke = btn:FindFirstChild("Stroke")
+		if stroke then
+			stroke.Enabled = true
+			stroke.Color = Color3.new(0, 0, 0)
+			stroke.Thickness = 3
+			stroke.Transparency = 0
+		end
+		local sprite = btn.ControlSprite
+		sprite.Image = art[name == "AutoButton" and "icon_auto" or "icon_eyeoff"] or ""
+		sprite.ImageTransparency = 0
+		sprite.ImageColor3 = Color3.new(1, 1, 1)
+		sprite.ZIndex = btn.ZIndex + 2
+		for _, lbl in { btn:FindFirstChild("Label"), btn:FindFirstChild("Status") } do
+			lbl.TextTransparency = lbl.Name == "Status" and 1 or 0
+			lbl.FontFace = FREDOKA
+			lbl.TextColor3 = Color3.new(1, 1, 1)
+			lbl.ZIndex = btn.ZIndex + 3
+			for _, st in lbl:GetChildren() do
+				if st:IsA("UIStroke") then
+					st.Enabled = true
+					st.Color = Color3.fromRGB(20, 20, 30)
+					st.Thickness = 2.5
+					st.Transparency = 0
+				end
+			end
+		end
 	end
 end
 
