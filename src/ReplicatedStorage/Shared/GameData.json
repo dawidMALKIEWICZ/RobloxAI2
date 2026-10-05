@@ -120,7 +120,7 @@
    "desc": "Spirals up to the 2nd floor (unlock it in Build).",
    "icon": "🛗",
    "order": 7,
-   "height": 10.4,
+   "height": 11.85,
    "lift": true
   },
   {
@@ -772,7 +772,7 @@
    "color2": "#fff3b0",
    "tier": "Common",
    "vfx": 0,
-   "image": "rbxassetid://111231523325608"
+   "image": "rbxassetid://135702532080491"
   },
   {
    "id": "Frost",
@@ -783,7 +783,7 @@
    "color2": "#e6f8ff",
    "tier": "Common",
    "vfx": 0,
-   "image": "rbxassetid://129871313085695"
+   "image": "rbxassetid://107162924799389"
   },
   {
    "id": "Toxic",
@@ -794,7 +794,7 @@
    "color2": "#2f6b12",
    "tier": "Rare",
    "vfx": 1,
-   "image": "rbxassetid://82130558481295"
+   "image": "rbxassetid://95373895365453"
   },
   {
    "id": "Inferno",
@@ -805,7 +805,7 @@
    "color2": "#ffd23f",
    "tier": "Rare",
    "vfx": 1,
-   "image": "rbxassetid://111963941542636"
+   "image": "rbxassetid://116159064956942"
   },
   {
    "id": "Cosmic",
@@ -816,7 +816,7 @@
    "color2": "#3b1f7a",
    "tier": "Epic",
    "vfx": 2,
-   "image": "rbxassetid://84035068004902"
+   "image": "rbxassetid://106109537344518"
   },
   {
    "id": "Void",
@@ -827,7 +827,7 @@
    "color2": "#c46bff",
    "tier": "Epic",
    "vfx": 2,
-   "image": "rbxassetid://102673536684253"
+   "image": "rbxassetid://98921624036675"
   },
   {
    "id": "Cyber",
@@ -838,7 +838,7 @@
    "color2": "#0d1a33",
    "tier": "Legendary",
    "vfx": 3,
-   "image": "rbxassetid://113311093562652"
+   "image": "rbxassetid://70370753344048"
   },
   {
    "id": "Rainbow",
@@ -849,7 +849,7 @@
    "color2": "#ffffff",
    "tier": "Legendary",
    "vfx": 3,
-   "image": "rbxassetid://82936693329452"
+   "image": "rbxassetid://88779403207691"
   },
   {
    "id": "Galaxy",
@@ -860,7 +860,7 @@
    "color2": "#ff6fd8",
    "tier": "Mythical",
    "vfx": 4,
-   "image": "rbxassetid://70886160273077"
+   "image": "rbxassetid://113726587277537"
   },
   {
    "id": "Glitch",
@@ -871,7 +871,7 @@
    "color2": "#2bff8a",
    "tier": "Mythical",
    "vfx": 4,
-   "image": "rbxassetid://85542285309623"
+   "image": "rbxassetid://73758636684455"
   },
   {
    "id": "Celestial",
@@ -882,7 +882,7 @@
    "color2": "#8fe3ff",
    "tier": "Secret",
    "vfx": 5,
-   "image": "rbxassetid://132219667135356"
+   "image": "rbxassetid://79687337728160"
   },
   {
    "id": "Divine",
@@ -893,7 +893,7 @@
    "color2": "#ffffff",
    "tier": "Secret",
    "vfx": 5,
-   "image": "rbxassetid://110785001045093"
+   "image": "rbxassetid://77115220035189"
   },
   {
    "id": "Singularity",
@@ -904,7 +904,7 @@
    "color2": "#ffb31a",
    "tier": "Secret",
    "vfx": 5,
-   "image": "rbxassetid://119609506672266"
+   "image": "rbxassetid://109175590576199"
   }
  ],
  "Audio": {
@@ -1822,7 +1822,8 @@
    "color": "#ffcc33",
    "color2": "#fff3b0",
    "glow": "#ffd23f",
-   "order": 1
+   "order": 1,
+   "texture": "rbxassetid://100707886374675"
   },
   {
    "id": "Frozen",
@@ -1832,7 +1833,8 @@
    "color": "#7fd8ff",
    "color2": "#eefbff",
    "glow": "#9fe8ff",
-   "order": 2
+   "order": 2,
+   "texture": "rbxassetid://136664211220570"
   },
   {
    "id": "Diamond",
@@ -1842,7 +1844,8 @@
    "color": "#b9f6ff",
    "color2": "#ffffff",
    "glow": "#d9fbff",
-   "order": 3
+   "order": 3,
+   "texture": "rbxassetid://87626969091663"
   },
   {
    "id": "Neon",
@@ -1852,7 +1855,8 @@
    "color": "#ff3bd4",
    "color2": "#3bf6ff",
    "glow": "#ff3bd4",
-   "order": 4
+   "order": 4,
+   "texture": "rbxassetid://118661310424869"
   },
   {
    "id": "Rainbow",
@@ -1862,7 +1866,8 @@
    "color": "rainbow",
    "color2": "#ffffff",
    "glow": "#ffffff",
-   "order": 5
+   "order": 5,
+   "texture": "rbxassetid://113663861269598"
   },
   {
    "id": "Void",
@@ -1872,7 +1877,8 @@
    "color": "#8a3bff",
    "color2": "#1a0833",
    "glow": "#b46bff",
-   "order": 6
+   "order": 6,
+   "texture": "rbxassetid://116107849484836"
   }
  ]
 }

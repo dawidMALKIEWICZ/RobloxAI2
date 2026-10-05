@@ -249,6 +249,7 @@ def build_cars():
 
 # ------------------------------------------------------------------ island styles
 from build_map import DECOR_SPOTS as SPOTS  # noqa: E402  (plot margins around the grid)
+from build_map import classic_decor  # noqa: E402
 BACK_L = (-72, 98)   # free corner spots for big props
 BACK_R = (72, 98)
 
@@ -430,12 +431,38 @@ def build_styles():
             "DisplayName": display, "Price": price, "MoneyBonus": bonus, "Order": i + 1,
             "GrassColor": grass[0], "GrassMaterial": grass[1], "DirtColor": dirt[0],
             "DirtMaterial": dirt[1], "RockColor": rock[0], "RockMaterial": rock[1]})
-        d = Inst("Model", "Decor")
-        k = Kit(d)
-        decor(k, random.Random(i * 7 + 1))
-        for p in d.children:
-            p.props.pop("CanCollide", None)  # decor is solid on the island
+        if sid == "Classic":
+            # same mesh decoration as the map's default plots (trees, flower beds, windmill)
+            d = classic_decor(CF(), random.Random(i * 7 + 1))
+        else:
+            d = Inst("Model", "Decor")
+            k = Kit(d)
+            decor(k, random.Random(i * 7 + 1))
+            for p in d.children:
+                p.props.pop("CanCollide", None)  # decor is solid on the island
         m.add(d)
+        root.add(m)
+    return root
+
+
+# ------------------------------------------------------------------ dice
+# 3D dice baked by blender/models/dice.py (order = tools/gamedata.py DICE)
+DICE_IDS = ["Golden", "Frost", "Toxic", "Inferno", "Cosmic", "Void", "Cyber", "Rainbow", "Galaxy",
+            "Glitch", "Celestial", "Divine", "Singularity"]
+
+
+def build_dice():
+    """Folder Dice: one Model per die (about 2x2x2 studs) with an invisible anchored 1x1x1 "Root"
+    at the centre (PrimaryPart) and its MeshParts. Spin/move it with Model:PivotTo."""
+    root = Inst("Folder", "Dice")
+    for i, did in enumerate(DICE_IDS):
+        m = Inst("Model", did, attrs={"DiceId": did, "Order": i + 1,
+                                      "Rojo_Target_PrimaryPart": "DiceRoot_" + did})
+        r = part("Root", (1, 1, 1), CF(), "#ffffff", transparency=1, collide=False, touch=False,
+                 cast_shadow=False, attrs={"Rojo_Id": "DiceRoot_" + did})
+        m.add(r)
+        for mp in mesh_parts("Dice_" + did, base=CF()):
+            m.add(mp)
         root.add(m)
     return root
 
@@ -443,3 +470,4 @@ def build_styles():
 if __name__ == "__main__":
     write_model(build_cars(), "ReplicatedStorage/Assets/Cars.model.json")
     write_model(build_styles(), "ReplicatedStorage/Assets/IslandStyles.model.json")
+    write_model(build_dice(), "ReplicatedStorage/Assets/Dice.model.json")

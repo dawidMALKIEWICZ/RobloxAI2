@@ -18,6 +18,7 @@ import bpy  # noqa: E402,I001
 import mlib as L  # noqa: E402
 import meshkit as K  # noqa: E402
 import all_models as P  # noqa: E402
+import world_props as WP  # noqa: E402
 
 WATER = -8.0           # sea level below the island top
 PLOT_W, PLOT_D = 200.0, 220.0
@@ -297,6 +298,21 @@ MODELS = {
     "StallCars": P.shop_cars, "StallStyles": P.shop_styles, "StallPotions": P.shop_potions,
     "StallDice": P.shop_dice, "TreeRound": P.tree_round, "TreePine": P.tree_pine,
     "TreePalm": P.tree_palm, "Bush": P.bush, "Rock": P.rock,
+    # living world (animated by src/ReplicatedStorage/Ambient.luau, see tools/build_map.py)
+    "Sailboat": WP.sailboat,
+    "SailboatB": lambda: WP.sailboat(sail="#fff1c9", stripe="#3b8bff", body="#2b4a6b",
+                                     bottom="#d9483b"),
+    "Rowboat": WP.rowboat, "RowboatB": lambda: WP.rowboat(body="#ffd23f"),
+    "Motorboat": WP.motorboat,
+    "LighthouseIsle": lambda: WP.lighthouse_isle(superellipse, island), "LighthouseLamp": WP.lighthouse_lamp,
+    "Windmill": WP.windmill, "WindmillBlades": WP.windmill_blades,
+    "Balloon": WP.balloon, "BalloonB": lambda: WP.balloon("#3b8bff", "#ffffff"),
+    "BalloonC": lambda: WP.balloon("#b54dff", "#5fe08a"),
+    "BeachSet": WP.beach_set, "Pier": WP.pier, "Buoy": WP.buoy,
+    "BuoyB": lambda: WP.buoy("#2fbf5a"), "Dolphin": WP.dolphin, "Fish": WP.fish,
+    "FishB": lambda: WP.fish("#3bd1ff"), "Lantern": WP.lantern,
+    "LanternB": lambda: WP.lantern("#ff5fa2"), "WaterfallRock": WP.waterfall_rock,
+    "FlowerBed": WP.flower_bed, "Hedge": WP.hedge,
 }
 
 

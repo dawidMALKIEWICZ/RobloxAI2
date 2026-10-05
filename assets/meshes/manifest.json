@@ -3,761 +3,2446 @@
   {
    "center": [
     0.0,
-    0.78,
-    -1.47
+    1.0675,
+    -1.05
    ],
    "color": "#fff6c2",
    "fbx": "assets/meshes/Car_Buggy__neonfff6c2.fbx",
    "group": "neonfff6c2",
-   "hash": "10513e9c048e39c103618f2151fd8478f2ef581b",
+   "hash": "c278068220222310b42f9eb270c053404a66ca3d",
    "kind": "neon",
+   "name": null,
    "role": null,
    "size": [
-    1.46,
-    0.16,
-    0.06
+    0.57,
+    1.155,
+    1.46
    ],
-   "tris": 24
+   "tris": 172
+  },
+  {
+   "center": [
+    -0.83,
+    0.4,
+    -1.2
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Buggy__part_WheelFL.fbx",
+   "group": "part_WheelFL",
+   "hash": "0797180ed8a9df2cb614c714973203769b19d95b",
+   "kind": "part",
+   "name": "WheelFL",
+   "role": null,
+   "size": [
+    0.36,
+    0.8,
+    0.8
+   ],
+   "tris": 436
+  },
+  {
+   "center": [
+    0.83,
+    0.4,
+    -1.2
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Buggy__part_WheelFR.fbx",
+   "group": "part_WheelFR",
+   "hash": "16b9b8cde83d7388d6a50e565c6e976bc5473001",
+   "kind": "part",
+   "name": "WheelFR",
+   "role": null,
+   "size": [
+    0.36,
+    0.8,
+    0.8
+   ],
+   "tris": 436
+  },
+  {
+   "center": [
+    -0.85,
+    0.5,
+    1.05
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Buggy__part_WheelRL.fbx",
+   "group": "part_WheelRL",
+   "hash": "6f03dd6df82ce3b0b7eeb3a8a59ea8340c714b4c",
+   "kind": "part",
+   "name": "WheelRL",
+   "role": null,
+   "size": [
+    0.46,
+    1.0,
+    1.0
+   ],
+   "tris": 436
+  },
+  {
+   "center": [
+    0.85,
+    0.5,
+    1.05
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Buggy__part_WheelRR.fbx",
+   "group": "part_WheelRR",
+   "hash": "8850d2046b85f066dc5e38ed4439b385351b37f2",
+   "kind": "part",
+   "name": "WheelRR",
+   "role": null,
+   "size": [
+    0.46,
+    1.0,
+    1.0
+   ],
+   "tris": 436
   },
   {
    "center": [
     0.0,
-    0.9225,
-    0.0525
+    1.35,
+    -0.032
    ],
    "color": null,
    "fbx": "assets/meshes/Car_Buggy__tex.fbx",
    "group": "tex",
-   "hash": "963b8b235de0bda6ac7e01d89f76d41082b3fb5a",
+   "hash": "295f8c188e55d5613555e686c767dfda1028a967",
    "kind": "tex",
+   "name": null,
    "role": null,
    "size": [
+    1.56,
     2.18,
-    1.845,
-    3.045
+    3.454
    ],
-   "tris": 856
+   "tris": 1936
   }
  ],
  "Car_F1": [
   {
    "center": [
     0.0,
-    0.5,
-    1.95
+    0.38,
+    1.99
    ],
    "color": "#ff3348",
    "fbx": "assets/meshes/Car_F1__neonff3348.fbx",
    "group": "neonff3348",
-   "hash": "0bb16474c98f12f963ef5572099a345e12104fe9",
+   "hash": "09b3c197db1369778592b5c44adcafc4f65d6b38",
    "kind": "neon",
+   "name": null,
    "role": null,
    "size": [
-    0.2,
+    0.14,
     0.12,
-    0.06
+    0.04
    ],
    "tris": 12
   },
   {
    "center": [
+    -0.87,
+    0.36,
+    -1.45
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_F1__part_WheelFL.fbx",
+   "group": "part_WheelFL",
+   "hash": "f30242281fe6bb54612f4304de89d453c8e0e258",
+   "kind": "part",
+   "name": "WheelFL",
+   "role": null,
+   "size": [
+    0.42,
+    0.72,
+    0.72
+   ],
+   "tris": 360
+  },
+  {
+   "center": [
+    0.87,
+    0.36,
+    -1.45
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_F1__part_WheelFR.fbx",
+   "group": "part_WheelFR",
+   "hash": "a986d3397f92eaa4f41a800510a541d895b12ba9",
+   "kind": "part",
+   "name": "WheelFR",
+   "role": null,
+   "size": [
+    0.42,
+    0.72,
+    0.72
+   ],
+   "tris": 360
+  },
+  {
+   "center": [
+    -0.86,
+    0.42,
+    1.3
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_F1__part_WheelRL.fbx",
+   "group": "part_WheelRL",
+   "hash": "3437652606a474c4a59e54c4880a0b2881651b0c",
+   "kind": "part",
+   "name": "WheelRL",
+   "role": null,
+   "size": [
+    0.5,
+    0.84,
+    0.84
+   ],
+   "tris": 360
+  },
+  {
+   "center": [
+    0.86,
+    0.42,
+    1.3
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_F1__part_WheelRR.fbx",
+   "group": "part_WheelRR",
+   "hash": "bcdf5d7d00d8e0dd5e1552dd815091fe61667b3b",
+   "kind": "part",
+   "name": "WheelRR",
+   "role": null,
+   "size": [
+    0.5,
+    0.84,
+    0.84
+   ],
+   "tris": 360
+  },
+  {
+   "center": [
     0.0,
-    0.6602,
-    -0.1375
+    0.6675,
+    -0.075
    ],
    "color": null,
    "fbx": "assets/meshes/Car_F1__tex.fbx",
    "group": "tex",
-   "hash": "0eaf811da9a3e8af988547b00fcc3be23b62e9cd",
+   "hash": "d6195c91ea4cefd0a9cb9296eb34c1661d021a07",
    "kind": "tex",
+   "name": null,
    "role": null,
    "size": [
-    2.2,
-    1.2996,
-    4.275
+    1.96,
+    1.155,
+    4.35
    ],
-   "tris": 1024
+   "tris": 1728
   }
  ],
  "Car_GoKart": [
   {
    "center": [
+    -0.85,
+    0.28,
+    -1.15
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_GoKart__part_WheelFL.fbx",
+   "group": "part_WheelFL",
+   "hash": "68fede07dd79c468b217a67e402c8ebe65f09576",
+   "kind": "part",
+   "name": "WheelFL",
+   "role": null,
+   "size": [
+    0.36,
+    0.56,
+    0.56
+   ],
+   "tris": 344
+  },
+  {
+   "center": [
+    0.85,
+    0.28,
+    -1.15
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_GoKart__part_WheelFR.fbx",
+   "group": "part_WheelFR",
+   "hash": "ee6c58293a24cd8e9cef25c7c99eac90fb8cd05f",
+   "kind": "part",
+   "name": "WheelFR",
+   "role": null,
+   "size": [
+    0.36,
+    0.56,
+    0.56
+   ],
+   "tris": 344
+  },
+  {
+   "center": [
+    -0.85,
+    0.32,
+    1.05
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_GoKart__part_WheelRL.fbx",
+   "group": "part_WheelRL",
+   "hash": "cb48ffb12bf5977e286e5c9cb89426cd91adbc89",
+   "kind": "part",
+   "name": "WheelRL",
+   "role": null,
+   "size": [
+    0.48,
+    0.64,
+    0.64
+   ],
+   "tris": 344
+  },
+  {
+   "center": [
+    0.85,
+    0.32,
+    1.05
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_GoKart__part_WheelRR.fbx",
+   "group": "part_WheelRR",
+   "hash": "f495abb6923fc471037de9b9d6fa0090a7498ada",
+   "kind": "part",
+   "name": "WheelRR",
+   "role": null,
+   "size": [
+    0.48,
+    0.64,
+    0.64
+   ],
+   "tris": 344
+  },
+  {
+   "center": [
     0.0,
-    0.8852,
-    -0.0425
+    0.6925,
+    -0.08
    ],
    "color": null,
    "fbx": "assets/meshes/Car_GoKart__tex.fbx",
    "group": "tex",
-   "hash": "05b773550b518fc435a7d4e3228e91308b081d7c",
+   "hash": "5a8ffefeb4594f86a9cce7698d0b4ae1e781d966",
    "kind": "tex",
+   "name": null,
    "role": null,
    "size": [
-    2.06,
-    1.7496,
-    3.165
+    1.64,
+    1.145,
+    3.28
    ],
-   "tris": 956
+   "tris": 1640
   }
  ],
  "Car_Hatchback": [
   {
    "center": [
     0.0,
-    1.3,
-    0.4403
+    1.24,
+    0.42
    ],
    "color": "#9fe3ff",
    "fbx": "assets/meshes/Car_Hatchback__glass9fe3ff.fbx",
    "group": "glass9fe3ff",
-   "hash": "e9837c00262923ddfafdd00de25aa1c28b1a5aa8",
+   "hash": "5263bd36c88b7e6d43f8a8add65387509a84f970",
    "kind": "glass",
+   "name": null,
    "role": null,
    "size": [
-    1.7,
-    0.64,
-    1.9594
+    1.5067,
+    0.72,
+    2.68
    ],
-   "tris": 56
+   "tris": 92
   },
   {
    "center": [
     0.0,
-    0.75,
-    1.62
+    0.7,
+    1.89
    ],
    "color": "#ff3348",
    "fbx": "assets/meshes/Car_Hatchback__neonff3348.fbx",
    "group": "neonff3348",
-   "hash": "2e8f73d2d5b7c8f9f40b2165c99035ca4adaff98",
+   "hash": "63dfc0a600926ae97733f80fb1a1b52f97cdf7e8",
    "kind": "neon",
+   "name": null,
    "role": null,
    "size": [
-    1.5,
-    0.16,
-    0.06
+    1.4,
+    0.22,
+    0.05
    ],
    "tris": 24
   },
   {
    "center": [
     0.0,
-    0.72,
-    -1.68
+    0.42,
+    -1.9
+   ],
+   "color": "#ffb31a",
+   "fbx": "assets/meshes/Car_Hatchback__neonffb31a.fbx",
+   "group": "neonffb31a",
+   "hash": "72a7088070b90ba94952b9c09907a5ab7ec4cc7b",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    1.5,
+    0.06,
+    0.04
+   ],
+   "tris": 24
+  },
+  {
+   "center": [
+    0.0,
+    0.6,
+    -1.97
    ],
    "color": "#fff6c2",
    "fbx": "assets/meshes/Car_Hatchback__neonfff6c2.fbx",
    "group": "neonfff6c2",
-   "hash": "c34f55f2f81564c976910db84c9112e6657991c2",
+   "hash": "313c3e9d9646e96a41052b2bc4a4a5d010fa3465",
    "kind": "neon",
+   "name": null,
    "role": null,
    "size": [
-    1.54,
-    0.2,
-    0.08
+    1.195,
+    0.195,
+    0.06
    ],
-   "tris": 24
+   "tris": 88
+  },
+  {
+   "center": [
+    -0.89,
+    0.38,
+    -1.18
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Hatchback__part_WheelFL.fbx",
+   "group": "part_WheelFL",
+   "hash": "ab3099780f55c245b597727de337b04765ffd43d",
+   "kind": "part",
+   "name": "WheelFL",
+   "role": null,
+   "size": [
+    0.36,
+    0.76,
+    0.76
+   ],
+   "tris": 360
+  },
+  {
+   "center": [
+    0.89,
+    0.38,
+    -1.18
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Hatchback__part_WheelFR.fbx",
+   "group": "part_WheelFR",
+   "hash": "7d0211f19c4dec81ddf04e74a3ae3a28d1b7e287",
+   "kind": "part",
+   "name": "WheelFR",
+   "role": null,
+   "size": [
+    0.36,
+    0.76,
+    0.76
+   ],
+   "tris": 360
+  },
+  {
+   "center": [
+    -0.89,
+    0.38,
+    1.18
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Hatchback__part_WheelRL.fbx",
+   "group": "part_WheelRL",
+   "hash": "ab3099780f55c245b597727de337b04765ffd43d",
+   "kind": "part",
+   "name": "WheelRL",
+   "role": null,
+   "size": [
+    0.36,
+    0.76,
+    0.76
+   ],
+   "tris": 360
+  },
+  {
+   "center": [
+    0.89,
+    0.38,
+    1.18
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Hatchback__part_WheelRR.fbx",
+   "group": "part_WheelRR",
+   "hash": "7d0211f19c4dec81ddf04e74a3ae3a28d1b7e287",
+   "kind": "part",
+   "name": "WheelRR",
+   "role": null,
+   "size": [
+    0.36,
+    0.76,
+    0.76
+   ],
+   "tris": 360
   },
   {
    "center": [
     0.0,
-    0.8852,
-    -0.03
+    0.9525,
+    -0.0025
    ],
    "color": null,
    "fbx": "assets/meshes/Car_Hatchback__tex.fbx",
    "group": "tex",
-   "hash": "f17c051ffad275589cd1d18eb143478bf7393578",
+   "hash": "9d5ddf85d0bad42d76cf5a52b061b12737563ac3",
    "kind": "tex",
+   "name": null,
    "role": null,
    "size": [
-    2.16,
-    1.7496,
-    3.5
+    2.1,
+    1.585,
+    4.035
    ],
-   "tris": 832
+   "tris": 1760
   }
  ],
  "Car_Hover": [
   {
    "center": [
-    0.0,
-    1.05,
-    0.1
+    -0.0,
+    0.95,
+    0.15
    ],
    "color": "#7ce7ff",
    "fbx": "assets/meshes/Car_Hover__glass7ce7ff.fbx",
    "group": "glass7ce7ff",
-   "hash": "96a4c7d7f8991f12abd68680d81b3ae4e594b3de",
+   "hash": "7422c1acafaa419740b9c22797a963e9cf26be64",
    "kind": "glass",
+   "name": null,
    "role": null,
    "size": [
-    1.536,
-    1.02,
-    2.55
+    1.1699,
+    0.9,
+    2.04
    ],
-   "tris": 80
+   "tris": 196
   },
   {
    "center": [
     0.0,
-    0.55,
-    0.1
+    0.482,
+    0.335
    ],
    "color": "#38d6ff",
    "fbx": "assets/meshes/Car_Hover__neon38d6ff.fbx",
    "group": "neon38d6ff",
-   "hash": "ad1c70c48eb58c222425e13ae81e2b8b95f839f9",
+   "hash": "d390484bcff80f8f6ffb1829d37f3b973bfb9ab7",
    "kind": "neon",
+   "name": null,
    "role": null,
    "size": [
-    2.24,
-    0.08,
-    2.4
+    2.16,
+    0.516,
+    3.69
    ],
-   "tris": 24
+   "tris": 400
   },
   {
    "center": [
     0.0,
-    0.2,
+    0.22,
     0.05
    ],
    "color": "#7cf3ff",
    "fbx": "assets/meshes/Car_Hover__neon7cf3ff.fbx",
    "group": "neon7cf3ff",
-   "hash": "d4d686e93b0feff02e8d64bd6406c2e58d5ad3a3",
+   "hash": "e2a9f716bcba2244fdb146ca76720d27c5aff9ac",
    "kind": "neon",
+   "name": null,
    "role": null,
    "size": [
-    1.7565,
-    0.05,
-    2.58
+    1.947,
+    0.04,
+    2.92
    ],
-   "tris": 144
+   "tris": 208
   },
   {
    "center": [
     0.0,
-    0.72,
-    -1.95
+    0.55,
+    -2.0
    ],
    "color": "#bff6ff",
    "fbx": "assets/meshes/Car_Hover__neonbff6ff.fbx",
    "group": "neonbff6ff",
-   "hash": "cc43d2271bf56f4976e2a4df53c479b4f0673275",
+   "hash": "10f6c8a8d7ebad4d70264c69600a382e6eb89663",
    "kind": "neon",
+   "name": null,
    "role": null,
    "size": [
-    1.5,
-    0.1,
-    0.06
+    1.2896,
+    0.05,
+    0.1962
    ],
    "tris": 24
   },
   {
    "center": [
     0.0,
-    0.75,
-    1.82
+    1.0077,
+    1.9175
    ],
    "color": "#ff4f9a",
    "fbx": "assets/meshes/Car_Hover__neonff4f9a.fbx",
    "group": "neonff4f9a",
-   "hash": "d0b32e340812923312ee8a8b60b12b0a0c24a971",
+   "hash": "7453d350f47c5e0cb3509327afb83deb3ab93e21",
    "kind": "neon",
+   "name": null,
    "role": null,
    "size": [
-    1.3,
-    0.12,
-    0.06
+    1.0582,
+    0.5955,
+    0.355
    ],
-   "tris": 12
+   "tris": 36
   },
   {
    "center": [
     0.0,
-    0.72,
-    -0.0406
+    0.7825,
+    -0.0
    ],
    "color": null,
    "fbx": "assets/meshes/Car_Hover__tex.fbx",
    "group": "tex",
-   "hash": "5d18a733b9118e3d9c1a0889140601f753d4b047",
+   "hash": "57281f22d67e61b7f8f33305ac78502dff20eda7",
    "kind": "tex",
+   "name": null,
    "role": null,
    "size": [
-    2.15,
-    1.02,
-    3.6813
+    2.1419,
+    1.105,
+    4.3
    ],
-   "tris": 328
+   "tris": 1668
   }
  ],
  "Car_Monster": [
   {
    "center": [
     0.0,
-    1.93,
-    0.128
+    1.91,
+    0.025
    ],
    "color": "#9fe3ff",
    "fbx": "assets/meshes/Car_Monster__glass9fe3ff.fbx",
    "group": "glass9fe3ff",
-   "hash": "a074274af364062f1244e4b792353cf10fa7711c",
+   "hash": "08c87a838aedabb74542bbc018a8e398a00977e7",
    "kind": "glass",
+   "name": null,
    "role": null,
    "size": [
-    1.55,
-    0.5,
-    1.2976
+    1.4697,
+    0.62,
+    1.45
    ],
-   "tris": 44
+   "tris": 92
   },
   {
    "center": [
     0.0,
     1.45,
-    1.62
+    1.61
    ],
    "color": "#ff3348",
    "fbx": "assets/meshes/Car_Monster__neonff3348.fbx",
    "group": "neonff3348",
-   "hash": "865a047e32213b41dc5ca1702e038c52a59379a6",
+   "hash": "5b0013ed3338ba2017d9f43f29a89890020ebb05",
    "kind": "neon",
+   "name": null,
    "role": null,
    "size": [
-    1.4,
-    0.15,
-    0.06
+    1.36,
+    0.22,
+    0.05
    ],
    "tris": 24
   },
   {
    "center": [
     0.0,
-    2.32,
-    -0.0
+    2.38,
+    -0.27
    ],
    "color": "#ffe03b",
    "fbx": "assets/meshes/Car_Monster__neonffe03b.fbx",
    "group": "neonffe03b",
-   "hash": "6389be7aae9f81486872eeca3ed68e873da9d9f9",
+   "hash": "d202ab9440fdcd6b5bf648387bee8263cf1d6fe5",
    "kind": "neon",
+   "name": null,
    "role": null,
    "size": [
-    1.06,
-    0.1,
-    0.16
+    0.885,
+    0.105,
+    0.06
    ],
-   "tris": 48
+   "tris": 112
   },
   {
    "center": [
     0.0,
-    1.42,
-    -1.7
+    1.4,
+    -1.75
    ],
    "color": "#fff6c2",
    "fbx": "assets/meshes/Car_Monster__neonfff6c2.fbx",
    "group": "neonfff6c2",
-   "hash": "4070d71eddefabea2d4444c5d5e511189687bf91",
+   "hash": "8e272b8f892685b88b74c2c378ef7cc4bbf2924f",
    "kind": "neon",
+   "name": null,
    "role": null,
    "size": [
-    1.4,
-    0.2,
+    1.28,
+    0.18,
     0.06
    ],
-   "tris": 24
+   "tris": 88
+  },
+  {
+   "center": [
+    -0.83,
+    0.68,
+    -1.08
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Monster__part_WheelFL.fbx",
+   "group": "part_WheelFL",
+   "hash": "c2d0ee246d4333a9d7855f746831703d320499c8",
+   "kind": "part",
+   "name": "WheelFL",
+   "role": null,
+   "size": [
+    0.56,
+    1.36,
+    1.36
+   ],
+   "tris": 448
+  },
+  {
+   "center": [
+    0.83,
+    0.68,
+    -1.08
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Monster__part_WheelFR.fbx",
+   "group": "part_WheelFR",
+   "hash": "427e9020babf5fee98d61194032e1871ef42a130",
+   "kind": "part",
+   "name": "WheelFR",
+   "role": null,
+   "size": [
+    0.56,
+    1.36,
+    1.36
+   ],
+   "tris": 448
+  },
+  {
+   "center": [
+    -0.83,
+    0.68,
+    1.08
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Monster__part_WheelRL.fbx",
+   "group": "part_WheelRL",
+   "hash": "c2d0ee246d4333a9d7855f746831703d320499c8",
+   "kind": "part",
+   "name": "WheelRL",
+   "role": null,
+   "size": [
+    0.56,
+    1.36,
+    1.36
+   ],
+   "tris": 448
+  },
+  {
+   "center": [
+    0.83,
+    0.68,
+    1.08
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Monster__part_WheelRR.fbx",
+   "group": "part_WheelRR",
+   "hash": "427e9020babf5fee98d61194032e1871ef42a130",
+   "kind": "part",
+   "name": "WheelRR",
+   "role": null,
+   "size": [
+    0.56,
+    1.36,
+    1.36
+   ],
+   "tris": 448
   },
   {
    "center": [
     0.0,
-    1.1302,
-    -0.0
+    1.48,
+    -0.05
    ],
    "color": null,
    "fbx": "assets/meshes/Car_Monster__tex.fbx",
    "group": "tex",
-   "hash": "393042ede53a62255a4f087b285ff377884041a8",
+   "hash": "e4cf27d0f16ec1af33799aa6dbfe901ed5ef58a4",
    "kind": "tex",
+   "name": null,
    "role": null,
    "size": [
-    2.2,
-    2.2396,
-    3.4393
+    2.02,
+    1.94,
+    3.56
    ],
-   "tris": 924
+   "tris": 2328
   }
  ],
  "Car_Muscle": [
   {
    "center": [
     0.0,
-    1.125,
-    0.2738
+    1.12,
+    0.415
    ],
    "color": "#9fe3ff",
    "fbx": "assets/meshes/Car_Muscle__glass9fe3ff.fbx",
    "group": "glass9fe3ff",
-   "hash": "b44019ff2b7089d95f0660915cc5e5184ddbf654",
+   "hash": "4764904183887b2f3a00a17db929f58a55b08ea8",
    "kind": "glass",
+   "name": null,
    "role": null,
    "size": [
-    1.7,
-    0.41,
-    1.2812
+    1.4992,
+    0.52,
+    2.07
    ],
-   "tris": 44
+   "tris": 92
   },
   {
    "center": [
     0.0,
     0.72,
-    1.97
+    2.1
    ],
    "color": "#ff3348",
    "fbx": "assets/meshes/Car_Muscle__neonff3348.fbx",
    "group": "neonff3348",
-   "hash": "8060eda12db86fea6d54c852244591bac1ab9570",
+   "hash": "421172982db5ec94e1b5d9820951bd83451b28f2",
    "kind": "neon",
+   "name": null,
    "role": null,
    "size": [
-    1.75,
-    0.12,
-    0.06
+    1.46,
+    0.1,
+    0.05
    ],
    "tris": 24
   },
   {
    "center": [
     0.0,
-    0.68,
-    -1.97
+    0.58,
+    -2.16
    ],
    "color": "#fff6c2",
    "fbx": "assets/meshes/Car_Muscle__neonfff6c2.fbx",
    "group": "neonfff6c2",
-   "hash": "9549f8862a4d02d39bc9657a0cc021b69177eb08",
+   "hash": "e86ffb338215e1cff46619b6f6fa35243053af2f",
    "kind": "neon",
+   "name": null,
    "role": null,
    "size": [
-    1.7,
-    0.2,
+    1.4413,
+    0.1275,
     0.06
    ],
-   "tris": 24
+   "tris": 144
+  },
+  {
+   "center": [
+    -0.89,
+    0.4,
+    -1.28
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Muscle__part_WheelFL.fbx",
+   "group": "part_WheelFL",
+   "hash": "d6899fb374999fda0123032004ccaa79d7001e7c",
+   "kind": "part",
+   "name": "WheelFL",
+   "role": null,
+   "size": [
+    0.38,
+    0.8,
+    0.8
+   ],
+   "tris": 344
+  },
+  {
+   "center": [
+    0.89,
+    0.4,
+    -1.28
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Muscle__part_WheelFR.fbx",
+   "group": "part_WheelFR",
+   "hash": "ed36992a66254b4755e18175851074039e09cc75",
+   "kind": "part",
+   "name": "WheelFR",
+   "role": null,
+   "size": [
+    0.38,
+    0.8,
+    0.8
+   ],
+   "tris": 344
+  },
+  {
+   "center": [
+    -0.88,
+    0.44,
+    1.25
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Muscle__part_WheelRL.fbx",
+   "group": "part_WheelRL",
+   "hash": "ece4397d362e4ab0580e4df24e1d2d866be4bd06",
+   "kind": "part",
+   "name": "WheelRL",
+   "role": null,
+   "size": [
+    0.44,
+    0.88,
+    0.88
+   ],
+   "tris": 344
+  },
+  {
+   "center": [
+    0.88,
+    0.44,
+    1.25
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Muscle__part_WheelRR.fbx",
+   "group": "part_WheelRR",
+   "hash": "b2cf2bb293e3e4959749224fe19bd1cde449bbaa",
+   "kind": "part",
+   "name": "WheelRR",
+   "role": null,
+   "size": [
+    0.44,
+    0.88,
+    0.88
+   ],
+   "tris": 344
   },
   {
    "center": [
     0.0,
-    0.7252,
-    0.065
+    0.8,
+    0.0125
    ],
    "color": null,
    "fbx": "assets/meshes/Car_Muscle__tex.fbx",
    "group": "tex",
-   "hash": "40ef5c5205618afeb15c1474a9b1cad149ab104f",
+   "hash": "e5e14b553157ce01cff57578549ab510aea0a754",
    "kind": "tex",
+   "name": null,
    "role": null,
    "size": [
-    2.2,
-    1.4296,
-    4.27
+    2.16,
+    1.3,
+    4.445
    ],
-   "tris": 980
+   "tris": 2608
   }
  ],
  "Car_Pickup": [
   {
    "center": [
-    -0.0,
-    1.38,
-    -0.2458
+    0.0,
+    1.34,
+    -0.165
    ],
    "color": "#9fe3ff",
    "fbx": "assets/meshes/Car_Pickup__glass9fe3ff.fbx",
    "group": "glass9fe3ff",
-   "hash": "8977e060e1937ed6cbabfb59dfb7041efdc21788",
+   "hash": "2a2c880ef2b796fc1917626e56479298cbb86018",
    "kind": "glass",
+   "name": null,
    "role": null,
    "size": [
-    1.8,
-    0.6,
-    1.0515
+    1.5516,
+    0.76,
+    1.57
    ],
-   "tris": 44
+   "tris": 92
   },
   {
    "center": [
     0.0,
-    0.85,
-    1.96
+    0.78,
+    2.02
    ],
    "color": "#ff3348",
    "fbx": "assets/meshes/Car_Pickup__neonff3348.fbx",
    "group": "neonff3348",
-   "hash": "6abce375609089388c6b30e8221d13a750fbe78d",
+   "hash": "5832099d37ba9392ed162495bb6bca365c0d46b6",
    "kind": "neon",
+   "name": null,
    "role": null,
    "size": [
-    1.7,
-    0.26,
-    0.06
+    1.56,
+    0.3,
+    0.05
    ],
    "tris": 24
   },
   {
    "center": [
     0.0,
-    1.8,
-    -0.2
+    1.19,
+    -1.0575
    ],
    "color": "#ffb31a",
    "fbx": "assets/meshes/Car_Pickup__neonffb31a.fbx",
    "group": "neonffb31a",
-   "hash": "9729164dfb4811161ef8176cb5a992db49587f9e",
+   "hash": "c5bc208d42b93138f9d13cf81936773a7428164c",
    "kind": "neon",
+   "name": null,
    "role": null,
    "size": [
-    1.22,
-    0.08,
-    0.12
-   ],
-   "tris": 24
-  },
-  {
-   "center": [
-    0.0,
-    0.85,
-    -1.9
-   ],
-   "color": "#fff6c2",
-   "fbx": "assets/meshes/Car_Pickup__neonfff6c2.fbx",
-   "group": "neonfff6c2",
-   "hash": "c34f55f2f81564c976910db84c9112e6657991c2",
-   "kind": "neon",
-   "role": null,
-   "size": [
-    1.54,
-    0.2,
-    0.08
-   ],
-   "tris": 24
-  },
-  {
-   "center": [
-    0.0,
-    0.875,
-    0.045
-   ],
-   "color": null,
-   "fbx": "assets/meshes/Car_Pickup__tex.fbx",
-   "group": "tex",
-   "hash": "73899444d3ec72eed6f9d9f9af66e86b4501dab4",
-   "kind": "tex",
-   "role": null,
-   "size": [
-    2.2,
-    1.75,
-    4.03
-   ],
-   "tris": 812
-  }
- ],
- "Car_Rocket": [
-  {
-   "center": [
-    0.0,
-    1.185,
-    0.0046
-   ],
-   "color": "#ffb31a",
-   "fbx": "assets/meshes/Car_Rocket__glassffb31a.fbx",
-   "group": "glassffb31a",
-   "hash": "26b560b6f261dc090fd4a25ab336505970619116",
-   "kind": "glass",
-   "role": null,
-   "size": [
-    1.3,
-    0.47,
-    1.3787
-   ],
-   "tris": 44
-  },
-  {
-   "center": [
-    0.0,
-    0.75,
-    2.32
-   ],
-   "color": "#ff7b1a",
-   "fbx": "assets/meshes/Car_Rocket__neonff7b1a.fbx",
-   "group": "neonff7b1a",
-   "hash": "feca540a1ba253d4e117e10b2ac3530759b50317",
-   "kind": "neon",
-   "role": null,
-   "size": [
-    1.3185,
-    0.44,
-    0.08
+    1.44,
+    1.5,
+    1.935
    ],
    "tris": 72
   },
   {
    "center": [
     0.0,
-    0.18,
+    0.7,
+    -2.05
+   ],
+   "color": "#fff6c2",
+   "fbx": "assets/meshes/Car_Pickup__neonfff6c2.fbx",
+   "group": "neonfff6c2",
+   "hash": "fd526c43892bbbd8f96a527dfa615cbcb6519342",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    1.435,
+    0.195,
+    0.06
+   ],
+   "tris": 88
+  },
+  {
+   "center": [
+    -0.91,
+    0.44,
+    -1.25
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Pickup__part_WheelFL.fbx",
+   "group": "part_WheelFL",
+   "hash": "59ca676220124ec408c0f02449f21d41eed396ea",
+   "kind": "part",
+   "name": "WheelFL",
+   "role": null,
+   "size": [
+    0.4,
+    0.88,
+    0.88
+   ],
+   "tris": 448
+  },
+  {
+   "center": [
+    0.91,
+    0.44,
+    -1.25
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Pickup__part_WheelFR.fbx",
+   "group": "part_WheelFR",
+   "hash": "1a2332b0678bbd7e29cbb861446e950b6df566c5",
+   "kind": "part",
+   "name": "WheelFR",
+   "role": null,
+   "size": [
+    0.4,
+    0.88,
+    0.88
+   ],
+   "tris": 448
+  },
+  {
+   "center": [
+    -0.91,
+    0.44,
+    1.22
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Pickup__part_WheelRL.fbx",
+   "group": "part_WheelRL",
+   "hash": "59ca676220124ec408c0f02449f21d41eed396ea",
+   "kind": "part",
+   "name": "WheelRL",
+   "role": null,
+   "size": [
+    0.4,
+    0.88,
+    0.88
+   ],
+   "tris": 448
+  },
+  {
+   "center": [
+    0.91,
+    0.44,
+    1.22
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Pickup__part_WheelRR.fbx",
+   "group": "part_WheelRR",
+   "hash": "1a2332b0678bbd7e29cbb861446e950b6df566c5",
+   "kind": "part",
+   "name": "WheelRR",
+   "role": null,
+   "size": [
+    0.4,
+    0.88,
+    0.88
+   ],
+   "tris": 448
+  },
+  {
+   "center": [
+    0.0,
+    0.985,
+    0.0025
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Pickup__tex.fbx",
+   "group": "tex",
+   "hash": "d98a7f33377429a1ea69d4efbd3f506c708860db",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    2.18,
+    1.75,
+    4.385
+   ],
+   "tris": 2240
+  }
+ ],
+ "Car_Rocket": [
+  {
+   "center": [
+    0.0,
+    1.01,
+    -0.1
+   ],
+   "color": "#ffb31a",
+   "fbx": "assets/meshes/Car_Rocket__glassffb31a.fbx",
+   "group": "glassffb31a",
+   "hash": "425e58c2a4e113fac89827fc03c15e460667ebcd",
+   "kind": "glass",
+   "name": null,
+   "role": null,
+   "size": [
+    0.7029,
+    0.42,
+    1.4
+   ],
+   "tris": 92
+  },
+  {
+   "center": [
+    0.0,
+    0.8,
+    2.33
+   ],
+   "color": "#ff7b1a",
+   "fbx": "assets/meshes/Car_Rocket__neonff7b1a.fbx",
+   "group": "neonff7b1a",
+   "hash": "9ab3ca796fb0623cfbadce6f4f6f921294a66f74",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    1.38,
+    0.48,
+    0.03
+   ],
+   "tris": 88
+  },
+  {
+   "center": [
+    0.0,
+    0.4125,
     -0.0
    ],
    "color": "#ffb31a",
    "fbx": "assets/meshes/Car_Rocket__neonffb31a.fbx",
    "group": "neonffb31a",
-   "hash": "09a5cefb8cd93701e6c7edcc2fcea74fb7a88c6e",
+   "hash": "aad1fe8bf8c457d0d9cd641ec464091f72807f67",
    "kind": "neon",
+   "name": null,
    "role": null,
    "size": [
-    1.4,
-    0.04,
-    3.0
+    1.39,
+    0.455,
+    2.8
    ],
-   "tris": 12
+   "tris": 36
   },
   {
    "center": [
     0.0,
-    0.62,
-    -2.0
+    0.8,
+    2.36
+   ],
+   "color": "#ffe08a",
+   "fbx": "assets/meshes/Car_Rocket__neonffe08a.fbx",
+   "group": "neonffe08a",
+   "hash": "1babaab0ceab79dd1436ca44ce172a49db88181d",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    1.2424,
+    0.36,
+    0.1
+   ],
+   "tris": 72
+  },
+  {
+   "center": [
+    0.0,
+    0.5,
+    -1.6858
    ],
    "color": "#fff3b0",
    "fbx": "assets/meshes/Car_Rocket__neonfff3b0.fbx",
    "group": "neonfff3b0",
-   "hash": "d4e8e5a7f1575b152b45369b66ac360c3e8a855b",
+   "hash": "8b921a61d4809fa024e3603e00725869e3197eea",
    "kind": "neon",
+   "name": null,
    "role": null,
    "size": [
-    1.35,
-    0.1,
-    0.06
+    1.0386,
+    0.05,
+    0.5184
    ],
-   "tris": 24
+   "tris": 36
+  },
+  {
+   "center": [
+    -0.89,
+    0.34,
+    -1.25
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Rocket__part_WheelFL.fbx",
+   "group": "part_WheelFL",
+   "hash": "1d60fffc9703e8e01b1dc38513c864c3b96fdab4",
+   "kind": "part",
+   "name": "WheelFL",
+   "role": null,
+   "size": [
+    0.36,
+    0.68,
+    0.68
+   ],
+   "tris": 344
+  },
+  {
+   "center": [
+    0.89,
+    0.34,
+    -1.25
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Rocket__part_WheelFR.fbx",
+   "group": "part_WheelFR",
+   "hash": "575f737003886c51e2f6b99ac6a2456f53c3092e",
+   "kind": "part",
+   "name": "WheelFR",
+   "role": null,
+   "size": [
+    0.36,
+    0.68,
+    0.68
+   ],
+   "tris": 344
+  },
+  {
+   "center": [
+    -0.89,
+    0.34,
+    1.15
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Rocket__part_WheelRL.fbx",
+   "group": "part_WheelRL",
+   "hash": "1d60fffc9703e8e01b1dc38513c864c3b96fdab4",
+   "kind": "part",
+   "name": "WheelRL",
+   "role": null,
+   "size": [
+    0.36,
+    0.68,
+    0.68
+   ],
+   "tris": 344
+  },
+  {
+   "center": [
+    0.89,
+    0.34,
+    1.15
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Rocket__part_WheelRR.fbx",
+   "group": "part_WheelRR",
+   "hash": "575f737003886c51e2f6b99ac6a2456f53c3092e",
+   "kind": "part",
+   "name": "WheelRR",
+   "role": null,
+   "size": [
+    0.36,
+    0.68,
+    0.68
+   ],
+   "tris": 344
   },
   {
    "center": [
     0.0,
-    0.625,
-    0.1573
+    0.94,
+    0.145
    ],
    "color": null,
    "fbx": "assets/meshes/Car_Rocket__tex.fbx",
    "group": "tex",
-   "hash": "725266ed8429e3d988f953eb3f3876442760c819",
+   "hash": "6b7b5f20e26742e9eeabce20b7afdcf6018a954a",
    "kind": "tex",
+   "name": null,
    "role": null,
    "size": [
-    2.18,
-    1.25,
-    4.2853
+    2.1,
+    1.32,
+    4.39
    ],
-   "tris": 724
+   "tris": 1496
   }
  ],
  "Car_Sports": [
   {
    "center": [
     0.0,
-    1.015,
-    -0.0139
+    0.91,
+    0.125
    ],
-   "color": "#2b3a55",
-   "fbx": "assets/meshes/Car_Sports__glass2b3a55.fbx",
-   "group": "glass2b3a55",
-   "hash": "7c7304915ada1dd0fc114546619e121b3b549c72",
+   "color": "#5f86c4",
+   "fbx": "assets/meshes/Car_Sports__glass5f86c4.fbx",
+   "group": "glass5f86c4",
+   "hash": "a87f76635ff2b9bdb0390554bc2eaa1c47fcb997",
    "kind": "glass",
+   "name": null,
    "role": null,
    "size": [
-    1.65,
-    0.43,
-    1.6568
+    1.4992,
+    0.46,
+    2.05
    ],
-   "tris": 40
+   "tris": 92
   },
   {
    "center": [
     0.0,
-    0.55,
-    -2.0
+    0.38,
+    -2.07
    ],
    "color": "#e6faff",
    "fbx": "assets/meshes/Car_Sports__neone6faff.fbx",
    "group": "neone6faff",
-   "hash": "258c930d172eca66e70caaf7995ffbbb4cc6412f",
+   "hash": "a023b8e81492d153a3e88e66ce701b17cbc86b8a",
    "kind": "neon",
+   "name": null,
    "role": null,
    "size": [
-    1.8,
-    0.1,
-    0.06
+    1.4252,
+    0.132,
+    0.1371
    ],
    "tris": 24
   },
   {
    "center": [
     0.0,
-    0.72,
-    1.97
+    0.66,
+    2.09
    ],
    "color": "#ff3348",
    "fbx": "assets/meshes/Car_Sports__neonff3348.fbx",
    "group": "neonff3348",
-   "hash": "6c9ccc8e49bf6a94464c9462c84304e567fcd06a",
+   "hash": "3e6845a75c0aa76ea2b0281bf96b8740a532679b",
    "kind": "neon",
-   "role": null,
-   "size": [
-    1.75,
-    0.08,
-    0.06
-   ],
-   "tris": 24
-  },
-  {
-   "center": [
-    0.0,
-    0.22,
-    -0.0
-   ],
-   "color": "#ff4f86",
-   "fbx": "assets/meshes/Car_Sports__neonff4f86.fbx",
-   "group": "neonff4f86",
-   "hash": "b3d486d700e5c54c191c402a659bc6bdb9931a4f",
-   "kind": "neon",
+   "name": null,
    "role": null,
    "size": [
     1.5,
-    0.04,
-    2.8
+    0.06,
+    0.05
    ],
    "tris": 12
   },
   {
    "center": [
     0.0,
-    0.6485,
-    0.025
+    0.17,
+    -0.0
+   ],
+   "color": "#ff4f86",
+   "fbx": "assets/meshes/Car_Sports__neonff4f86.fbx",
+   "group": "neonff4f86",
+   "hash": "b4ccfa1bb47d89c8327b42a5eb7ab9bcca22bbfa",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    1.4,
+    0.03,
+    3.0
+   ],
+   "tris": 12
+  },
+  {
+   "center": [
+    -0.89,
+    0.37,
+    -1.3
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Sports__part_WheelFL.fbx",
+   "group": "part_WheelFL",
+   "hash": "244282df7e035a7f2fcd90d4c73ab4b7f28b789f",
+   "kind": "part",
+   "name": "WheelFL",
+   "role": null,
+   "size": [
+    0.4,
+    0.74,
+    0.74
+   ],
+   "tris": 328
+  },
+  {
+   "center": [
+    0.89,
+    0.37,
+    -1.3
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Sports__part_WheelFR.fbx",
+   "group": "part_WheelFR",
+   "hash": "4a5b6c5a9651cb6f4475b7cb92470a4884410509",
+   "kind": "part",
+   "name": "WheelFR",
+   "role": null,
+   "size": [
+    0.4,
+    0.74,
+    0.74
+   ],
+   "tris": 328
+  },
+  {
+   "center": [
+    -0.88,
+    0.4,
+    1.25
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Sports__part_WheelRL.fbx",
+   "group": "part_WheelRL",
+   "hash": "4ac6b942e8ac5c0ff7884e6b0e82e2b42c4eef68",
+   "kind": "part",
+   "name": "WheelRL",
+   "role": null,
+   "size": [
+    0.44,
+    0.8,
+    0.8
+   ],
+   "tris": 328
+  },
+  {
+   "center": [
+    0.88,
+    0.4,
+    1.25
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Car_Sports__part_WheelRR.fbx",
+   "group": "part_WheelRR",
+   "hash": "a7842942a9b8669385a270b907c436676d3f9ebf",
+   "kind": "part",
+   "name": "WheelRR",
+   "role": null,
+   "size": [
+    0.44,
+    0.8,
+    0.8
+   ],
+   "tris": 328
+  },
+  {
+   "center": [
+    0.0,
+    0.69,
+    -0.0025
    ],
    "color": null,
    "fbx": "assets/meshes/Car_Sports__tex.fbx",
    "group": "tex",
-   "hash": "9d61ce4cb524bd8ee413ce7eb364182f6d364e70",
+   "hash": "2424acf0911c40c7ccc795aeadb153c07b8e97e6",
    "kind": "tex",
+   "name": null,
    "role": null,
    "size": [
-    2.22,
-    1.297,
-    4.1
+    2.16,
+    1.04,
+    4.405
    ],
-   "tris": 760
+   "tris": 1836
+  }
+ ],
+ "Dice_Celestial": [
+  {
+   "center": [
+    -0.9,
+    -0.6,
+    1.2
+   ],
+   "color": "#8fe3ff",
+   "fbx": "assets/meshes/Dice_Celestial__neon8fe3ff.fbx",
+   "group": "neon8fe3ff",
+   "hash": "291fa447d3c14bc9a45e808f2a53415903658d4c",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    0.2494,
+    0.28,
+    0.1893
+   ],
+   "tris": 28
+  },
+  {
+   "center": [
+    0.0,
+    1.55,
+    -0.0
+   ],
+   "color": "#ffe08a",
+   "fbx": "assets/meshes/Dice_Celestial__neonffe08a.fbx",
+   "group": "neonffe08a",
+   "hash": "e9ca4e2dd105df7ae795d90f7c296a5d8f5d9e33",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    1.38,
+    0.14,
+    1.38
+   ],
+   "tris": 160
+  },
+  {
+   "center": [
+    0.7,
+    1.1,
+    1.2
+   ],
+   "color": "#fff3b0",
+   "fbx": "assets/meshes/Dice_Celestial__neonfff3b0.fbx",
+   "group": "neonfff3b0",
+   "hash": "ab9f82c115a4fd311dc69be992ef9a80ecafdbf4",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    0.3563,
+    0.4,
+    0.2704
+   ],
+   "tris": 28
+  },
+  {
+   "center": [
+    0.0,
+    0.2,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Dice_Celestial__tex.fbx",
+   "group": "tex",
+   "hash": "fd193a466ab87cb0b4b26987ef9f148e4a23b9d1",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    4.94,
+    2.4,
+    2.0
+   ],
+   "tris": 1830
+  }
+ ],
+ "Dice_Cosmic": [
+  {
+   "center": [
+    -0.0,
+    0.0,
+    -0.0
+   ],
+   "color": "#d9a3ff",
+   "fbx": "assets/meshes/Dice_Cosmic__neond9a3ff.fbx",
+   "group": "neond9a3ff",
+   "hash": "c46e65fc29ccd82740599f46f4835e41d026207b",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    2.8791,
+    2.702,
+    1.1008
+   ],
+   "tris": 144
+  },
+  {
+   "center": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "color": "#ffd6ff",
+   "fbx": "assets/meshes/Dice_Cosmic__neonffd6ff.fbx",
+   "group": "neonffd6ff",
+   "hash": "807b8712f83fd000829d23f0a2d4974d561aee51",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    1.98,
+    1.98,
+    1.98
+   ],
+   "tris": 756
+  },
+  {
+   "center": [
+    0.0,
+    0.1218,
+    0.1568
+   ],
+   "color": "#ffffff",
+   "fbx": "assets/meshes/Dice_Cosmic__neonffffff.fbx",
+   "group": "neonffffff",
+   "hash": "b38df755d9808b87ce4d043480cc8d5ea7d2b176",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    2.0433,
+    1.9564,
+    2.3568
+   ],
+   "tris": 444
+  },
+  {
+   "center": [
+    0.1451,
+    0.0,
+    0.025
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Dice_Cosmic__tex.fbx",
+   "group": "tex",
+   "hash": "3e17c6ba53e8bdc5a8bd7f1140e0c8857659d136",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    2.2902,
+    2.0,
+    2.05
+   ],
+   "tris": 1296
+  }
+ ],
+ "Dice_Cyber": [
+  {
+   "center": [
+    0.0,
+    -0.0,
+    -0.0
+   ],
+   "color": "#14e0ff",
+   "fbx": "assets/meshes/Dice_Cyber__neon14e0ff.fbx",
+   "group": "neon14e0ff",
+   "hash": "1d5d4098f4ab031e13f0a5649cff8cc81060b59c",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    2.04,
+    2.04,
+    2.04
+   ],
+   "tris": 948
+  },
+  {
+   "center": [
+    0.0,
+    0.0194,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Dice_Cyber__tex.fbx",
+   "group": "tex",
+   "hash": "93f5868dfa6798437da908b03ddcd47122ca7096",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    2.0626,
+    2.1013,
+    2.0626
+   ],
+   "tris": 1016
+  }
+ ],
+ "Dice_Divine": [
+  {
+   "center": [
+    -0.116,
+    1.18,
+    -0.0
+   ],
+   "color": "#3bd1ff",
+   "fbx": "assets/meshes/Dice_Divine__neon3bd1ff.fbx",
+   "group": "neon3bd1ff",
+   "hash": "9e9caf4a69f213551ac35ef24ef501ceccd2a8f9",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    1.457,
+    0.14,
+    1.2413
+   ],
+   "tris": 72
+  },
+  {
+   "center": [
+    -0.28,
+    1.18,
+    -0.116
+   ],
+   "color": "#4bdc5a",
+   "fbx": "assets/meshes/Dice_Divine__neon4bdc5a.fbx",
+   "group": "neon4bdc5a",
+   "hash": "603a56d62836df56d6f99537ccede2fc5dc3c2ae",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    0.665,
+    0.14,
+    1.4733
+   ],
+   "tris": 48
+  },
+  {
+   "center": [
+    0.116,
+    1.18,
+    0.116
+   ],
+   "color": "#ff3b6b",
+   "fbx": "assets/meshes/Dice_Divine__neonff3b6b.fbx",
+   "group": "neonff3b6b",
+   "hash": "aedb86115d1f72d23a2bd58fe1205ac4c316c608",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    1.457,
+    0.14,
+    1.4733
+   ],
+   "tris": 72
+  },
+  {
+   "center": [
+    0.9,
+    1.7,
+    0.9
+   ],
+   "color": "#fff3b0",
+   "fbx": "assets/meshes/Dice_Divine__neonfff3b0.fbx",
+   "group": "neonfff3b0",
+   "hash": "99be514d0c42504732e882d8a23c70b544f916bd",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    0.392,
+    0.44,
+    0.2974
+   ],
+   "tris": 28
+  },
+  {
+   "center": [
+    -1.25,
+    0.9,
+    0.8
+   ],
+   "color": "#ffffff",
+   "fbx": "assets/meshes/Dice_Divine__neonffffff.fbx",
+   "group": "neonffffff",
+   "hash": "23d1128f9ef0ca4d6e38ca747cb5099474f4ff4b",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    0.2851,
+    0.32,
+    0.2163
+   ],
+   "tris": 28
+  },
+  {
+   "center": [
+    0.0,
+    0.445,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Dice_Divine__tex.fbx",
+   "group": "tex",
+   "hash": "b7ebcdc079e2b238fd32ab5387445378bf9e84ca",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    2.0,
+    2.89,
+    2.0
+   ],
+   "tris": 1966
+  }
+ ],
+ "Dice_Frost": [
+  {
+   "center": [
+    -0.0136,
+    0.3875,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Dice_Frost__tex.fbx",
+   "group": "tex",
+   "hash": "2809a9450f062f1e8984dee3f31400ea9e29e86b",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    2.3254,
+    2.775,
+    2.3975
+   ],
+   "tris": 1410
+  }
+ ],
+ "Dice_Galaxy": [
+  {
+   "center": [
+    0.0,
+    -0.0,
+    -0.0
+   ],
+   "color": "#ff6fd8",
+   "fbx": "assets/meshes/Dice_Galaxy__neonff6fd8.fbx",
+   "group": "neonff6fd8",
+   "hash": "a87b6d25628f45127824ead98a589c0947e8516a",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    3.3016,
+    3.185,
+    1.0681
+   ],
+   "tris": 168
+  },
+  {
+   "center": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "color": "#ff9ae6",
+   "fbx": "assets/meshes/Dice_Galaxy__neonff9ae6.fbx",
+   "group": "neonff9ae6",
+   "hash": "f9e9ebf65a566c109bd357cd4d2ee3fea601f5d9",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    1.98,
+    1.98,
+    1.98
+   ],
+   "tris": 756
+  },
+  {
+   "center": [
+    -0.0019,
+    0.0,
+    -0.0021
+   ],
+   "color": "#ffffff",
+   "fbx": "assets/meshes/Dice_Galaxy__neonffffff.fbx",
+   "group": "neonffffff",
+   "hash": "3f3dec9728103561f9c59a07f83b5dd787813cc5",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    2.0652,
+    2.0792,
+    2.0613
+   ],
+   "tris": 640
+  },
+  {
+   "center": [
+    -0.0154,
+    -0.0,
+    0.005
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Dice_Galaxy__tex.fbx",
+   "group": "tex",
+   "hash": "6b983fb8417f0f6e22f11d5a9d048562970abf51",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    3.6092,
+    3.452,
+    2.01
+   ],
+   "tris": 1490
+  }
+ ],
+ "Dice_Glitch": [
+  {
+   "center": [
+    0.095,
+    0.37,
+    -0.0
+   ],
+   "color": "#2bffff",
+   "fbx": "assets/meshes/Dice_Glitch__neon2bffff.fbx",
+   "group": "neon2bffff",
+   "hash": "ef6424afd8e68fe27984277c2c9e9b626691c9aa",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    2.31,
+    0.11,
+    2.3
+   ],
+   "tris": 24
+  },
+  {
+   "center": [
+    0.095,
+    -0.27,
+    -0.0
+   ],
+   "color": "#ff2b6b",
+   "fbx": "assets/meshes/Dice_Glitch__neonff2b6b.fbx",
+   "group": "neonff2b6b",
+   "hash": "ef6424afd8e68fe27984277c2c9e9b626691c9aa",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    2.31,
+    0.11,
+    2.3
+   ],
+   "tris": 24
+  },
+  {
+   "center": [
+    -0.1475,
+    0.0,
+    -0.0068
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Dice_Glitch__tex.fbx",
+   "group": "tex",
+   "hash": "d9072506e4786a14fabd68c86dee650bb1df60d4",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    2.9373,
+    1.9533,
+    3.3088
+   ],
+   "tris": 636
+  }
+ ],
+ "Dice_Golden": [
+  {
+   "center": [
+    -0.2305,
+    1.325,
+    0.9
+   ],
+   "color": "#ffffff",
+   "fbx": "assets/meshes/Dice_Golden__neonffffff.fbx",
+   "group": "neonffffff",
+   "hash": "c6605df07fe8b52a5f5731a7200c42e483e95e32",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    2.3885,
+    0.73,
+    0.3245
+   ],
+   "tris": 56
+  },
+  {
+   "center": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Dice_Golden__tex.fbx",
+   "group": "tex",
+   "hash": "37eb6a8343ed15f670e0baf57926e4b23eb800ee",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    2.0,
+    2.0,
+    2.0
+   ],
+   "tris": 1606
+  }
+ ],
+ "Dice_Inferno": [
+  {
+   "center": [
+    -0.0,
+    0.6389,
+    0.0
+   ],
+   "color": "#ff7b1a",
+   "fbx": "assets/meshes/Dice_Inferno__neonff7b1a.fbx",
+   "group": "neonff7b1a",
+   "hash": "de17813eee1d8024157828cfcebd6367fc5a1c7b",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    2.04,
+    2.7222,
+    2.04
+   ],
+   "tris": 182
+  },
+  {
+   "center": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "color": "#ffb31a",
+   "fbx": "assets/meshes/Dice_Inferno__neonffb31a.fbx",
+   "group": "neonffb31a",
+   "hash": "a1c42214c6fd8bd415a785e7f137cc3c216b9daa",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    1.96,
+    1.96,
+    1.96
+   ],
+   "tris": 756
+  },
+  {
+   "center": [
+    0.0,
+    1.3,
+    -0.0
+   ],
+   "color": "#ffe03b",
+   "fbx": "assets/meshes/Dice_Inferno__neonffe03b.fbx",
+   "group": "neonffe03b",
+   "hash": "2ed0ff2e276a47669997aa82e54283076a197cb2",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    0.3118,
+    0.6,
+    0.36
+   ],
+   "tris": 10
+  },
+  {
+   "center": [
+    0.0,
+    0.303,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Dice_Inferno__tex.fbx",
+   "group": "tex",
+   "hash": "b08ad0c7d8c977e4895423cdacc98e27ae89efed",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    2.4988,
+    2.606,
+    2.0
+   ],
+   "tris": 1738
+  }
+ ],
+ "Dice_Rainbow": [
+  {
+   "center": [
+    0.8,
+    1.45,
+    0.9
+   ],
+   "color": "#ffffff",
+   "fbx": "assets/meshes/Dice_Rainbow__neonffffff.fbx",
+   "group": "neonffffff",
+   "hash": "99be514d0c42504732e882d8a23c70b544f916bd",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    0.392,
+    0.44,
+    0.2974
+   ],
+   "tris": 28
+  },
+  {
+   "center": [
+    0.0048,
+    -0.035,
+    0.0796
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Dice_Rainbow__tex.fbx",
+   "group": "tex",
+   "hash": "e69470a84a4da9d9749508af9586a00f334abda5",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    2.5738,
+    2.07,
+    2.1592
+   ],
+   "tris": 1682
+  }
+ ],
+ "Dice_Singularity": [
+  {
+   "center": [
+    0.0,
+    -0.0371,
+    -0.0
+   ],
+   "color": "#ffb31a",
+   "fbx": "assets/meshes/Dice_Singularity__neonffb31a.fbx",
+   "group": "neonffb31a",
+   "hash": "a63eb7d633b1780505b4ffd9283ff76fc0939a2d",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    3.1692,
+    1.9659,
+    3.1145
+   ],
+   "tris": 672
+  },
+  {
+   "center": [
+    -0.05,
+    0.05,
+    1.0
+   ],
+   "color": "#ffd6a0",
+   "fbx": "assets/meshes/Dice_Singularity__neonffd6a0.fbx",
+   "group": "neonffd6a0",
+   "hash": "5812ef352770b98e9b5f65f3adba97a1e973dc93",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    3.3851,
+    2.22,
+    0.6163
+   ],
+   "tris": 56
+  },
+  {
+   "center": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "color": "#ffe08a",
+   "fbx": "assets/meshes/Dice_Singularity__neonffe08a.fbx",
+   "group": "neonffe08a",
+   "hash": "b005ae825c756165fefd6bb16aa78c9f7e3ef425",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    1.7543,
+    1.8819,
+    1.3664
+   ],
+   "tris": 144
+  },
+  {
+   "center": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "color": "#fff3b0",
+   "fbx": "assets/meshes/Dice_Singularity__neonfff3b0.fbx",
+   "group": "neonfff3b0",
+   "hash": "771d3957bc7d38a72224cb8ec10ee1a9cbe50288",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    2.5823,
+    0.9594,
+    2.5377
+   ],
+   "tris": 168
+  },
+  {
+   "center": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Dice_Singularity__tex.fbx",
+   "group": "tex",
+   "hash": "9f28554200c6f85bd8c6f5004460cc483f03e019",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    4.206,
+    1.9,
+    4.1334
+   ],
+   "tris": 776
+  }
+ ],
+ "Dice_Toxic": [
+  {
+   "center": [
+    -0.0,
+    0.0,
+    0.0
+   ],
+   "color": "#d6ff3b",
+   "fbx": "assets/meshes/Dice_Toxic__neond6ff3b.fbx",
+   "group": "neond6ff3b",
+   "hash": "27c1cbbbe80696afdf5b4aa90742fe32542aceaa",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    1.99,
+    1.99,
+    1.99
+   ],
+   "tris": 756
+  },
+  {
+   "center": [
+    -0.03,
+    1.1,
+    0.12
+   ],
+   "color": "#e8ff7a",
+   "fbx": "assets/meshes/Dice_Toxic__neone8ff7a.fbx",
+   "group": "neone8ff7a",
+   "hash": "d67eda1f12c7fd2d5f9ad202e7ed2dd113f5a980",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    1.1,
+    0.24,
+    1.08
+   ],
+   "tris": 144
+  },
+  {
+   "center": [
+    0.0,
+    0.03,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Dice_Toxic__tex.fbx",
+   "group": "tex",
+   "hash": "015b53412fe8e547fed4b1573e2ab400f171ead4",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    2.38,
+    2.06,
+    2.38
+   ],
+   "tris": 1946
+  }
+ ],
+ "Dice_Void": [
+  {
+   "center": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "color": "#b14dff",
+   "fbx": "assets/meshes/Dice_Void__neonb14dff.fbx",
+   "group": "neonb14dff",
+   "hash": "21156d73515c125c5599f242f097a6db010f5c42",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    1.75,
+    1.75,
+    1.75
+   ],
+   "tris": 44
+  },
+  {
+   "center": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "color": "#d68cff",
+   "fbx": "assets/meshes/Dice_Void__neond68cff.fbx",
+   "group": "neond68cff",
+   "hash": "098233bf727afab52cd05b14b19752b1f42e8f18",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    2.1,
+    2.1,
+    2.1
+   ],
+   "tris": 756
+  },
+  {
+   "center": [
+    0.0937,
+    0.1031,
+    0.1984
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Dice_Void__tex.fbx",
+   "group": "tex",
+   "hash": "aef4c51cd7898bb286bec6140cc36d0535868577",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    2.6907,
+    2.1363,
+    2.3267
+   ],
+   "tris": 912
   }
  ],
  "Tile_BankedTurn": [
@@ -1335,6 +3020,48 @@
     10.0
    ],
    "tris": 908
+  }
+ ],
+ "Tile_Lift": [
+  {
+   "center": [
+    -0.0021,
+    6.24,
+    -0.0
+   ],
+   "color": "#5fd3ff",
+   "fbx": "assets/meshes/Tile_Lift__neon5fd3ff.fbx",
+   "group": "neon5fd3ff",
+   "hash": "1857016df90fd50f4f273579472f7b85a85c51fe",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    9.2043,
+    11.22,
+    10.0
+   ],
+   "tris": 1820
+  },
+  {
+   "center": [
+    0.0,
+    5.3625,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/Tile_Lift__tex.fbx",
+   "group": "tex",
+   "hash": "12618fa6c70358e146bfaba797c60562c5f16f75",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    9.8,
+    10.725,
+    10.0
+   ],
+   "tris": 4228
   }
  ],
  "Tile_Loop": [
@@ -2203,6 +3930,94 @@
    "tris": 1348
   }
  ],
+ "World_Balloon": [
+  {
+   "center": [
+    -0.0,
+    -2.15,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_Balloon__tex.fbx",
+   "group": "tex",
+   "hash": "31522d7474cf61ae26ff9d7dbffb5e4363082e34",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    12.0,
+    18.1,
+    12.0
+   ],
+   "tris": 352
+  }
+ ],
+ "World_BalloonB": [
+  {
+   "center": [
+    -0.0,
+    -2.15,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_BalloonB__tex.fbx",
+   "group": "tex",
+   "hash": "7c594a89f0f09570d1b934d23fb2ed73d846b950",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    12.0,
+    18.1,
+    12.0
+   ],
+   "tris": 352
+  }
+ ],
+ "World_BalloonC": [
+  {
+   "center": [
+    -0.0,
+    -2.15,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_BalloonC__tex.fbx",
+   "group": "tex",
+   "hash": "c9e2b6658519a84e628e4d8f640273e1320c14f3",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    12.0,
+    18.1,
+    12.0
+   ],
+   "tris": 352
+  }
+ ],
+ "World_BeachSet": [
+  {
+   "center": [
+    -0.325,
+    2.725,
+    -0.814
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_BeachSet__tex.fbx",
+   "group": "tex",
+   "hash": "78ae81c671efa26919be11d352df940108803a9c",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    7.45,
+    5.45,
+    8.428
+   ],
+   "tris": 460
+  }
+ ],
  "World_Bench": [
   {
    "center": [
@@ -2266,6 +4081,50 @@
    "tris": 212
   }
  ],
+ "World_Buoy": [
+  {
+   "center": [
+    0.0,
+    1.2375,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_Buoy__tex.fbx",
+   "group": "tex",
+   "hash": "8b4fbf7cd7b785e46b945027e9bb595387b49018",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    2.5679,
+    4.275,
+    2.7
+   ],
+   "tris": 264
+  }
+ ],
+ "World_BuoyB": [
+  {
+   "center": [
+    0.0,
+    1.2375,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_BuoyB__tex.fbx",
+   "group": "tex",
+   "hash": "5be1a2eb8cea3867cc19e1f5be4eae3d5b0f1681",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    2.5679,
+    4.275,
+    2.7
+   ],
+   "tris": 264
+  }
+ ],
  "World_Bush": [
   {
    "center": [
@@ -2308,6 +4167,72 @@
    "tris": 864
   }
  ],
+ "World_Dolphin": [
+  {
+   "center": [
+    0.0,
+    0.4016,
+    -0.175
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_Dolphin__tex.fbx",
+   "group": "tex",
+   "hash": "4c4c7a156e9820be856f772f0678fe7f314085ee",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    2.9523,
+    2.5967,
+    6.35
+   ],
+   "tris": 252
+  }
+ ],
+ "World_Fish": [
+  {
+   "center": [
+    0.0,
+    0.0,
+    -0.275
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_Fish__tex.fbx",
+   "group": "tex",
+   "hash": "7892d9e38bd4593beaf205dcda00f5ff233a2d3e",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    0.4293,
+    1.0,
+    2.35
+   ],
+   "tris": 180
+  }
+ ],
+ "World_FishB": [
+  {
+   "center": [
+    0.0,
+    0.0,
+    -0.275
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_FishB__tex.fbx",
+   "group": "tex",
+   "hash": "98c352001daa34d7ce2544643fe2af001574a80d",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    0.4293,
+    1.0,
+    2.35
+   ],
+   "tris": 180
+  }
+ ],
  "World_FloatingIsle": [
   {
    "center": [
@@ -2329,6 +4254,28 @@
    "tris": 312
   }
  ],
+ "World_FlowerBed": [
+  {
+   "center": [
+    0.0,
+    1.1826,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_FlowerBed__tex.fbx",
+   "group": "tex",
+   "hash": "2a14e2199cb46a75f2c49747499f1f7dd6f7a6eb",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    6.4672,
+    2.3652,
+    6.8
+   ],
+   "tris": 576
+  }
+ ],
  "World_Flowers": [
   {
    "center": [
@@ -2348,6 +4295,28 @@
     4.6472
    ],
    "tris": 216
+  }
+ ],
+ "World_Hedge": [
+  {
+   "center": [
+    0.0,
+    1.1,
+    0.11
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_Hedge__tex.fbx",
+   "group": "tex",
+   "hash": "5616e9750e8351b5abb10211764ba3da01c302dc",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    6.0,
+    2.2,
+    2.02
+   ],
+   "tris": 236
   }
  ],
  "World_HubIsland": [
@@ -2472,6 +4441,258 @@
    "tris": 360
   }
  ],
+ "World_Lantern": [
+  {
+   "center": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "color": "#ff9f1a",
+   "fbx": "assets/meshes/World_Lantern__neonff9f1a.fbx",
+   "group": "neonff9f1a",
+   "hash": "e5bd2fa52d33d74ccf57d81cf203ecfceda0f56e",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    1.9021,
+    1.8,
+    2.0
+   ],
+   "tris": 36
+  },
+  {
+   "center": [
+    0.0,
+    -0.525,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_Lantern__tex.fbx",
+   "group": "tex",
+   "hash": "170469cb441e1d29771e3305fe6eac8acb56eb58",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    1.4266,
+    3.35,
+    1.5
+   ],
+   "tris": 96
+  }
+ ],
+ "World_LanternB": [
+  {
+   "center": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "color": "#ff5fa2",
+   "fbx": "assets/meshes/World_LanternB__neonff5fa2.fbx",
+   "group": "neonff5fa2",
+   "hash": "e5bd2fa52d33d74ccf57d81cf203ecfceda0f56e",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    1.9021,
+    1.8,
+    2.0
+   ],
+   "tris": 36
+  },
+  {
+   "center": [
+    0.0,
+    -0.525,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_LanternB__tex.fbx",
+   "group": "tex",
+   "hash": "170469cb441e1d29771e3305fe6eac8acb56eb58",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    1.4266,
+    3.35,
+    1.5
+   ],
+   "tris": 96
+  }
+ ],
+ "World_LighthouseIsle": [
+  {
+   "center": [
+    0.0,
+    28.3,
+    -0.0
+   ],
+   "color": "#bff6ff",
+   "fbx": "assets/meshes/World_LighthouseIsle__glassbff6ff.fbx",
+   "group": "glassbff6ff",
+   "hash": "f535d835ea85207739317e9d9f588ac50473d51a",
+   "kind": "glass",
+   "name": null,
+   "role": null,
+   "size": [
+    3.8,
+    3.0,
+    3.8
+   ],
+   "tris": 28
+  },
+  {
+   "center": [
+    -0.0609,
+    5.3322,
+    -0.2572
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_LighthouseIsle__tex.fbx",
+   "group": "tex",
+   "hash": "3ede186e9269873453ec2ccfb06d32b031ebe2f6",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    82.5302,
+    56.1356,
+    77.5845
+   ],
+   "tris": 1688
+  }
+ ],
+ "World_LighthouseLamp": [
+  {
+   "center": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "color": "#fff3b0",
+   "fbx": "assets/meshes/World_LighthouseLamp__neonfff3b0.fbx",
+   "group": "neonfff3b0",
+   "hash": "d746e98a62444eb8510fc207a2be0512f8ce003d",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    1.8,
+    1.2,
+    1.8
+   ],
+   "tris": 28
+  },
+  {
+   "center": [
+    0.0,
+    -0.0,
+    -0.0
+   ],
+   "color": "#fff6c2",
+   "fbx": "assets/meshes/World_LighthouseLamp__neonfff6c2.fbx",
+   "group": "neonfff6c2",
+   "hash": "097842d786aeec4bb6fb67ae3166af0f34bfe42e",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    15.6,
+    2.6,
+    2.6
+   ],
+   "tris": 56
+  },
+  {
+   "center": [
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_LighthouseLamp__tex.fbx",
+   "group": "tex",
+   "hash": "9495c69cbd7465fb547a3d4475c40124d141a346",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    2.2,
+    1.8,
+    2.2
+   ],
+   "tris": 56
+  }
+ ],
+ "World_Motorboat": [
+  {
+   "center": [
+    0.0,
+    0.95,
+    -0.175
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_Motorboat__tex.fbx",
+   "group": "tex",
+   "hash": "7ed3e07003505cb2fd45e3a51589ea0e900545bc",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    2.976,
+    3.9,
+    8.35
+   ],
+   "tris": 352
+  }
+ ],
+ "World_Pier": [
+  {
+   "center": [
+    2.8,
+    4.2,
+    28.8
+   ],
+   "color": "#fff3b0",
+   "fbx": "assets/meshes/World_Pier__neonfff3b0.fbx",
+   "group": "neonfff3b0",
+   "hash": "2656f885b06ec13150b87375865544b869614982",
+   "kind": "neon",
+   "name": null,
+   "role": null,
+   "size": [
+    0.8,
+    0.8,
+    0.8
+   ],
+   "tris": 12
+  },
+  {
+   "center": [
+    0.0,
+    -1.4,
+    14.825
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_Pier__tex.fbx",
+   "group": "tex",
+   "hash": "117192d0b7ddae386569f994f558d5772c90128a",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    8.0,
+    12.4,
+    30.35
+   ],
+   "tris": 1288
+  }
+ ],
  "World_PlotIsland": [
   {
    "center": [
@@ -2569,6 +4790,94 @@
     3.0267
    ],
    "tris": 36
+  }
+ ],
+ "World_Rowboat": [
+  {
+   "center": [
+    0.0,
+    0.175,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_Rowboat__tex.fbx",
+   "group": "tex",
+   "hash": "5e8ae9c6d19977ad0b5b544f5df65628ab80a989",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    4.7169,
+    1.75,
+    6.0
+   ],
+   "tris": 328
+  }
+ ],
+ "World_RowboatB": [
+  {
+   "center": [
+    0.0,
+    0.175,
+    -0.0
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_RowboatB__tex.fbx",
+   "group": "tex",
+   "hash": "1c2dc19bc466d0ed27dd9cbb84c448c4616d4e2a",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    4.7169,
+    1.75,
+    6.0
+   ],
+   "tris": 328
+  }
+ ],
+ "World_Sailboat": [
+  {
+   "center": [
+    0.0,
+    7.7,
+    -0.04
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_Sailboat__tex.fbx",
+   "group": "tex",
+   "hash": "ac1bd8b1b4ee1b9d9e0c0c1a3457fa2dcde3fa4f",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    4.1776,
+    18.6,
+    12.08
+   ],
+   "tris": 760
+  }
+ ],
+ "World_SailboatB": [
+  {
+   "center": [
+    0.0,
+    7.7,
+    -0.04
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_SailboatB__tex.fbx",
+   "group": "tex",
+   "hash": "04845c5b8374135e6b198b7a7e763e5a4142f7ae",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    4.1776,
+    18.6,
+    12.08
+   ],
+   "tris": 760
   }
  ],
  "World_SignArch": [
@@ -2737,6 +5046,92 @@
     5.9
    ],
    "tris": 72
+  }
+ ],
+ "World_WaterfallRock": [
+  {
+   "center": [
+    0.0,
+    7.6,
+    2.6
+   ],
+   "color": "#7fe0ff",
+   "fbx": "assets/meshes/World_WaterfallRock__glass7fe0ff.fbx",
+   "group": "glass7fe0ff",
+   "hash": "dadcb50ad89d597f1032345e2a3fd730594fb895",
+   "kind": "glass",
+   "name": null,
+   "role": null,
+   "size": [
+    3.2,
+    15.0,
+    0.5
+   ],
+   "tris": 12
+  },
+  {
+   "center": [
+    0.1139,
+    8.143,
+    2.108
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_WaterfallRock__tex.fbx",
+   "group": "tex",
+   "hash": "4f0b8b2aa3b4b01e1706afec0c5da4189a102958",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    14.3094,
+    16.7819,
+    20.384
+   ],
+   "tris": 1560
+  }
+ ],
+ "World_Windmill": [
+  {
+   "center": [
+    0.35,
+    8.2458,
+    0.025
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_Windmill__tex.fbx",
+   "group": "tex",
+   "hash": "ce54568766237bc73f7f8d6b3637a3c50d1dc1d8",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    9.1,
+    16.5084,
+    8.45
+   ],
+   "tris": 400
+  }
+ ],
+ "World_WindmillBlades": [
+  {
+   "center": [
+    -0.0,
+    -0.0,
+    0.075
+   ],
+   "color": null,
+   "fbx": "assets/meshes/World_WindmillBlades__tex.fbx",
+   "group": "tex",
+   "hash": "98a58a00250eae5309fc9ed275146db25b1e354f",
+   "kind": "tex",
+   "name": null,
+   "role": null,
+   "size": [
+    14.8492,
+    14.8492,
+    0.95
+   ],
+   "tris": 344
   }
  ]
 }

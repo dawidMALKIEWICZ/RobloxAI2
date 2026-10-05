@@ -37,6 +37,9 @@ vfx.WorldFX = worldFX
 local uiFX = require(ReplicatedStorage:WaitForChild("UIFX")).new(gui, GameData)
 local Mutations = require(ReplicatedStorage:WaitForChild("Mutations"))
 task.spawn(Mutations.startWorld, Workspace:WaitForChild("Map"))
+-- boats, windmills, balloons, dolphins and lanterns on the map
+local Ambient = require(ReplicatedStorage:WaitForChild("Ambient"))
+task.spawn(Ambient.start, Workspace:WaitForChild("Map"))
 
 local snap = nil
 local snapTime = 0
@@ -947,6 +950,7 @@ local function applySettings()
 	vfx:SetSfx(settings.Sfx)
 	vfx:SetQuality(settings.Vfx)
 	Mutations.SetQuality(settings.Vfx)
+	Ambient.SetQuality(settings.Vfx)
 	if settingsBar then
 		local art = GameData.UIArt or {}
 		settingsBar.MusicToggle.Art.Image = art[if settings.Music then "music_on" else "music_off"] or ""

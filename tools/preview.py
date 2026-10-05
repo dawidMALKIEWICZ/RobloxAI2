@@ -220,6 +220,11 @@ SAMPLE_TRACK = [  # x, z, r, id on the 15x15 grid (start = 7,7 heading -Z)
     (5, 7, 0, "WaveRider"), (5, 8, 0, "TeleportGate")]
 
 
+FLOOR2_TRACK = [  # x, z, r, id, floor
+    (11, 10, 0, "Lift", 0), (11, 9, 0, "Turn", 1), (12, 9, 1, "Turn", 1), (12, 10, 0, "Lift", 0),
+    (11, 8, 0, "Straight", 1), (12, 8, 0, "Straight", 1)]
+
+
 def plot_track(mp):
     plot = find(mp, "Plot1")
     go = cfof(find(plot, "GridOrigin")["Properties"])
@@ -231,6 +236,38 @@ def plot_track(mp):
     for x, z, r, tid in SAMPLE_TRACK:
         cf = go * RCF((x - 7) * 10, 0.3, (z - 7) * 10) * RCF.ry(-r * math.pi / 2)
         walk(tiles[tid], out, cf)
+    # second floor (as PlotService builds it): two Sky Ramps, upper tiles, pillars, frame
+    fh = 9.0
+    for x, z, r, tid, f in FLOOR2_TRACK:
+        cf = go * RCF((x - 7) * 10, 0.3 + f * fh, (z - 7) * 10) * RCF.ry(-r * math.pi / 2)
+        walk(tiles[tid], out, cf)
+    steel, accent = [0.85, 0.87, 0.91], [0.23, 0.72, 1.0]
+
+    def box(size, cf, color, neon=False):
+        props = {"Size": {"Vector3": list(size)}, "Color": {"Color3": color},
+                 "CFrame": {"CFrame": cf.json()["CFrame"]}}
+        if neon:
+            props["Material"] = "Neon"
+        out.append(("Part", props))
+    corners = set()
+    for x, z, r, tid, f in FLOOR2_TRACK:
+        if f == 1:
+            for dx in (0, 1):
+                for dz in (0, 1):
+                    corners.add((x + dx, z + dz))
+            box((9.2, 0.45, 9.2), go * RCF((x - 7) * 10, 0.3 + fh - 0.35, (z - 7) * 10), [0.55, 0.59, 0.66])
+    for cx, cz in corners:
+        px, pz = (cx - 7.5) * 10, (cz - 7.5) * 10
+        box((0.8, fh + 0.2, 0.8), go * RCF(px, (fh + 0.2) / 2, pz), steel)
+        box((1.25, 0.35, 1.25), go * RCF(px, fh, pz), accent)
+    half = 76.5
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            box((2.2, fh + 3.3, 2.2), go * RCF(sx * half, (fh + 3.3) / 2, sz * half), steel)
+            box((1.3, 1.3, 1.3), go * RCF(sx * half, fh + 4.5, sz * half), accent, True)
+    for e in ((0, -1), (1, 0), (0, 1), (-1, 0)):
+        size = (151, 0.9, 0.9) if e[0] == 0 else (0.9, 0.9, 151)
+        box(size, go * RCF(e[0] * half, fh - 0.15, e[1] * half), steel)
     walk(cars["Sports"], out, go * RCF(0, 0.3 + 0.6 - 0.2 + 0.05, 7) * RCF.ry(0))
     walk(cars["Monster"], out, go * RCF(0, 0.3 + 0.6 - 0.2 + 0.05, -6))
     return go, out
@@ -253,7 +290,11 @@ if __name__ == "__main__":
         "hub": ((92, T + 46, 108), (0, T + 6, 0), 24),
         "shops": ((-8, T + 14, -20), (40, T + 6, 24), 22),
         "plot": ((g[0] + 60, g[1] + 48, g[2] + 62), (g[0], g[1] + 2, g[2]), 26),
+        "floor2": (tuple(go.point((70, 26, 52))), tuple(go.point((44, 6, 24))), 32),
         "bridge": ((150, T + 26, 60), (300, T, 0), 22),
+        # living world: bay with the lighthouse and boats, plot entrance with the windmill
+        "sea": ((40, T + 34, 30), (175, T - 2, 190), 24),
+        "plotfront": ((g[0] - 140, g[1] + 22, g[2] - 10), (g[0] - 72, g[1] + 7, g[2] + 40), 24),
     }
     for s in shots:
         pos, tgt, lens = views[s]

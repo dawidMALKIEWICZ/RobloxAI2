@@ -57,7 +57,7 @@ def mesh_parts(name, base=None, scale=1.0, collide=False, query=False, shadow=Tr
             "CollisionFidelity": "Box",
             "DoubleSided": False,
         }
-        if e["kind"] == "tex":
+        if e["kind"] in ("tex", "part"):
             props["TextureID"] = asset(ids().get("palette"))
             props["Material"] = "SmoothPlastic"
             props["Color"] = C3("#ffffff")
@@ -71,10 +71,51 @@ def mesh_parts(name, base=None, scale=1.0, collide=False, query=False, shadow=Tr
         else:
             props["Material"] = "SmoothPlastic"
             props["Color"] = C3(e["color"])
-        nm = (names or {}).get(e["kind"], {"tex": "Mesh", "neon": "Glow", "glass": "Glass"}
-                               .get(e["kind"], e["role"] or "Mesh"))
+        if e["kind"] == "part":
+            nm = e["name"]
+        else:
+            nm = (names or {}).get(e["kind"], {"tex": "Mesh", "neon": "Glow", "glass": "Glass"}
+                                   .get(e["kind"], e["role"] or "Mesh"))
         attrs = {"MeshSrc": e["fbx"]}  # lets tools/preview renders find the source mesh
         if e["kind"] == "role":
             attrs["Role"] = e["role"]
+        if e["kind"] == "part" and nm.startswith("Wheel"):
+            # spins about its local X axis (the axle); the mesh is centred on the axle
+            attrs["Wheel"] = True
         out.append(Inst("MeshPart", nm, props, attrs))
     return out
+
+
+def set_attrs(inst, extra):
+    """Adds attributes including Vector3 values (tuples of 3) to an Inst. rbx.ATTRS only knows
+    bool/number/string, so the typed Attributes property is written directly."""
+    merged = dict(inst.attrs)
+    old = inst.props.get("Attributes", {}).get("Attributes", {})
+    out = dict(old)
+    merged.update(extra)
+    for k, v in merged.items():
+        if isinstance(v, bool):
+            out[k] = {"Bool": v}
+        elif isinstance(v, (int, float)):
+            out[k] = {"Float64": float(v)}
+        elif isinstance(v, (tuple, list)) and len(v) == 3:
+            out[k] = {"Vector3": [round(float(c), 4) for c in v]}
+        else:
+            out[k] = {"String": str(v)}
+    inst.attrs = {}
+    inst.props["Attributes"] = {"Attributes": out}
+    return inst
+
+
+def animated(name, base, label, anim, scale=1.0, shadow=True, **kw):
+    """A baked model as one animated object: a single MeshPart when the model has one mesh,
+    else a Model (atomic streaming) whose parts move together. anim: Anim attributes."""
+    parts = mesh_parts(name, base=base, scale=scale, shadow=shadow, **kw)
+    if len(parts) == 1:
+        p = parts[0]
+        p.name = label
+        return set_attrs(p, anim)
+    m = Inst("Model", label, {"ModelStreamingMode": "Atomic"})
+    for p in parts:
+        m.add(p)
+    return set_attrs(m, anim)

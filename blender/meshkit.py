@@ -6,6 +6,9 @@ Every model becomes a few MeshParts instead of dozens of Parts:
   * "neon" - glowing pieces, one mesh per colour (MeshPart Material = Neon)
   * "glass"- see-through pieces, one mesh per colour (Material = Glass)
   * "role:<Name>" - pieces the game recolours at runtime (island grass/dirt/rock)
+  * "part:<Name>" - palette-textured like "tex" but exported as its own mesh, so the game can
+                    move it on its own (car wheels, windmill blades...). The mesh is centred on
+                    its bounding box (build wheels symmetric around the axle).
 
 Objects pick their group with the custom property o["grp"] (default "tex").
 bake(name) exports assets/meshes/<name>__<group>.fbx files and records their centre and size
@@ -120,7 +123,8 @@ def bake(name, origin=(0, 0, 0), keep=False):
             tuv = tmp.loops.layers.uv.verify()
             tmp.faces.ensure_lookup_table()
             for f in tmp.faces:
-                u = swatch_uv(hexes[f.index]) if g == "tex" else (0.5, 0.5)
+                textured = g == "tex" or g.startswith("part:")
+                u = swatch_uv(hexes[f.index]) if textured else (0.5, 0.5)
                 for lp in f.loops:
                     lp[tuv].uv = u
             me2 = bpy.data.meshes.new("tmp")
@@ -166,8 +170,10 @@ def bake(name, origin=(0, 0, 0), keep=False):
                                  bake_space_transform=True)
         bpy.data.objects.remove(ob)
         bpy.data.meshes.remove(me)
-        kind, color = "tex", None
-        if g.startswith("neon"):
+        kind, color, pname = "tex", None, None
+        if g.startswith("part:"):
+            kind, pname = "part", g[5:]
+        elif g.startswith("neon"):
             kind, color = "neon", g[4:]
         elif g.startswith("glass"):
             kind, color = "glass", g[5:]
@@ -176,11 +182,16 @@ def bake(name, origin=(0, 0, 0), keep=False):
             color = _hex_of(objs[0])
         size = hi - lo
         entry.append({"group": slug, "kind": kind, "color": color,
-                      "role": g[5:] if kind == "role" else None,
+                      "role": g[5:] if kind == "role" else None, "name": pname,
                       "fbx": os.path.relpath(fbx, ROOT),
                       "center": _to_roblox(centre - org),
                       "size": [round(size.x, 4), round(size.z, 4), round(size.y, 4)],
                       "tris": tris, "hash": h.hexdigest()})
+    # drop meshes of groups this model no longer has
+    keep = {os.path.basename(e["fbx"]) for e in entry}
+    for f in os.listdir(OUT):
+        if f.startswith(name + "__") and f.endswith(".fbx") and f not in keep:
+            os.remove(os.path.join(OUT, f))
     man = _load(MANIFEST, {})
     man[name] = entry
     with open(MANIFEST, "w") as f:
